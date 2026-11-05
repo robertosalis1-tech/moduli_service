@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Moduli SAT">
+<meta name="theme-color" content="#e60027">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Moduli Service Hitachi</title>
+<style>
+
+:root{--red:#e60027;--navy:#1f2b45;--blue:#3d7ab8;--txt:#1f2b45;--mut:#667085;--line:#d5dce7;--bg:#f3f5f8;--fld:#fff8c4;--ok:#16794a;--okbg:#ddf3e6;--warn:#a86400;--warnbg:#fff1d6;--ko:#c00;--kobg:#ffe1e1;--na:#eceef1}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+header{background:#fff;position:sticky;top:0;z-index:20;box-shadow:0 1px 4px #0002}
+.band{background:var(--red);color:#fff;font-size:12px;padding:4px 16px}
+.hd{max-width:1100px;margin:auto;display:flex;align-items:center;gap:14px;padding:8px 16px;flex-wrap:wrap}
+.hd img{height:24px}
+.hd h1{font-size:17px;margin:0;flex:1;min-width:200px}
+.hd h1 small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 13px;font:inherit;font-weight:600;cursor:pointer;color:var(--navy)}
+.btn.pri{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+nav{max-width:1100px;margin:auto;display:flex;gap:4px;padding:0 12px;overflow-x:auto}
+nav button{border:0;background:none;padding:9px 11px;font:inherit;font-size:14px;font-weight:600;color:var(--mut);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--navy);border-color:var(--red)}
+nav button i{font-style:normal;display:inline-block;min-width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle;background:#ccd}
+nav button i.ok{background:var(--ok)}nav button i.warn{background:#e0a020}nav button i.ko{background:var(--ko)}
+main{max-width:1100px;margin:auto;padding:14px 16px 80px}
+.pane{display:none}.pane.on{display:block}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 3px #0001;margin:0 0 14px;overflow:hidden}
+.card>h2{margin:0;padding:9px 14px;font-size:13.5px;text-transform:uppercase;letter-spacing:.03em;background:var(--blue);color:#fff}
+.card.na{opacity:.55}.card.na>h2{background:#8a98aa}
+.card .na-msg{padding:16px;color:var(--mut);font-style:italic;background:var(--na)}
+.body{padding:12px 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px}
+label{display:block;font-size:12px;font-weight:600;color:var(--navy)}
+label u{text-decoration:none;color:var(--mut);font-weight:400}
+input,select,textarea{width:100%;margin-top:3px;padding:8px 9px;border:1px solid #c9d2df;border-radius:8px;font:inherit;background:var(--fld)}
+.calc{background:var(--okbg)!important;border-color:#bfe3cc!important;font-weight:600;color:var(--txt)}
+.calc.warn{background:var(--warnbg)!important;color:var(--warn)}.calc.ko{background:var(--kobg)!important;color:var(--ko)}.calc.ok{color:var(--ok)}
+input.warn{background:#ffd99a!important;border-color:#e0a020}
+input.ko{color:var(--ko);border-color:var(--ko)}input.ok{color:var(--ok)}
+textarea{min-height:80px}
+input.off{background:#d9dbe0!important;border-color:#d9dbe0}
+.fcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
+.fcs button{border:3px solid transparent;border-radius:10px;padding:2px;background:#fff;cursor:pointer}
+.fcs button.on{border-color:#1a73d9;box-shadow:0 0 0 3px #1a73d933}
+.fcs img{width:100%;display:block}
+.mors{position:relative;margin-top:10px}
+.mors img{width:100%;display:block}
+.mors i{position:absolute;top:-2px;bottom:-2px;border:2.5px solid;border-radius:4px}
+.mors i.in{border-color:#1a73d9;background:#1a73d914}.mors i.out{border-color:#f27300;background:#f2730014}
+.leg{margin-top:8px;font-size:13px}.leg span{display:inline-block;border-radius:12px;padding:3px 9px;margin:2px;font-weight:600}.leg .in{background:#e3efff;color:#0b4fa0}.leg .out{background:#ffeedd;color:#a24c00}
+.tip{background:#fbe1e1;color:#8a0a0a;font-size:12.5px;font-style:italic;padding:7px 10px;border-radius:8px;margin:10px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:14px;cursor:pointer;background:#fff}
+.chip input{width:18px;height:18px;margin:0;accent-color:var(--red)}
+.dips{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px 24px}
+.dip{display:flex;align-items:center;gap:10px}
+.dip b{width:120px;font-size:13px;font-weight:600}
+.dip .sw{display:flex;gap:4px}
+.dip .sw span{display:flex;flex-direction:column;align-items:center;font-size:10px;color:var(--mut)}
+.dip .sw button{width:24px;height:30px;border:1.5px solid #1f4f78;border-radius:4px;background:#0ff;cursor:pointer;padding:0;position:relative}
+.dip .sw button.on{background:#1f2b45}
+.dip .sw button::after{content:"";position:absolute;left:4px;right:4px;height:9px;background:#fff;border-radius:2px;bottom:3px}
+.dip .sw button.on::after{top:3px;bottom:auto}
+.dip.na{opacity:.35;pointer-events:none}
+table{border-collapse:collapse;width:100%}
+th{background:var(--blue);color:#fff;font-size:12px;text-align:left;padding:6px 7px}
+td{border-bottom:1px solid var(--line);padding:3px 5px;font-size:13px}
+td input{margin:0;padding:5px 6px}
+td.code{font-weight:700;color:#1f4f78;white-space:nowrap}
+tr.sub td{background:#e3ebf6;font-style:italic;font-weight:600;color:#1f4f78}
+td.na input{background:var(--na);border-color:var(--na)}
+.scroll{overflow-x:auto}
+.ck{display:grid;grid-template-columns:30px 1fr repeat(3,48px);align-items:center;border-bottom:1px solid var(--line);padding:5px 0;gap:4px}
+.ck .n{font-weight:700;color:var(--blue);text-align:center}.ck .t{font-size:13.5px}.ck .imp{color:var(--red);font-weight:700;font-size:11px}
+.ck input{width:20px;height:20px;justify-self:center;accent-color:var(--red)}
+.ck.na{opacity:.4;pointer-events:none}
+.ckh{font-size:12px;font-weight:700;color:var(--mut);border-bottom:2px solid var(--line)}.ckh span{text-align:center}
+.esito{padding:12px 14px;border-radius:10px;font-weight:700;font-size:16px}
+.esito.ok{background:var(--okbg);color:var(--ok)}.esito.warn{background:var(--warnbg);color:var(--warn)}.esito.ko{background:var(--kobg);color:var(--ko)}.esito.none{background:var(--na);color:var(--mut)}
+.esito ul{margin:6px 0 0;padding-left:18px;font-weight:500;font-size:14px}
+.pill{display:inline-block;border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;background:var(--na);color:var(--mut)}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.warn{background:var(--warnbg);color:var(--warn)}.pill.ko{background:var(--kobg);color:var(--ko)}
+.sig{border:1px dashed #9aa6b8;border-radius:10px;background:#fff;touch-action:none;width:100%;height:140px;display:block}
+.navb{display:flex;justify-content:space-between;margin-top:10px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;opacity:0;transition:.3s;z-index:50}
+.toast.on{opacity:1}
+#print{display:none}
+@media print{
+  header,main,.toast{display:none!important}
+  #print{display:block;font:9.5pt/1.3 Helvetica,Arial,sans-serif;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #print .pband{background:#e60027;color:#fff;font-size:8pt;padding:3pt 6pt;margin:4pt 0}
+  #print h1{font-size:15pt;margin:2pt 0}
+  #print h2{font-size:10pt;background:#3d7ab8;color:#fff;padding:3pt 6pt;margin:9pt 0 3pt;text-transform:uppercase}
+  #print table{width:100%;border-collapse:collapse;margin:2pt 0 5pt}
+  #print th{background:#e3ebf6;color:#1f2b45;border:1px solid #aab;font-size:7.5pt;padding:2pt 3pt;text-align:left}
+  #print td{border:1px solid #ccd;font-size:8pt;padding:2pt 4pt}
+  #print .pb{page-break-before:always}
+  #print .es{padding:5pt;font-weight:700;border:1px solid #999}
+  @page{size:A4;margin:11mm}
+}
+
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.band{padding-top:calc(4px + env(safe-area-inset-top))}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.tile{display:flex;gap:12px;align-items:center;background:#fff;border-radius:14px;box-shadow:0 1px 3px #0002;padding:14px;text-decoration:none;color:var(--navy);border:2px solid transparent}
+.tile:active,.tile:hover{border-color:var(--red)}
+.tile .ic{flex:0 0 52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#007bc0,#00884a);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.tile b{display:block;font-size:15px}.tile small{color:var(--mut);font-size:12.5px}
+h3{margin:18px 2px 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+.pdfs a{display:flex;justify-content:space-between;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line);color:var(--navy);text-decoration:none;font-size:14px}
+.pdfs a span{color:var(--mut);font-size:12px;white-space:nowrap}
+.inst{background:#fff7ec;border:1px solid #f0c27a;border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:14px}
+header{position:static!important}
+details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:10px}
+.sum{font-size:14px;color:var(--navy)}.sum b{font-weight:700}
+</style>
+<script src="pratica.js"></script>
+</head>
+<body>
+<header>
+  <div class="band"><b>Bosch Home Comfort Cooling and Heating SAS</b> &nbsp;|&nbsp; Hitachi Cooling &amp; Heating &nbsp;|&nbsp; Rev. 10/2026</div>
+  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.05-0610</small></h1></div>
+</header>
+<main>
+<div class="inst" id="inst" style="display:none"><b>Installa l'app sul telefono:</b> in Safari tocca <b>Condividi</b> <span style="font-size:17px">⎋</span> → <b>Aggiungi alla schermata Home</b>. Su Android (Chrome): menu ⋮ → <b>Installa app</b>. Poi funziona anche senza rete.</div>
+<h3>Compila sul telefono / tablet</h3>
+<div class="tiles">
+  <a class="tile" href="mod-01-2-yutaki.html"><div class="ic">01.2</div><div><b>Primo avviamento Yutaki airH2O</b><small>Verbale con firme e cartolina</small></div></a>
+  <a class="tile" href="mod-02-ut.html?modulo=ut"><div class="ic">02.2</div><div><b>Avviamento Utopia</b><small>Verbale, parametri, cartolina</small></div></a>
+  <a class="tile" href="mod-02-ut.html?modulo=ms"><div class="ic">02.3</div><div><b>Avviamento Mini Set Free</b><small>Verbale, parametri, cartolina</small></div></a>
+  <a class="tile" href="mod-06-1-intervento.html"><div class="ic">06.1</div><div><b>Modulo di intervento</b><small>Garanzia, diagnosi, misure, firme</small></div></a>
+  <a class="tile" href="verifica-garanzia.html"><div class="ic">GAR</div><div><b>Verifica garanzia</b><small>Dalla matricola dell'unità esterna</small></div></a>
+</div>
+<h3>Pratica corrente</h3>
+<section class="card"><div class="body">
+  <div class="sum" id="sum"></div>
+  <details class="pf"><summary>Modifica i dati della pratica</summary><div class="grid" style="margin-top:10px" id="pf"></div></details>
+  <div class="tip">i &nbsp;Questi dati passano in automatico nei moduli (cliente, installatore, SAT, modelli e matricole): si scrivono una volta sola. Ogni modulo li può modificare e la pratica si aggiorna.</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="btn" onclick="nuova()">Nuova pratica (svuota tutti i moduli)</button></div>
+</div></section>
+<h3>Moduli PDF compilabili (Acrobat)</h3>
+<section class="card"><div class="body pdfs"><a href="pdf/MOD-01-1-Check-list-pre-avviamento-Yutaki-airH2O.pdf" target="_blank" rel="noopener">MOD 01.1 - Check list pre-avviamento Yutaki airH2O<span>882 KB</span></a>
+<a href="pdf/MOD-01-2-Modulo-primo-avviamento-Yutaki-airH2O-cartolina-garanzia.pdf" target="_blank" rel="noopener">MOD 01.2 - Modulo primo avviamento Yutaki airH2O + cartolina garanzia<span>2865 KB</span></a>
+<a href="pdf/MOD-01-2-Modulo-primo-avviamento-Yutaki-airH2O.pdf" target="_blank" rel="noopener">MOD 01.2 - Modulo primo avviamento Yutaki airH2O<span>1950 KB</span></a>
+<a href="pdf/MOD-01-3-Cartolina-garanzia-Heating-Solution-airH2O.pdf" target="_blank" rel="noopener">MOD 01.3 - Cartolina garanzia Heating Solution airH2O<span>553 KB</span></a>
+<a href="pdf/MOD-01-4-Cartolina-garanzia-Yutampo-e-Triple-C.pdf" target="_blank" rel="noopener">MOD 01.4 - Cartolina garanzia Yutampo e Triple C<span>490 KB</span></a>
+<a href="pdf/MOD-02-1-Prenotazione-avviamento-Utopia-Mini-Set-Free.pdf" target="_blank" rel="noopener">MOD 02.1 - Prenotazione avviamento Utopia Mini Set Free<span>314 KB</span></a>
+<a href="pdf/MOD-02-2-Verbale-avviamento-Utopia-cartolina-garanzia.pdf" target="_blank" rel="noopener">MOD 02.2 - Verbale avviamento Utopia + cartolina garanzia<span>2346 KB</span></a>
+<a href="pdf/MOD-02-2-Verbale-avviamento-Utopia.pdf" target="_blank" rel="noopener">MOD 02.2 - Verbale avviamento Utopia<span>1870 KB</span></a>
+<a href="pdf/MOD-02-3-Verbale-avviamento-Mini-Set-Free-FSVNM-cartolina-garanzia.pdf" target="_blank" rel="noopener">MOD 02.3 - Verbale avviamento Mini Set Free FSVNM + cartolina garanzia<span>2415 KB</span></a>
+<a href="pdf/MOD-02-3-Verbale-avviamento-Mini-Set-Free-FSVNM.pdf" target="_blank" rel="noopener">MOD 02.3 - Verbale avviamento Mini Set Free FSVNM<span>1904 KB</span></a>
+<a href="pdf/MOD-02-4-Cartolina-garanzia-Utopia-e-IVX.pdf" target="_blank" rel="noopener">MOD 02.4 - Cartolina garanzia Utopia e IVX<span>532 KB</span></a>
+<a href="pdf/MOD-03-1-Prenotazione-avviamento-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.1 - Prenotazione avviamento Set Free<span>314 KB</span></a>
+<a href="pdf/MOD-03-2-Verifica-impianto-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.2 - Verifica impianto Set Free<span>309 KB</span></a>
+<a href="pdf/MOD-03-3-Verbale-avviamento-Set-Free-cartolina-garanzia.pdf" target="_blank" rel="noopener">MOD 03.3 - Verbale avviamento Set Free + cartolina garanzia<span>2238 KB</span></a>
+<a href="pdf/MOD-03-3-Verbale-avviamento-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.3 - Verbale avviamento Set Free<span>1743 KB</span></a>
+<a href="pdf/MOD-03-4-Cartolina-garanzia-VRF-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.4 - Cartolina garanzia VRF Set Free<span>567 KB</span></a>
+<a href="pdf/MOD-04-1-Pre-avviamento-CSNET.pdf" target="_blank" rel="noopener">MOD 04.1 - Pre-avviamento CSNET<span>871 KB</span></a>
+<a href="pdf/MOD-04-2-Modulo-assistenza-airCloud-Home.pdf" target="_blank" rel="noopener">MOD 04.2 - Modulo assistenza airCloud Home<span>86 KB</span></a>
+<a href="pdf/MOD-05-1-Check-list-pre-avviamento-chiller-Samurai.pdf" target="_blank" rel="noopener">MOD 05.1 - Check list pre-avviamento chiller Samurai<span>500 KB</span></a>
+<a href="pdf/MOD-05-2-Verbale-primo-avviamento-chiller-Samurai-cartolina-garanzia.pdf" target="_blank" rel="noopener">MOD 05.2 - Verbale primo avviamento chiller Samurai + cartolina garanzia<span>1050 KB</span></a>
+<a href="pdf/MOD-05-2-Verbale-primo-avviamento-chiller-Samurai.pdf" target="_blank" rel="noopener">MOD 05.2 - Verbale primo avviamento chiller Samurai<span>567 KB</span></a>
+<a href="pdf/MOD-05-3-Cartolina-garanzia-Samurai.pdf" target="_blank" rel="noopener">MOD 05.3 - Cartolina garanzia Samurai<span>555 KB</span></a>
+<a href="pdf/MOD-06-1-Modulo-intervento.pdf" target="_blank" rel="noopener">MOD 06.1 - Modulo intervento<span>987 KB</span></a>
+<a href="pdf/MOD-06-2-Richiesta-sostituzione-compressore.pdf" target="_blank" rel="noopener">MOD 06.2 - Richiesta sostituzione compressore<span>100 KB</span></a>
+<div class="tip">i &nbsp;Su iPhone il PDF si apre in anteprima: per compilarlo toccare Condividi → <b>Acrobat</b>. Le firme si fanno con lo strumento Firma / Compila e firma.</div></div></section>
+</main>
+<script>
+const F=[["cliente","Cliente"],["indirizzo","Indirizzo"],["citta","Città"],["tel_cli","Telefono cliente"],["email_cli","Email cliente"],["installatore","Ditta installatrice"],["tel_inst","Tel. installatore"],["sat","SAT"],["tecnico","Tecnico SAT"],["mod_ue","Modello U.E."],["ser_ue","Matricola U.E."],["mod_ui","Modello U.I."],["ser_ui","Matricola U.I."],["refrigerante","Refrigerante"],["focus66","N° avv. Focus 66"],["data_avv","Data avviamento"]];
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function draw(){const p=PR.get();
+  document.getElementById("sum").innerHTML=p.cliente?`<b>${esc(p.cliente)}</b>${p.citta?" - "+esc(p.citta):""}${p.mod_ue?" · "+esc(p.mod_ue):""}${p.ser_ue?" / "+esc(p.ser_ue):""}${p._agg?`<br><small style="color:var(--mut)">ultimo aggiornamento ${new Date(p._agg).toLocaleString("it-IT")}</small>`:""}`:"Nessuna pratica in corso: compila qui sotto o apri un modulo.";
+  document.getElementById("pf").innerHTML=F.map(([k,l])=>`<label>${l}<input data-k="${k}" ${k==="data_avv"?'type="date"':""} ${/email/.test(k)?'type="email"':""} value="${esc(p[k])}"></label>`).join("")}
+document.addEventListener("input",e=>{const k=e.target.dataset.k;if(!k)return;let v=e.target.value;if(e.target.type!=="email"&&e.target.type!=="date"){const pos=e.target.selectionStart;v=v.toUpperCase();e.target.value=v;try{e.target.setSelectionRange(pos,pos)}catch(x){}}const p=PR.get();p[k]=v;p._agg=new Date().toISOString();PR.set(p)});
+function nuova(){if(!confirm("Iniziare una nuova pratica? Vengono svuotati la pratica corrente e le bozze di tutti i moduli su questo dispositivo (esportare prima i dati se servono)."))return;
+  ["bhc_pratica_corrente_v1","yutaki_airh2o_bozza_v1","ut_ms_avviamento_bozza_v1","mod061_intervento_bozza_v1"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});draw()}
+const standalone=window.navigator.standalone||matchMedia("(display-mode: standalone)").matches;if(!standalone)document.getElementById("inst").style.display="block";
+draw();window.addEventListener("pageshow",draw);
+</script>
+</body>
+</html>

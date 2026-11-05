@@ -1,0 +1,14 @@
+MODULI SERVICE - app web per GitHub Pages
+==========================================
+Caricamento (la prima volta):
+1. github.com -> + -> New repository -> nome "moduli-service" -> Public -> Create repository.
+2. Nella pagina del repository: "uploading an existing file" (o Add file -> Upload files).
+3. Trascinare TUTTO il contenuto di questa cartella (file e cartelle lib e pdf), non la cartella stessa.
+4. Commit changes. Poi Settings -> Pages -> Branch: main, cartella / (root) -> Save.
+5. Dopo 1-2 minuti l'app e' su https://<nome-utente>.github.io/moduli-service/
+
+Aggiornamenti: ricaricare i file nuovi con Add file -> Upload files (stessi nomi = sostituiti).
+I tecnici ricevono la nuova versione alla prima apertura con rete.
+
+Sul telefono: aprire il link in Safari / Chrome -> Condividi -> Aggiungi alla schermata Home.
+I dati compilati restano solo sul telefono del tecnico: non vengono inviati a GitHub.
