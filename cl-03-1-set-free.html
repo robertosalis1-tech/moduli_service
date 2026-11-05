@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Prenotazione avviamento Set Free</title>
+<style>
+
+:root{--red:#e60027;--navy:#1f2b45;--blue:#3d7ab8;--txt:#1f2b45;--mut:#667085;--line:#d5dce7;--bg:#f3f5f8;--fld:#fff8c4;--ok:#16794a;--okbg:#ddf3e6;--warn:#a86400;--warnbg:#fff1d6;--ko:#c00;--kobg:#ffe1e1;--na:#eceef1}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+header{background:#fff;position:sticky;top:0;z-index:20;box-shadow:0 1px 4px #0002}
+.band{background:var(--red);color:#fff;font-size:12px;padding:4px 16px}
+.hd{max-width:1100px;margin:auto;display:flex;align-items:center;gap:14px;padding:8px 16px;flex-wrap:wrap}
+.hd img{height:24px}
+.hd h1{font-size:17px;margin:0;flex:1;min-width:200px}
+.hd h1 small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 13px;font:inherit;font-weight:600;cursor:pointer;color:var(--navy)}
+.btn.pri{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+nav{max-width:1100px;margin:auto;display:flex;gap:4px;padding:0 12px;overflow-x:auto}
+nav button{border:0;background:none;padding:9px 11px;font:inherit;font-size:14px;font-weight:600;color:var(--mut);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--navy);border-color:var(--red)}
+nav button i{font-style:normal;display:inline-block;min-width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle;background:#ccd}
+nav button i.ok{background:var(--ok)}nav button i.warn{background:#e0a020}nav button i.ko{background:var(--ko)}
+main{max-width:1100px;margin:auto;padding:14px 16px 80px}
+.pane{display:none}.pane.on{display:block}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 3px #0001;margin:0 0 14px;overflow:hidden}
+.card>h2{margin:0;padding:9px 14px;font-size:13.5px;text-transform:uppercase;letter-spacing:.03em;background:var(--blue);color:#fff}
+.card.na{opacity:.55}.card.na>h2{background:#8a98aa}
+.card .na-msg{padding:16px;color:var(--mut);font-style:italic;background:var(--na)}
+.body{padding:12px 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px}
+label{display:block;font-size:12px;font-weight:600;color:var(--navy)}
+label u{text-decoration:none;color:var(--mut);font-weight:400}
+input,select,textarea{width:100%;margin-top:3px;padding:8px 9px;border:1px solid #c9d2df;border-radius:8px;font:inherit;background:var(--fld)}
+.calc{background:var(--okbg)!important;border-color:#bfe3cc!important;font-weight:600;color:var(--txt)}
+.calc.warn{background:var(--warnbg)!important;color:var(--warn)}.calc.ko{background:var(--kobg)!important;color:var(--ko)}.calc.ok{color:var(--ok)}
+input.warn{background:#ffd99a!important;border-color:#e0a020}
+input.ko{color:var(--ko);border-color:var(--ko)}input.ok{color:var(--ok)}
+textarea{min-height:80px}
+input.off{background:#d9dbe0!important;border-color:#d9dbe0}
+.fcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
+.fcs button{border:3px solid transparent;border-radius:10px;padding:2px;background:#fff;cursor:pointer}
+.fcs button.on{border-color:#1a73d9;box-shadow:0 0 0 3px #1a73d933}
+.fcs img{width:100%;display:block}
+.mors{position:relative;margin-top:10px}
+.mors img{width:100%;display:block}
+.mors i{position:absolute;top:-2px;bottom:-2px;border:2.5px solid;border-radius:4px}
+.mors i.in{border-color:#1a73d9;background:#1a73d914}.mors i.out{border-color:#f27300;background:#f2730014}
+.leg{margin-top:8px;font-size:13px}.leg span{display:inline-block;border-radius:12px;padding:3px 9px;margin:2px;font-weight:600}.leg .in{background:#e3efff;color:#0b4fa0}.leg .out{background:#ffeedd;color:#a24c00}
+.tip{background:#fbe1e1;color:#8a0a0a;font-size:12.5px;font-style:italic;padding:7px 10px;border-radius:8px;margin:10px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:14px;cursor:pointer;background:#fff}
+.chip input{width:18px;height:18px;margin:0;accent-color:var(--red)}
+.dips{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px 24px}
+.dip{display:flex;align-items:center;gap:10px}
+.dip b{width:120px;font-size:13px;font-weight:600}
+.dip .sw{display:flex;gap:4px}
+.dip .sw span{display:flex;flex-direction:column;align-items:center;font-size:10px;color:var(--mut)}
+.dip .sw button{width:24px;height:30px;border:1.5px solid #1f4f78;border-radius:4px;background:#0ff;cursor:pointer;padding:0;position:relative}
+.dip .sw button.on{background:#1f2b45}
+.dip .sw button::after{content:"";position:absolute;left:4px;right:4px;height:9px;background:#fff;border-radius:2px;bottom:3px}
+.dip .sw button.on::after{top:3px;bottom:auto}
+.dip.na{opacity:.35;pointer-events:none}
+table{border-collapse:collapse;width:100%}
+th{background:var(--blue);color:#fff;font-size:12px;text-align:left;padding:6px 7px}
+td{border-bottom:1px solid var(--line);padding:3px 5px;font-size:13px}
+td input{margin:0;padding:5px 6px}
+td.code{font-weight:700;color:#1f4f78;white-space:nowrap}
+tr.sub td{background:#e3ebf6;font-style:italic;font-weight:600;color:#1f4f78}
+td.na input{background:var(--na);border-color:var(--na)}
+.scroll{overflow-x:auto}
+.ck{display:grid;grid-template-columns:30px 1fr repeat(3,48px);align-items:center;border-bottom:1px solid var(--line);padding:5px 0;gap:4px}
+.ck .n{font-weight:700;color:var(--blue);text-align:center}.ck .t{font-size:13.5px}.ck .imp{color:var(--red);font-weight:700;font-size:11px}
+.ck input{width:20px;height:20px;justify-self:center;accent-color:var(--red)}
+.ck.na{opacity:.4;pointer-events:none}
+.ckh{font-size:12px;font-weight:700;color:var(--mut);border-bottom:2px solid var(--line)}.ckh span{text-align:center}
+.esito{padding:12px 14px;border-radius:10px;font-weight:700;font-size:16px}
+.esito.ok{background:var(--okbg);color:var(--ok)}.esito.warn{background:var(--warnbg);color:var(--warn)}.esito.ko{background:var(--kobg);color:var(--ko)}.esito.none{background:var(--na);color:var(--mut)}
+.esito ul{margin:6px 0 0;padding-left:18px;font-weight:500;font-size:14px}
+.pill{display:inline-block;border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;background:var(--na);color:var(--mut)}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.warn{background:var(--warnbg);color:var(--warn)}.pill.ko{background:var(--kobg);color:var(--ko)}
+.sig{border:1px dashed #9aa6b8;border-radius:10px;background:#fff;touch-action:none;width:100%;height:140px;display:block}
+.navb{display:flex;justify-content:space-between;margin-top:10px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;opacity:0;transition:.3s;z-index:50}
+.toast.on{opacity:1}
+#print{display:none}
+@media print{
+  header,main,.toast{display:none!important}
+  #print{display:block;font:9.5pt/1.3 Helvetica,Arial,sans-serif;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #print .pband{background:#e60027;color:#fff;font-size:8pt;padding:3pt 6pt;margin:4pt 0}
+  #print h1{font-size:15pt;margin:2pt 0}
+  #print h2{font-size:10pt;background:#3d7ab8;color:#fff;padding:3pt 6pt;margin:9pt 0 3pt;text-transform:uppercase}
+  #print table{width:100%;border-collapse:collapse;margin:2pt 0 5pt}
+  #print th{background:#e3ebf6;color:#1f2b45;border:1px solid #aab;font-size:7.5pt;padding:2pt 3pt;text-align:left}
+  #print td{border:1px solid #ccd;font-size:8pt;padding:2pt 4pt}
+  #print .pb{page-break-before:always}
+  #print .es{padding:5pt;font-weight:700;border:1px solid #999}
+  @page{size:A4;margin:11mm}
+}
+
+header{position:static!important;box-shadow:none!important}
+.navw{position:sticky;top:0;z-index:20;background:#fff;box-shadow:0 1px 4px #0002}
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.band{padding-top:calc(4px + env(safe-area-inset-top))}
+input:not([type=email]):not([type=date]):not([type=time]),textarea{text-transform:uppercase}
+.txt{font-size:13px;color:#3a4558;margin:8px 0}
+.tri{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:7px 0}
+.tri .q{font-size:13.5px}.seg2{display:flex;gap:4px}
+.seg2 button{min-width:46px;border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:6px 8px;font:inherit;font-weight:700;font-size:13px;color:var(--mut);cursor:pointer}
+.seg2 button.on{background:var(--navy);border-color:var(--navy);color:#fff}.seg2 button.on.no{background:var(--ko);border-color:var(--ko)}
+.ftab td{padding:3px 4px}.ftab td.rl{font-size:12.5px;font-weight:600;color:var(--navy);white-space:nowrap;max-width:200px;white-space:normal}
+.ftab input,.ftab select{min-width:70px;padding:5px 6px;margin:0}
+.ftab .calc{font-size:12.5px}
+.covmsg{background:#eceef1;border-radius:12px;padding:30px 16px;text-align:center;color:var(--mut);font-weight:600;white-space:pre-line}
+.chkf{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500}.chkf input{width:20px;height:20px;margin:0;accent-color:var(--red)}
+.sigs .sig{height:170px}
+nav button.dim{opacity:.45}
+.imp{background:#eef5ff;border:1px solid #b9d3f3;border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:13.5px}
+</style>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><script src="pratica.js"></script><script src="lib/jspdf.umd.min.js"></script><script src="lib/jspdf.plugin.autotable.min.js"></script><script src="pdfk.js"></script>
+</head>
+<body>
+<header>
+  <div class="band"><b>Bosch Home Comfort Cooling and Heating SAS</b> &nbsp;|&nbsp; MOD 03.1 - Rev. 10/2026</div>
+  <div class="hd"><a class="btn sm" href="./" style="text-decoration:none;white-space:nowrap">← Moduli</a>
+    <img src="logo.png" alt="Bosch">
+    <h1>Prenotazione avviamento Set Free<small>MOD 03.1 · app Moduli Service</small></h1>
+    <button class="btn sm" onclick="saveJSON()">Esporta dati</button>
+    <label class="btn sm" style="display:inline-block;margin:0">Importa<input type="file" accept=".json,.pdf,application/pdf" style="display:none" onchange="importFile(this)"></label>
+    <button class="btn sm" onclick="if(confirm('Cancellare tutti i dati inseriti in questo modulo?')){S={};sig={};PR.pull(S,KEYP);save();tab=0;renderAll()}">Nuovo</button>
+    <button class="btn pri" onclick="doPDF()">Genera PDF</button>
+  </div>
+</header>
+<div class="navw"><nav id="nav"></nav></div>
+<main id="main"></main>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const SPEC={"code": "MOD 03.1", "title": "Prenotazione avviamento Set Free", "pages": [{"i": 0, "items": [{"k": "txt", "t": "Prenotazione avviamento MOD 03.1"}, {"k": "txt", "t": "VRF Set Free VRF Set Free - air365 Max / Max Pro"}, {"k": "txt", "t": "Il modulo è compilato e firmato dalla ditta installatrice e inviato al SAT Hitachi incaricato insieme agli allegati richiesti, almeno 7 giorni prima della data richiesta per l'avviamento . Rispondere a ogni domanda: = eseguito / presente, = non eseguito, N.A. = non applicabile all'impianto."}, {"k": "sec", "t": "DATI GENERALI"}, {"k": "row", "f": [{"n": "pr_data", "r": [36, 226, 173, 241], "p": 0, "t": "tx", "date": 1, "l": "Data compilazione"}, {"n": "pr_data_collaudo", "r": [180, 226, 356, 241], "p": 0, "t": "tx", "date": 1, "l": "Data richiesta per l'avviamento"}, {"n": "pr_focus", "r": [364, 226, 560, 241], "p": 0, "t": "tx", "l": "N° avviamento su FOCUS (se disponibile)"}]}, {"k": "row", "f": [{"n": "pr_cliente", "r": [36, 255, 294, 270], "p": 0, "t": "tx", "l": "Cliente / nome impianto"}, {"n": "pr_installatore", "r": [301, 255, 560, 270], "p": 0, "t": "tx", "l": "Ditta installatrice"}]}, {"k": "row", "f": [{"n": "pr_indirizzo", "r": [36, 284, 353, 299], "p": 0, "t": "tx", "l": "Indirizzo dell'impianto"}, {"n": "pr_referente", "r": [361, 284, 560, 299], "p": 0, "t": "tx", "l": "Referente di cantiere e telefono"}]}, {"k": "sec", "t": "UNITÀ ESTERNE PRESENTI NEL SITO"}, {"k": "txt", "t": "Una riga per ogni sistema (circuito frigorifero): modello e matricola dell'unità esterna (VRF in combinazione: tutte le matricole dei moduli), numero di unità interne collegate e zona servita. Oltre 10 sistemi allegare un secondo modulo."}, {"k": "tab", "cols": ["Modello unità esterna", "Matricola / matricole unità esterna", "N° U.I. collegate", "Zona / piano servito"], "rows": [{"l": "1", "f": [{"n": "pr_ue1_mod", "r": [62, 372, 199, 384], "p": 0, "t": "tx"}, {"n": "pr_ue1_sn", "r": [203, 372, 389, 384], "p": 0, "t": "tx"}, {"n": "pr_ue1_ui", "r": [392, 372, 445, 384], "p": 0, "t": "tx"}, {"n": "pr_ue1_zona", "r": [449, 372, 558, 384], "p": 0, "t": "tx"}]}, {"l": "2", "f": [{"n": "pr_ue2_mod", "r": [62, 387, 199, 399], "p": 0, "t": "tx"}, {"n": "pr_ue2_sn", "r": [203, 387, 389, 399], "p": 0, "t": "tx"}, {"n": "pr_ue2_ui", "r": [392, 387, 445, 399], "p": 0, "t": "tx"}, {"n": "pr_ue2_zona", "r": [449, 387, 558, 399], "p": 0, "t": "tx"}]}, {"l": "3", "f": [{"n": "pr_ue3_mod", "r": [62, 402, 199, 414], "p": 0, "t": "tx"}, {"n": "pr_ue3_sn", "r": [203, 402, 389, 414], "p": 0, "t": "tx"}, {"n": "pr_ue3_ui", "r": [392, 402, 445, 414], "p": 0, "t": "tx"}, {"n": "pr_ue3_zona", "r": [449, 402, 558, 414], "p": 0, "t": "tx"}]}, {"l": "4", "f": [{"n": "pr_ue4_mod", "r": [62, 417, 199, 429], "p": 0, "t": "tx"}, {"n": "pr_ue4_sn", "r": [203, 417, 389, 429], "p": 0, "t": "tx"}, {"n": "pr_ue4_ui", "r": [392, 417, 445, 429], "p": 0, "t": "tx"}, {"n": "pr_ue4_zona", "r": [449, 417, 558, 429], "p": 0, "t": "tx"}]}, {"l": "5", "f": [{"n": "pr_ue5_mod", "r": [62, 432, 199, 444], "p": 0, "t": "tx"}, {"n": "pr_ue5_sn", "r": [203, 432, 389, 444], "p": 0, "t": "tx"}, {"n": "pr_ue5_ui", "r": [392, 432, 445, 444], "p": 0, "t": "tx"}, {"n": "pr_ue5_zona", "r": [449, 432, 558, 444], "p": 0, "t": "tx"}]}, {"l": "6", "f": [{"n": "pr_ue6_mod", "r": [62, 447, 199, 459], "p": 0, "t": "tx"}, {"n": "pr_ue6_sn", "r": [203, 447, 389, 459], "p": 0, "t": "tx"}, {"n": "pr_ue6_ui", "r": [392, 447, 445, 459], "p": 0, "t": "tx"}, {"n": "pr_ue6_zona", "r": [449, 447, 558, 459], "p": 0, "t": "tx"}]}, {"l": "7", "f": [{"n": "pr_ue7_mod", "r": [62, 462, 199, 474], "p": 0, "t": "tx"}, {"n": "pr_ue7_sn", "r": [203, 462, 389, 474], "p": 0, "t": "tx"}, {"n": "pr_ue7_ui", "r": [392, 462, 445, 474], "p": 0, "t": "tx"}, {"n": "pr_ue7_zona", "r": [449, 462, 558, 474], "p": 0, "t": "tx"}]}, {"l": "8", "f": [{"n": "pr_ue8_mod", "r": [62, 477, 199, 489], "p": 0, "t": "tx"}, {"n": "pr_ue8_sn", "r": [203, 477, 389, 489], "p": 0, "t": "tx"}, {"n": "pr_ue8_ui", "r": [392, 477, 445, 489], "p": 0, "t": "tx"}, {"n": "pr_ue8_zona", "r": [449, 477, 558, 489], "p": 0, "t": "tx"}]}, {"l": "9", "f": [{"n": "pr_ue9_mod", "r": [62, 492, 199, 504], "p": 0, "t": "tx"}, {"n": "pr_ue9_sn", "r": [203, 492, 389, 504], "p": 0, "t": "tx"}, {"n": "pr_ue9_ui", "r": [392, 492, 445, 504], "p": 0, "t": "tx"}, {"n": "pr_ue9_zona", "r": [449, 492, 558, 504], "p": 0, "t": "tx"}]}, {"l": "10", "f": [{"n": "pr_ue10_mod", "r": [62, 507, 199, 519], "p": 0, "t": "tx"}, {"n": "pr_ue10_sn", "r": [203, 507, 389, 519], "p": 0, "t": "tx"}, {"n": "pr_ue10_ui", "r": [392, 507, 445, 519], "p": 0, "t": "tx"}, {"n": "pr_ue10_zona", "r": [449, 507, 558, 519], "p": 0, "t": "tx"}]}]}, {"k": "row", "f": [{"n": "pr_ue_nsis", "r": [36, 535, 184, 550], "p": 0, "t": "calc", "l": "N° sistemi nel sito"}, {"n": "pr_ue_totd", "r": [192, 535, 340, 550], "p": 0, "t": "calc", "l": "Totale unità interne"}, {"n": "pr_all_data", "r": [348, 535, 560, 550], "p": 0, "t": "tx", "date": 1, "l": "Allegati inviati al SAT il (data)"}]}, {"k": "row", "f": [{"n": "pr_all_skeleton", "r": [310, 560, 321, 571], "p": 0, "t": "chk", "on": "Yes", "l": "Progetto / layout impianto"}, {"n": "pr_all_progetto", "r": [423, 560, 434, 571], "p": 0, "t": "chk", "on": "Yes", "l": "Schema elettrico e bus"}, {"n": "pr_all_elettrico", "r": [530, 560, 541, 571], "p": 0, "t": "chk", "on": "Yes", "l": ""}]}, {"k": "txt", "t": "Skeleton (schema frigorifero) Allegati da inviare al SAT con il modulo"}, {"k": "tip", "t": "skeleton riporta lunghezze e diametri delle linee del liquido e del gas, posizione di kit di collegamento, multi-kit e collettori e l'elenco delle unità interne per sistema: serve al SAT per verificare la carica aggiuntiva e preparare l'avviamento."}, {"k": "sec", "t": "IMPIANTO FRIGO"}, {"k": "txt", "t": "Verifica N.A."}, {"k": "tri", "base": "pr_q1", "o": ["SI", "NO", "NA"], "names": ["pr_q1_SI", "pr_q1_NO", "pr_q1_NA"], "on": ["Yes", "Yes", "Yes"], "p": 0, "r": [479, 645, 490, 656], "l": "È stato eseguito il vuoto del circuito frigo con attrezzatura adeguata sul lato del gas e del liquido (valore < 500 mTorr)"}, {"k": "tri", "base": "pr_q2", "o": ["SI", "NO", "NA"], "names": ["pr_q2_SI", "pr_q2_NO", "pr_q2_NA"], "on": ["Yes", "Yes", "Yes"], "p": 0, "r": [479, 672, 490, 683], "l": "Sono disponibili le lunghezze e i diametri della tubazione del liquido, necessari per la carica aggiuntiva del refrigerante"}, {"k": "tri", "base": "pr_q3", "o": ["SI", "NO", "NA"], "names": ["pr_q3_SI", "pr_q3_NO", "pr_q3_NA"], "on": ["Yes", "Yes", "Yes"], "p": 0, "r": [479, 694, 490, 705], "l": "È presente l'attrezzatura necessaria per eseguire le operazioni di carica del refrigerante"}, {"k": "tri", "base": "pr_q4", "o": ["SI", "NO", "NA"], "names": ["pr_q4_SI", "pr_q4_NO", "pr_q4_NA"], "on": ["Yes", "Yes", "Yes"], "p": 0, "r": [479, 711, 490, 722], "l": "È disponibile uno schema del circuito frigorifero"}, {"k": "tri", "base": "pr_q5", "o": ["SI", "NO", "NA"], "names": ["pr_q5_SI", "pr_q5_NO", "pr_q5_NA"], "on": ["Yes", "Yes", "Yes"], "p": 0, "r": [479, 728, 490, 739], "l": "È stata eseguita una prova di tenuta con azoto per almeno 48h a una pressione massima di 35 Atm"}, {"k": "txt", "t": "ATTENZIONE: non aprire mai i rubinetti d'arresto del refrigerante sull'unità esterna. L'impianto deve rimanere in vuoto fino al momento del collaudo."}]}, {"i": 1, "items": [{"k": "sec", "t": "IMPIANTO ELETTRICO"}, {"k": "txt", "t": "Verifica N.A."}, {"k": "tri", "base": "pr_q6", "o": ["SI", "NO", "NA"], "names": ["pr_q6_SI", "pr_q6_NO", "pr_q6_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 131, 490, 142], "l": "Il cavo di collegamento bus è idoneo secondo le specifiche Hitachi"}, {"k": "tri", "base": "pr_q7", "o": ["SI", "NO", "NA"], "names": ["pr_q7_SI", "pr_q7_NO", "pr_q7_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 148, 490, 159], "l": "Il collegamento bus è eseguito secondo specifica Hitachi (entra-esci, senza derivazioni)"}, {"k": "tri", "base": "pr_q8", "o": ["SI", "NO", "NA"], "names": ["pr_q8_SI", "pr_q8_NO", "pr_q8_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 165, 490, 176], "l": "Sono stati installati i comandi remoti delle unità interne dove previsto"}, {"k": "tri", "base": "pr_q9", "o": ["SI", "NO", "NA"], "names": ["pr_q9_SI", "pr_q9_NO", "pr_q9_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 182, 490, 193], "l": "È stato collegato il cavo di segnale per il comando centralizzato dove previsto"}, {"k": "tri", "base": "pr_q10", "o": ["SI", "NO", "NA"], "names": ["pr_q10_SI", "pr_q10_NO", "pr_q10_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 199, 490, 210], "l": "Sono presenti i sezionatori di linea a bordo macchina (esterna e interna)"}, {"k": "tri", "base": "pr_q11", "o": ["SI", "NO", "NA"], "names": ["pr_q11_SI", "pr_q11_NO", "pr_q11_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 216, 490, 227], "l": "I sezionatori magnetotermici sono di taglia adeguata"}, {"k": "tri", "base": "pr_q12", "o": ["SI", "NO", "NA"], "names": ["pr_q12_SI", "pr_q12_NO", "pr_q12_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 233, 490, 244], "l": "La potenza di alimentazione dell'unità esterna è sufficiente"}, {"k": "tri", "base": "pr_q13", "o": ["SI", "NO", "NA"], "names": ["pr_q13_SI", "pr_q13_NO", "pr_q13_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 250, 490, 261], "l": "La tensione di alimentazione dell'unità esterna è corretta"}, {"k": "tri", "base": "pr_q14", "o": ["SI", "NO", "NA"], "names": ["pr_q14_SI", "pr_q14_NO", "pr_q14_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 267, 490, 278], "l": "L'unità esterna è stata alimentata almeno 24h prima per permettere il riscaldamento dell'olio dei compressori"}, {"k": "tri", "base": "pr_q15", "o": ["SI", "NO", "NA"], "names": ["pr_q15_SI", "pr_q15_NO", "pr_q15_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 284, 490, 295], "l": "È disponibile uno schema di collegamento dell'impianto elettrico"}, {"k": "sec", "t": "SCARICO CONDENSA"}, {"k": "txt", "t": "Verifica N.A."}, {"k": "tri", "base": "pr_q16", "o": ["SI", "NO", "NA"], "names": ["pr_q16_SI", "pr_q16_NO", "pr_q16_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 339, 490, 350], "l": "Le tubazioni sono di diametro adeguato"}, {"k": "tri", "base": "pr_q17", "o": ["SI", "NO", "NA"], "names": ["pr_q17_SI", "pr_q17_NO", "pr_q17_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 356, 490, 367], "l": "Le pendenze sono adeguate"}, {"k": "tri", "base": "pr_q18", "o": ["SI", "NO", "NA"], "names": ["pr_q18_SI", "pr_q18_NO", "pr_q18_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 373, 490, 384], "l": "È stato provato il deflusso dell'acqua"}, {"k": "sec", "t": "POSIZIONAMENTO UNITÀ ESTERNA"}, {"k": "txt", "t": "Verifica N.A."}, {"k": "tri", "base": "pr_q19", "o": ["SI", "NO", "NA"], "names": ["pr_q19_SI", "pr_q19_NO", "pr_q19_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 428, 490, 439], "l": "La macchina ha sufficienti spazi di manovra per la manutenzione come da manuale di installazione"}, {"k": "tri", "base": "pr_q20", "o": ["SI", "NO", "NA"], "names": ["pr_q20_SI", "pr_q20_NO", "pr_q20_NA"], "on": ["Yes", "Yes", "Yes"], "p": 1, "r": [479, 445, 490, 456], "l": "La macchina ha sufficiente spazio per la corretta circolazione d'aria come da manuale di installazione"}, {"k": "sec", "t": "NOTE DELLA DITTA INSTALLATRICE"}, {"k": "row", "f": [{"n": "cl_note", "r": [36, 497, 560, 567], "p": 1, "t": "area", "l": "Informazioni utili per il SAT (accesso al cantiere, orari, particolarità dell'impianto, voci con risposta NO)"}]}]}, {"i": 2, "items": [{"k": "txt", "t": "Condizioni per il primo avviamento"}, {"k": "txt", "t": "CLAUSOLA DI ADDEBITO PER MANCATO PRIMO AVVIAMENTO"}, {"k": "sec", "t": "!"}, {"k": "txt", "t": "Nel caso in cui il SAT non potesse effettuare il primo avviamento per mancanza o negligenza da parte della ditta installatrice che non avesse effettuato tutte le lavorazioni necessarie, le ore perse saranno addebitate all'installatore stesso , alle tariffe Service Hitachi vigenti alla data di attivazione dell'impianto ( 28 €/h per il tecnico 0,50 €/km per le percorrenze effettuate"}, {"k": "txt", "t": "Il SAT dovrà necessariamente compilare il modulo intervento giustificando le motivazioni del mancato avviamento."}, {"k": "txt", "t": "ESEMPIO"}, {"k": "tip", "t": "il SAT percorre 100 km in un'ora per andare sull'impianto, arriva e l'impianto ha grossi problemi tipo perdite sulle linee o vuoto insufficiente, perde un'ora sul cantiere e rientra percorrendo la stessa distanza nello stesso tempo. All'installatore verranno fatturate 3 ore e 100 km."}, {"k": "row", "f": [{"n": "clausola_ok", "r": [44, 287, 54, 298], "p": 2, "t": "chk", "on": "Yes", "l": "La ditta installatrice dichiara di aver letto e di accettare la clausola di addebito per mancato primo avviamento riportata nel presente modulo."}]}, {"k": "row", "f": [{"n": "clausola_firma", "r": [363, 288, 554, 306], "p": 2, "t": "area", "l": "Firma leggibile ditta installatrice"}]}, {"k": "sec", "t": "REQUISITI DEI LOCALI SERVITI - REFRIGERANTE"}, {"k": "txt", "t": "Compilare per il locale più piccolo servito dall'impianto (per R32: il locale in cui è installata ciascuna unità interna). Riferimenti: manuali tecnici Hitachi TCIT0147 par. 9.8 (R410A), TCIT0150 / TCIT0153 par. 8.2.1 e 8.5.2 (R32), Manuale di sicurezza R32 secondo IEC 60335-2-40:2022, UNI EN 378-1:2021."}, {"k": "row", "f": [{"n": "LOC_gas", "r": [210, 382, 290, 396], "p": 2, "t": "sel", "o": ["", "R410A", "R32"], "l": "Refrigerante dell'impianto"}, {"n": "LOC_carica", "r": [505, 382, 537, 396], "p": 2, "t": "tx", "l": "Carica totale (fabbrica + aggiuntiva)", "u": "kg"}]}, {"k": "row", "f": [{"n": "LOC_area", "r": [247, 401, 298, 415], "p": 2, "t": "tx", "l": "Locale più piccolo Superficie", "u": "m2"}, {"n": "LOC_h", "r": [353, 401, 394, 415], "p": 2, "t": "tx", "l": "Altezza", "u": "m"}, {"n": "LOC_vol", "r": [469, 401, 519, 415], "p": 2, "t": "tx", "l": "Volume", "u": "m3"}]}, {"k": "row", "f": [{"n": "LOC_ui", "r": [210, 420, 340, 434], "p": 2, "t": "sel", "o": ["", "Cassetta / a soffitto", "Canalizzabile", "A parete", "A pavimento / console", "Altro"], "l": "Unità interna nel locale"}, {"n": "LOC_h0", "r": [473, 420, 513, 434], "p": 2, "t": "tx", "l": "Altezza di installazione h0", "u": "m"}]}, {"k": "txt", "t": "Impianti R410A - concentrazione massima (TCIT0147 par. 9.8)"}, {"k": "txt", "t": "Concentrazione massima consentita R410A secondo EN 378-1: 0,44 kg/m3 . Calcolo: C = R / V (R = carica totale del sistema in kg, V = volume del locale in m3). Prestare particolare attenzione a scantinati e locali dove il refrigerante, più pesante dell'aria, può ristagnare."}, {"k": "row", "f": [{"n": "LOC_c", "r": [210, 487, 270, 501], "p": 2, "t": "tx", "l": "Concentrazione calcolata C = R / V", "u": "kg/m3"}]}, {"k": "txt", "t": "Verifica R410A N.A."}, {"k": "tri", "base": "LOC_1", "o": ["SI", "NO", "NA"], "names": ["LOC_1_SI", "LOC_1_NO", "LOC_1_NA"], "on": ["Yes", "Yes", "Yes"], "p": 2, "r": [479, 526, 490, 537], "l": "C è pari o inferiore a 0,44 kg/m3? (se SI le contromisure non sono necessarie: rispondere N.A. alle voci seguenti)"}, {"k": "txt", "t": "IMPORTANTE"}, {"k": "tri", "base": "LOC_2", "o": ["SI", "NO", "NA"], "names": ["LOC_2_SI", "LOC_2_NO", "LOC_2_NA"], "on": ["Yes", "Yes", "Yes"], "p": 2, "r": [479, 553, 490, 564], "l": "Se C supera il limite: è presente un'apertura di ventilazione verso il locale adiacente (apertura nel muro senza porta, o sopra/sotto la porta) superiore allo 0,15% della superficie del pavimento?"}, {"k": "tri", "base": "LOC_3", "o": ["SI", "NO", "NA"], "names": ["LOC_3_SI", "LOC_3_NO", "LOC_3_NA"], "on": ["Yes", "Yes", "Yes"], "p": 2, "r": [479, 575, 490, 586], "l": "Se C supera il limite: è presente un'apertura senza persiane che consenta la circolazione di aria pulita nel locale?"}, {"k": "tri", "base": "LOC_4", "o": ["SI", "NO", "NA"], "names": ["LOC_4_SI", "LOC_4_NO", "LOC_4_NA"], "on": ["Yes", "Yes", "Yes"], "p": 2, "r": [479, 592, 490, 603], "l": "Se C supera il limite: è installata una ventola collegata a un sensore di gas refrigerante?"}, {"k": "tip", "t": "Se il limite è superato devono essere adottate tutte le contromisure sopra indicate."}, {"k": "txt", "t": "Impianti R32 (A2L) - superficie minima del locale (TCIT0150 / TCIT0153)"}, {"k": "txt", "t": "L'R32 è un refrigerante infiammabile con bassa velocità di combustione ( classe A2L , ISO 817). Procedura del manuale Hitachi: carica totale inferiore a 1,84 kg : nessun requisito di superficie minima. Carica pari o superiore a 1,84 kg : ricavare la superficie minima Amin dalla tabella del manuale di installazione/sicurezza in base alla carica (mc) e all'altezza di installazione (h0). Se il locale (stanza A) è più piccolo di Amin, verificare un locale adiacente (stanza B): la superficie A + B deve superare Amin totale ed è necessaria la ventilazione naturale tra le stanze con apertura minima Anv,min Se nessuna opzione è possibile, scegliere un'altra configurazione (ridurre la lunghezza delle tubazioni e quindi la carica, sistema monoblocco, ecc.) o contattare Hitachi."}, {"k": "row", "f": [{"n": "LOC_amin", "r": [210, 712, 260, 725], "p": 2, "t": "tx", "l": "Superficie minima Amin da tabella", "u": "m2"}, {"n": "LOC_areab", "r": [486, 712, 534, 725], "p": 2, "t": "tx", "l": "Superficie stanza B adiacente", "u": "m2"}]}, {"k": "row", "f": [{"n": "LOC_anv", "r": [210, 731, 260, 744], "p": 2, "t": "tx", "l": "Apertura minima Anv,min richiesta", "u": "dm2"}, {"n": "LOC_aa", "r": [487, 731, 530, 744], "p": 2, "t": "tx", "l": "Apertura bassa realizzata dm2 Apertura alta", "u": "dm2"}]}]}, {"i": 3, "items": [{"k": "txt", "t": "Verifica R32 N.A."}, {"k": "tri", "base": "LOC_5", "o": ["SI", "NO", "NA"], "names": ["LOC_5_SI", "LOC_5_NO", "LOC_5_NA"], "on": ["Yes", "Yes", "Yes"], "p": 3, "r": [479, 108, 490, 119], "l": "La carica totale di R32 è inferiore a 1,84 kg? (se SI rispondere N.A. alle voci seguenti sulla superficie)"}, {"k": "tri", "base": "LOC_6", "o": ["SI", "NO", "NA"], "names": ["LOC_6_SI", "LOC_6_NO", "LOC_6_NA"], "on": ["Yes", "Yes", "Yes"], "p": 3, "r": [479, 125, 490, 136], "l": "Con carica pari o superiore a 1,84 kg: la superficie del locale è pari o superiore ad Amin?"}, {"k": "txt", "t": "IMPORTANTE"}, {"k": "tri", "base": "LOC_7", "o": ["SI", "NO", "NA"], "names": ["LOC_7_SI", "LOC_7_NO", "LOC_7_NA"], "on": ["Yes", "Yes", "Yes"], "p": 3, "r": [479, 142, 490, 153], "l": "Locale sottodimensionato: la superficie della stanza A + stanza B supera Amin totale?"}, {"k": "txt", "t": "Almeno metà di Anv,min è realizzata con aperture basse, entro 200 mm dal pavimento, con base non oltre 100"}, {"k": "tri", "base": "LOC_8", "o": ["SI", "NO", "NA"], "names": ["LOC_8_SI", "LOC_8_NO", "LOC_8_NA"], "on": ["Yes", "Yes", "Yes"], "p": 3, "r": [479, 169, 490, 180], "l": "mm dal pavimento e non più alta del punto di possibile rilascio del refrigerante? (le aperture oltre 300 mm dal pavimento non contano per Anv,min)"}, {"k": "tri", "base": "LOC_9", "o": ["SI", "NO", "NA"], "names": ["LOC_9_SI", "LOC_9_NO", "LOC_9_NA"], "on": ["Yes", "Yes", "Yes"], "p": 3, "r": [479, 201, 490, 212], "l": "È presente una seconda apertura alta, pari ad almeno il 50% di Anv,min, posizionata ad almeno 1,5 m dal pavimento?"}, {"k": "tri", "base": "LOC_10", "o": ["SI", "NO", "NA"], "names": ["LOC_10_SI", "LOC_10_NO", "LOC_10_NA"], "on": ["Yes", "Yes", "Yes"], "p": 3, "r": [479, 228, 490, 239], "l": "Le aperture sono permanenti e non sigillabili, e le aperture tra le stanze hanno un'altezza di almeno 20 mm tra parete e pavimento?"}, {"k": "tri", "base": "LOC_11", "o": ["SI", "NO", "NA"], "names": ["LOC_11_SI", "LOC_11_NO", "LOC_11_NA"], "on": ["Yes", "Yes", "Yes"], "p": 3, "r": [479, 255, 490, 266], "l": "Nel locale non sono presenti fonti di innesco permanenti in funzione (fiamme libere, apparecchi a gas, stufe elettriche)?"}, {"k": "txt", "t": "Se i requisiti dei locali non sono rispettati e non sono adottate le misure previste dal manuale, il SAT non esegue il primo avviamento si applica la clausola di addebito per mancato avviamento."}, {"k": "sec", "t": "INFORMATIVA PRIVACY (GDPR - REG. UE 2016/679)"}, {"k": "txt", "t": "Ai sensi del Regolamento (UE) 2016/679 (GDPR), i dati personali riportati nel presente modulo sono trattati da Bosch Home Comfort Cooling and Heating SAS e dalla rete di assistenza autorizzata Hitachi (SAT) esclusivamente per la gestione dell'avviamento, della garanzia e dell'assistenza tecnica sull'impianto. L'informativa completa sul trattamento dei dati e sui diritti dell'interessato è disponibile su www.hitachiaircon.com"}, {"k": "row", "f": [{"n": "gdpr_si", "r": [44, 372, 54, 383], "p": 3, "t": "chk", "on": "Yes", "l": "Firma del cliente per accettazione Acconsento al trattamento dei dati personali Non acconsento"}]}, {"k": "row", "f": [{"n": "gdpr_firma", "r": [363, 379, 554, 398], "p": 3, "t": "area", "l": "Firma del cliente per accettazione"}]}, {"k": "row", "f": [{"n": "gdpr_no", "r": [44, 385, 54, 396], "p": 3, "t": "chk", "on": "Yes", "l": ""}]}, {"k": "txt", "t": "FIRME"}, {"k": "txt", "t": "Ditta installatrice (firma leggibile) Committente / Cliente"}, {"k": "row", "f": [{"n": "firma_0_nome", "r": [41, 461, 289, 475], "p": 3, "t": "tx", "l": "Nome e cognome"}, {"n": "firma_1_nome", "r": [306, 461, 555, 475], "p": 3, "t": "tx", "l": "Nome e cognome"}]}, {"k": "row", "f": [{"n": "firma_0_firma", "r": [116, 486, 289, 521], "p": 3, "t": "sig", "l": "Firma"}]}, {"k": "row", "f": [{"n": "firma_1_firma", "r": [381, 486, 555, 521], "p": 3, "t": "sig", "l": "Firma"}]}, {"k": "row", "f": [{"n": "firma_0_data", "r": [41, 487, 111, 501], "p": 3, "t": "tx", "date": 1, "l": "Data"}, {"n": "firma_1_data", "r": [306, 487, 377, 501], "p": 3, "t": "tx", "date": 1, "l": "Data"}]}]}], "calc": [{"n": "calc", "js": "var d = this;\nfunction g(n){ var f = d.getField(n); if (!f || f.value === null || f.value === undefined) return \"\"; return String(f.value); }\nfunction num(n){ var s = g(n).replace(\",\", \".\").replace(/\\s/g, \"\"); if (s === \"\") return null; var x = Number(s); return isNaN(x) ? null : x; }\nfunction put(n, v){ var f = d.getField(n); if (f && f.value != v) f.value = v; }\nvar ns = 0, td = 0, nd = 0;\nfor (var i = 1; i <= 10; i++) {\n  var pre = \"pr_ue\" + i + \"_\";\n  if (g(pre + \"mod\") !== \"\" || g(pre + \"sn\") !== \"\" || g(pre + \"ui\") !== \"\") ns++;\n  var x = num(pre + \"ui\"); if (x !== null) { td += x; nd++; }\n}\nput(\"pr_ue_nsis\", ns ? String(ns) : \"\");\nput(\"pr_ue_totd\", nd ? String(td) : \"\");\nevent.value = \"\";"}], "dates": ["pr_data", "pr_data_collaudo", "pr_all_data", "firma_0_data", "firma_1_data"], "hidden0": ["calc"], "covers": []},KEYP="031",KEY="form_"+SPEC.code.replace(/\W/g,"")+"_v1",IMPORT_HINT="<b>Check list ricevuta dall'installatore:</b> premi <b>Importa</b> e scegli il PDF compilato che ti ha inviato (dalla mail: tieni premuto l'allegato \u2192 Salva in File). I dati comuni (cliente, indirizzo, modelli, matricole) passano nella pratica e negli altri moduli; puoi correggere tutto in cantiere.";
+let S={},C={},COL={},DISP={},RO={},ITEMS={},sig={},tab=0;
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// ---------- indice dei campi
+const FD={},DATES=new Set(SPEC.dates),CALCF=new Set(),CHK={};
+const allF=[];SPEC.pages.forEach(pg=>pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>allF.push(f));if(it.k==="tab")it.rows.forEach(r=>r.f.forEach(f=>allF.push(f)));if(it.k==="tri")it.names.forEach((n,i)=>{CHK[n]=it.on[i];FD[n]={n,t:"chk",on:it.on[i],p:it.p,r:it.r}})}));
+allF.forEach(f=>{if(f.t==="radio"){(FD[f.n]=FD[f.n]||Object.assign({},f,{ons:[]})).ons.push(f.on)}else FD[f.n]=FD[f.n]||f;if(f.t==="calc")CALCF.add(f.n);if(f.t==="chk")CHK[f.n]=f.on});
+SPEC.hidden0.forEach(n=>DISP[n]=1);
+// ---------- motore di calcolo: gli script del PDF su un documento simulato
+const iso2it=v=>/^\d{4}-\d\d-\d\d$/.test(v)?v.split("-").reverse().join("/"):v;
+const it2iso=v=>{const m=/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/.exec(String(v||"").trim());return m?`${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`:v};
+const display={visible:0,hidden:1,noPrint:3,noView:2},color={black:["G",0],white:["G",1],red:["RGB",1,0,0],green:["RGB",0,1,0],blue:["RGB",0,0,1],transparent:["T"]};
+const app={alert(){},beep(){}};
+function runCalc(){if(!SPEC.calc.length)return;let changed=true;
+  for(let pass=0;pass<4&&changed;pass++){changed=false;const fields={};
+    const doc={getField(n){if(!(n in FD)&&!/^v_|cov|calc/.test(n)&&!SPEC.covers.some(c=>c.n===n)&&!(n in S)&&!(n in C)&&!SPEC.hidden0.includes(n))return fields[n]||(fields[n]=mk(n));return fields[n]||(fields[n]=mk(n))}};
+    function mk(n){return{name:n,
+      get value(){if(n in C)return C[n];if(n in CHK)return S[n]&&S[n]!=="Off"?S[n]:"Off";const v=S[n]??"";return DATES.has(n)?iso2it(v):v},
+      get valueAsString(){return String(this.value)},
+      set value(v){v=v==null?"":String(v);if(CALCF.has(n)||/cov/.test(n)){C[n]=v}else{if(DATES.has(n))v=it2iso(v);if((S[n]??"")!==v){S[n]=v;changed=true}}},
+      set textColor(c){COL[n]=c},get textColor(){return COL[n]||["G",0]},set fillColor(c){COL[n+"#bg"]=c},get fillColor(){return COL[n+"#bg"]||["T"]},
+      set borderColor(c){},get borderColor(){return["T"]},set strokeColor(c){},get strokeColor(){return["T"]},
+      get display(){return DISP[n]??0},set display(v){DISP[n]=v},get hidden(){return DISP[n]===1},set hidden(v){DISP[n]=v?1:0},
+      get readonly(){return !!RO[n]},set readonly(v){RO[n]=v},set textSize(v){},get textSize(){return 0},
+      get rect(){const f=FD[n];return f&&f.r?[f.r[0],842-f.r[1],f.r[2],842-f.r[3]]:[0,0,100,20]},get page(){const f=FD[n];return f?f.p:0},
+      get type(){const f=FD[n];return !f?"text":f.t==="sel"||f.t==="combo"?"combobox":f.t==="chk"?"checkbox":f.t==="radio"?"radiobutton":"text"},
+      setItems(a){ITEMS[n]=a},getItemAt(i){return (ITEMS[n]||[])[i]},get numItems(){return (ITEMS[n]||[]).length},checkThisBox(i,on){S[n]=on?(CHK[n]||"Yes"):"Off"},isBoxChecked(){return S[n]&&S[n]!=="Off"}}}
+    SPEC.calc.forEach(c=>{const ev={value:C[c.n]??"",target:doc.getField(c.n)};try{new Function("display","event","color","app",c.js).call(doc,display,ev,color,app)}catch(e){console.error(e)}})}
+  save()}
+const cls=n=>{const b=COL[n+"#bg"];if(b&&b[0]==="RGB"){if(b[1]>0.95&&b[2]<0.9&&b[3]<0.9)return"ko";if(b[1]>0.95&&b[2]>0.85&&b[3]<0.8)return"warn";if(b[2]>0.9&&b[1]<0.9)return"ok"}
+  const c=COL[n];if(!c||c[0]!=="RGB")return"";if(c[1]>0.6&&c[2]<0.2)return"ko";if(c[1]>0.6&&c[2]>0.3&&c[3]<0.2)return"warn";if(c[2]>0.35&&c[1]<0.2)return"ok";return""};
+const val=n=>C[n]??S[n]??"";
+// ---------- coperture (sezioni non applicabili)
+const PGAREA=595*842;
+function covered(f){if(!f||!f.r)return false;return SPEC.covers.some(c=>c.p===f.p&&DISP[c.n]!==1&&f.r[0]>=c.r[0]-2&&f.r[2]<=c.r[2]+2&&f.r[1]>=c.r[1]-2&&f.r[3]<=c.r[3]+2)}
+function pageCover(pi){return SPEC.covers.find(c=>c.p===pi&&DISP[c.n]!==1&&(c.r[2]-c.r[0])*(c.r[3]-c.r[1])>PGAREA*0.55)}
+const hid=f=>DISP[f.n]===1||covered(f);
+// ---------- costruttori
+const tipH=t=>`<div class="tip">i &nbsp;${esc(t)}</div>`;
+function inputH(f,bare){const n=f.n,v=S[n]??"",l=esc(f.l||"")+(f.u?` <u>(${esc(f.u)})</u>`:"");const ro=RO[n]?" disabled":"";
+  let h;
+  if(f.t==="calc")h=String(val(n)).length>40||/\n/.test(val(n))?`<textarea readonly rows="${Math.min(6,Math.max(2,Math.ceil(String(val(n)).length/40)))}" class="calc ${cls(n)}" data-c="${n}" style="min-height:0;resize:none">${esc(val(n))}</textarea>`:`<input readonly class="calc ${cls(n)}" data-c="${n}" value="${esc(val(n))}">`;
+  else if(f.t==="sel"&&(f.o||[]).length<=5&&(f.o||[]).every(x=>["","SI","NO","NV","NA","N.A.","OK","KO"].includes(x))&&!ITEMS[n]){const O=f.o.filter(Boolean);h=`<div class="seg2">${O.map(o=>`<button type="button" class="${v===o?"on"+(o==="NO"||o==="KO"?" no":""):""}" data-sv="${n}" data-v="${o}">${o==="NV"||o==="NA"?"N.A.":o}</button>`).join("")}</div>`;return bare?h:`<div class="tri" style="grid-column:1/-1"><div class="q">${l}</div>${h}</div>`}
+  else if(f.t==="sel"){const o=(ITEMS[n]||f.o||[""]).map(x=>Array.isArray(x)?x[0]:x);h=`<select data-n="${n}"${ro}>${(o.includes(v)?o:o.concat([v])).map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("")}</select>`}
+  else if(f.t==="combo"){const o=(ITEMS[n]||f.o||[]).map(x=>Array.isArray(x)?x[0]:x).filter(Boolean);h=`<input data-n="${n}" list="dl_${n}" autocomplete="off" value="${esc(v)}"${ro}><datalist id="dl_${n}">${o.map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`}
+  else if(f.t==="chk")return `<label class="chkf"${bare?"":' style="grid-column:1/-1"'}><input type="checkbox" data-n="${n}" ${S[n]&&S[n]!=="Off"?"checked":""}${ro}>${bare?"":esc(f.l||"")}</label>`;
+  else if(f.t==="radio"){const F=FD[n];return `<div class="chips" style="grid-column:1/-1">${F.ons.map(o=>`<label class="chip"><input type="radio" name="r_${n}" data-r="${n}" value="${esc(o)}" ${S[n]===o?"checked":""}>${esc(o)}</label>`).join("")}</div>`}
+  else if(f.t==="area")h=`<textarea data-n="${n}"${ro}>${esc(v)}</textarea>`;
+  else if(f.t==="sig")return `<div class="sigs" style="grid-column:1/-1"><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px">${esc(f.l||"Firma")}</div><canvas class="sig" data-sig="${n}"></canvas><div class="sigw" style="display:flex;gap:6px;align-items:center;margin-top:6px"><small style="flex:1;color:var(--mut)">Firmare con il dito, la penna o il mouse</small><button class="btn sm" onclick="clearSig('${n}')">Cancella</button></div></div>`;
+  else h=`<input data-n="${n}" type="${f.date?"date":/mail/i.test(n)?"email":"text"}" value="${esc(v)}"${ro}${/(_v\d|_l\d|_w|tens|_t[a-z]|kg|ohm|hlink|vuoto|press|_p[ab]|^p_|num|_n$|_h\d?$)/i.test(n)?' inputmode="decimal"':""}>`;
+  return bare?h:`<label${f.t==="area"||f.t==="calc"&&String(val(n)).length>40?' style="grid-column:1/-1"':""}>${l}${h}</label>`}
+function itemH(it){
+  if(it.k==="sec")return null;
+  if(it.k==="txt")return `<div class="txt">${esc(it.t)}</div>`;
+  if(it.k==="tip")return tipH(it.t);
+  if(it.k==="row"){const F=it.f.filter(f=>!hid(f));if(!F.length)return"";if(F.length===1&&F[0].t==="sig")return inputH(F[0]);
+    return `<div class="grid" style="margin:6px 0">${F.map(f=>inputH(f)).join("")}</div>`}
+  if(it.k==="tri"){if(it.names.every(n=>DISP[n]===1)||covered(FD[it.names[0]]))return"";const cur=it.names.findIndex(n=>S[n]&&S[n]!=="Off");
+    return `<div class="tri"><div class="q">${esc(it.l)}</div><div class="seg2">${it.o.map((o,i)=>`<button class="${i===cur?"on"+(o==="NO"||o==="KO"?" no":""):""}" data-tri="${it.names.join(",")}" data-i="${i}">${o==="NV"||o==="NA"?"N.A.":o}</button>`).join("")}</div></div>`}
+  if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>!hid(f)));if(!R.length)return"";
+    const vis=it.cols.map((c,ci)=>R.some(r=>r.f[ci]&&!hid(r.f[ci])));
+    return `<div class="scroll" style="margin:8px 0"><table class="ftab"><tr><th></th>${it.cols.map((c,ci)=>vis[ci]?`<th>${esc(c)}</th>`:"").join("")}</tr>${R.map(r=>`<tr><td class="rl">${esc(r.l)}</td>${r.f.map((f,ci)=>vis[ci]?`<td>${hid(f)?"":inputH(f,true)}</td>`:"").join("")}</tr>`).join("")}</table></div>`}
+  return ""}
+function pageH(pg){const pc=pageCover(pg.i);if(pc)return `<div class="covmsg">${esc(pc.msg.trim())}</div>`;
+  let h="",open=false,body="";const flush=()=>{if(open||body.trim())h+=`<section class="card">${open?`<h2>${esc(open)}</h2>`:""}<div class="body">${body}</div></section>`;body=""};
+  pg.items.forEach(it=>{if(it.k==="sec"){flush();open=it.t}else{const x=itemH(it);if(x)body+=x}});flush();return h}
+const pageTitle=pg=>{const s=pg.items.find(i=>i.k==="sec");let t=s?s.t:"Pagina "+(pg.i+1);t=t.charAt(0)+t.slice(1).toLowerCase();return t.length>34?t.slice(0,32)+"…":t};
+function renderAll(){runCalc();
+  $("#nav").innerHTML=SPEC.pages.map((pg,i)=>`<button class="${i===tab?"on":""}${pageCover(pg.i)?" dim":""}" onclick="go(${i})">${esc(pageTitle(pg))}</button>`).join("");
+  $("#main").innerHTML=(tab===0&&IMPORT_HINT?`<div class="imp">${IMPORT_HINT}</div>`:"")+pageH(SPEC.pages[tab])+`<div class="navb">${tab?`<button class="btn" onclick="go(${tab-1})">← Indietro</button>`:"<span></span>"}${tab<SPEC.pages.length-1?`<button class="btn pri" onclick="go(${tab+1})">Avanti →</button>`:`<button class="btn pri" onclick="doPDF()">Genera PDF</button>`}</div>`;
+  initSig()}
+function soft(){runCalc();
+  document.querySelectorAll("[data-n]").forEach(e=>{const n=e.dataset.n;if(e===document.activeElement)return;if(e.type==="checkbox")e.checked=!!(S[n]&&S[n]!=="Off");else if((S[n]??"")!==e.value&&e.tagName!=="SELECT")e.value=S[n]??""});
+  document.querySelectorAll("[data-c]").forEach(e=>{e.value=val(e.dataset.c);e.className=e.className.replace(/\b(ok|warn|ko)\b/g,"").trim()+" "+cls(e.dataset.c)})}
+function go(i){tab=i;renderAll();window.scrollTo(0,0)}
+function rerender(){const y=window.scrollY;setTimeout(()=>{const a=document.activeElement,an=a&&a.dataset&&a.dataset.n;renderAll();window.scrollTo(0,y);if(an){const e=document.querySelector(`[data-n="${an}"]`);if(e)e.focus({preventScroll:true})}},0)}
+const NOUP=e=>e.type==="email"||e.type==="date"||e.type==="time";
+document.addEventListener("input",e=>{const t=e.target;if(!t.dataset.n||t.type==="checkbox"||t.tagName==="SELECT")return;
+  if(!NOUP(t)&&t.value!==t.value.toUpperCase()){const p=t.selectionStart;t.value=t.value.toUpperCase();try{t.setSelectionRange(p,p)}catch(x){}}
+  S[t.dataset.n]=t.value;save();soft()});
+document.addEventListener("change",e=>{const t=e.target;
+  if(t.dataset.r){S[t.dataset.r]=t.value;save();rerender();return}
+  if(!t.dataset.n)return;const n=t.dataset.n;
+  if(t.type==="checkbox")S[n]=t.checked?(CHK[n]||"Yes"):"Off";else S[n]=t.value;save();
+  if(t.tagName==="SELECT"||t.type==="checkbox")rerender();else{soft();rerender()}});
+document.addEventListener("click",e=>{const sv=e.target.closest("[data-sv]");if(sv){const n=sv.dataset.sv;S[n]=S[n]===sv.dataset.v?"":sv.dataset.v;save();rerender();return}
+  const b=e.target.closest("[data-tri]");if(!b)return;const N=b.dataset.tri.split(","),i=+b.dataset.i,was=S[N[i]]&&S[N[i]]!=="Off";
+  N.forEach((n,k)=>S[n]=k===i&&!was?(CHK[n]||"Yes"):"Off");save();rerender()});
+// ---------- firme
+function initSig(){document.querySelectorAll("canvas.sig").forEach(cv=>{const k=cv.dataset.sig,ctx=cv.getContext("2d"),R=2;cv.width=cv.clientWidth*R;cv.height=cv.clientHeight*R;
+  const pen=()=>{ctx.lineWidth=2.6*R;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#0b2a6b"};pen();
+  if(sig[k]){const im=new Image();im.onload=()=>{ctx.drawImage(im,0,0,cv.width,cv.height);pen()};im.src=sig[k]}
+  let dr=false,last=null;const pt=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*R,(e.clientY-r.top)*R]};
+  cv.onpointerdown=e=>{e.preventDefault();dr=true;try{cv.setPointerCapture(e.pointerId)}catch(x){}last=pt(e);ctx.beginPath();ctx.arc(last[0],last[1],ctx.lineWidth/2,0,7);ctx.fillStyle="#0b2a6b";ctx.fill()};
+  cv.onpointermove=e=>{if(!dr)return;e.preventDefault();const p=pt(e);ctx.beginPath();ctx.moveTo(last[0],last[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();last=p};
+  const end=()=>{if(!dr)return;dr=false;sig[k]=cv.toDataURL("image/png");save()};cv.onpointerup=end;cv.onpointercancel=end;cv.onpointerleave=end})}
+function clearSig(k){delete sig[k];save();const cv=document.querySelector(`canvas[data-sig="${k}"]`);if(cv)cv.getContext("2d").clearRect(0,0,cv.width,cv.height)}
+let rsz;window.addEventListener("resize",()=>{clearTimeout(rsz);rsz=setTimeout(initSig,250)});
+// ---------- salvataggio, import / export
+let tm;function save(){clearTimeout(tm);tm=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify({S,sig}));PR.push(S,KEYP)}catch(e){}},300)}
+function load(){try{const t=JSON.parse(localStorage.getItem(KEY)||"null");if(t){S=t.S||{};sig=t.sig||{}}}catch(e){}}
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),2200)}
+const base=()=>SPEC.code.replace(/\W+/g,"_")+"_"+String(S[Object.keys(S).find(k=>/cliente|ute_nome|cli_nome/.test(k))]||"modulo").replace(/[^\w-]+/g,"_");
+function saveJSON(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({modulo:SPEC.code,S,sig})],{type:"application/json"}));a.download=base()+".json";a.click()}
+function importFile(inp){const f=inp.files[0];if(!f)return;inp.value="";
+  if(/\.pdf$/i.test(f.name)||f.type==="application/pdf")return importPDF(f);
+  const r=new FileReader();r.onload=()=>{try{const t=JSON.parse(r.result);S=t.S||{};sig=t.sig||{};save();renderAll();toast("Dati importati")}catch(e){alert("File non valido")}};r.readAsText(f)}
+// legge un PDF compilato (es. check list ricevuta dall'installatore) e ne copia i valori nel modulo
+function loadPdfLib(){return window.PDFLib?Promise.resolve():new Promise((ok,ko)=>{const s=document.createElement("script");s.src="lib/pdf-lib.min.js";s.onload=ok;s.onerror=ko;document.head.appendChild(s)})}
+async function importPDF(file){try{await loadPdfLib();const pdf=await PDFLib.PDFDocument.load(await file.arrayBuffer(),{ignoreEncryption:true});const form=pdf.getForm();let n=0;
+  form.getFields().forEach(fl=>{const name=fl.getName(),L=PDFLib;let v;
+    try{if(fl instanceof L.PDFTextField)v=fl.getText()||"";else if(fl instanceof L.PDFDropdown||fl instanceof L.PDFOptionList)v=(fl.getSelected()||[])[0]||"";else if(fl instanceof L.PDFCheckBox)v=fl.isChecked()?(CHK[name]||"Yes"):"Off";else if(fl instanceof L.PDFRadioGroup)v=fl.getSelected()||"";else return}catch(e){return}
+    if(!(name in FD)&&!(name in CHK))return;if(CALCF.has(name))return;if(DATES.has(name))v=it2iso(v);if(v&&FD[name]&&FD[name].t!=="chk"&&FD[name].t!=="sig")v=v.toUpperCase();
+    if(FD[name]&&FD[name].t==="sig")return;if(v!==""&&v!=="Off"||S[name]){S[name]=v;n++}});
+  save();renderAll();toast(n+" campi importati dal PDF: controllare e completare in cantiere")}catch(e){console.error(e);alert("Impossibile leggere il PDF: "+e.message)}}
+// ---------- PDF
+function doPDF(){runCalc();let h=`<h1>${esc(SPEC.title)}</h1>`;
+  const fv=f=>{if(f.t==="chk")return S[f.n]&&S[f.n]!=="Off"?"SI":"";if(f.t==="sig")return"";const v=String(val(f.n)??"");return DATES.has(f.n)?iso2it(v):v};
+  SPEC.pages.forEach(pg=>{if(pageCover(pg.i))return;let sec="",rows=[],pend=[];
+    const out=()=>{if(!rows.length&&!pend.length)return;h+=`<h2>${esc(sec||SPEC.title)}</h2>`;if(rows.length){let t="<table>";for(let i=0;i<rows.length;i+=2)t+=`<tr><td>${esc(rows[i][0])}</td><td>${esc(rows[i][1])}</td><td>${esc(rows[i+1]?rows[i+1][0]:"")}</td><td>${esc(rows[i+1]?rows[i+1][1]:"")}</td></tr>`;h+=t+"</table>"}h+=pend.join("");rows=[];pend=[]};
+    pg.items.forEach(it=>{if(it.k==="sec"){out();sec=it.t;return}
+      if(it.k==="row")it.f.forEach(f=>{if(hid(f))return;if(f.t==="sig"){if(sig[f.n])pend.push(`<table><tr><th>${esc(f.l||"Firma")}</th></tr><tr><td><img src="${sig[f.n]}"></td></tr></table>`);return}const v=fv(f);if(v)rows.push([(f.l||f.n)+(f.u?" ("+f.u+")":""),v])});
+      if(it.k==="tri"){const i=it.names.findIndex(n=>S[n]&&S[n]!=="Off");if(i>=0)rows.push([it.l,it.o[i]==="NV"||it.o[i]==="NA"?"N.A.":it.o[i]])}
+      if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>!hid(f)&&fv(f)));if(R.length){out();pend.push(`<table><tr><th></th>${it.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${R.map(r=>`<tr><td>${esc(r.l)}</td>${r.f.map(f=>`<td>${esc(hid(f)?"":fv(f))}</td>`).join("")}</tr>`).join("")}</table>`)}}});
+    out()});
+  let box=$("#pdfsrc");if(!box){box=document.createElement("div");box.id="pdfsrc";box.style.display="none";document.body.appendChild(box)}box.innerHTML=h;
+  PDFK.share(box,{title:SPEC.title,code:SPEC.code,name:base()})}
+load();PR.pull(S,KEYP);renderAll();
+</script>
+</body>
+</html>

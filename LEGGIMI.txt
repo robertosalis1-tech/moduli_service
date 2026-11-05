@@ -1,14 +1,13 @@
-MODULI SERVICE - app web per GitHub Pages
-==========================================
-Caricamento (la prima volta):
-1. github.com -> + -> New repository -> nome "moduli-service" -> Public -> Create repository.
-2. Nella pagina del repository: "uploading an existing file" (o Add file -> Upload files).
-3. Trascinare TUTTO il contenuto di questa cartella (file e cartelle lib e pdf), non la cartella stessa.
-4. Commit changes. Poi Settings -> Pages -> Branch: main, cartella / (root) -> Save.
-5. Dopo 1-2 minuti l'app e' su https://<nome-utente>.github.io/moduli-service/
+MODULI SERVICE - app web (GitHub Pages)
+=======================================
+Caricare TUTTO il contenuto di questa cartella nel repository (Add file -> Upload files),
+compresi le cartelle lib e pdf e il file accessi-revocati.json.
+NON caricare il file "GESTIONE ACCESSI - NON CARICARE SU GITHUB.html" (e' nella cartella superiore):
+contiene la chiave che genera i codici di sblocco.
 
-Aggiornamenti: ricaricare i file nuovi con Add file -> Upload files (stessi nomi = sostituiti).
-I tecnici ricevono la nuova versione alla prima apertura con rete.
-
-Sul telefono: aprire il link in Safari / Chrome -> Condividi -> Aggiungi alla schermata Home.
-I dati compilati restano solo sul telefono del tecnico: non vengono inviati a GitHub.
+Accesso dei tecnici:
+- il tecnico apre il link, (iPhone) Condividi -> Aggiungi alla schermata Home, apre l'icona;
+- compila nome e SAT e preme "Invia la richiesta per mail" (arriva a service-italia@bosch-hcgroup.com);
+- in "GESTIONE ACCESSI" incolli la mail, premi Genera codice e rispondi con il testo pronto;
+- il tecnico incolla il codice e l'app si sblocca solo su quel dispositivo.
+Revoca: in GESTIONE ACCESSI premi Revoca, scarica accessi-revocati.json e caricalo su GitHub.
