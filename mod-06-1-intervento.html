@@ -370,5 +370,6 @@ async function doPrint(cli){let d;try{d=pdfBuild(cli)}catch(e){console.error(e);
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast("PDF generato: "+name)}
 load();PR.pull(S,"mi");renderAll();
 </script>
+<script src="firma.js"></script>
 </body>
 </html>

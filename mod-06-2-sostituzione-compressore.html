@@ -118,6 +118,7 @@ input:not([type=email]):not([type=date]):not([type=time]),textarea{text-transfor
 .chkf{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500}.chkf input{width:20px;height:20px;margin:0;accent-color:var(--red)}
 .sigs .sig{height:170px}
 nav button.dim{opacity:.45}
+.sigbox{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0;background:#fbfcfe}.sigt{font-weight:700;color:var(--navy);margin-bottom:6px}
 .imp{background:#eef5ff;border:1px solid #b9d3f3;border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:13.5px}
 </style>
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><script src="pratica.js"></script><script src="lib/jspdf.umd.min.js"></script><script src="lib/jspdf.plugin.autotable.min.js"></script><script src="pdfk.js"></script>
@@ -143,8 +144,17 @@ const SPEC={"code": "MOD 06.2", "title": "Richiesta sostituzione compressore", "
 let S={},C={},COL={},DISP={},RO={},ITEMS={},sig={},tab=0;
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 // ---------- indice dei campi
+const UIM=[];
+(function prep(){SPEC.pages.forEach(pg=>{const sigs=[];pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>{if(f.t!=="sig"&&/firma/i.test(f.n)&&!/(nome|data)$/i.test(f.n)&&(f.t==="area"||f.t==="tx")&&f.r&&f.r[3]-f.r[1]>14)f.t="sig";if(f.t==="sig"&&/firma$/i.test(f.n))sigs.push(f)})});
+  sigs.forEach(sf=>{const P=sf.n.replace(/firma$/i,""),want={nome:P+"nome",data:P+"data"},got={};let title="";
+    pg.items.forEach(it=>{if(it.k==="row")it.f=it.f.filter(f=>{for(const k in want)if(f.n===want[k]){got[k]=f;return false}return true});
+      if(it.k==="tab"){it.rows.forEach(r=>{r.f.forEach((f,ci)=>{for(const k in want)if(f&&f.n===want[k]){got[k]=f;if(k==="nome")title=(it.cols[ci]||"").replace(/FIRME|Nome e cognome/gi,"").trim();r.f[ci]=null}})})}});
+    if(got.nome)got.nome.l="Nome e cognome";if(got.data)got.data.l="Data";pg.items.forEach((it,i)=>{if(it.k==="row"&&it.f.length===1&&it.f[0]===sf)pg.items[i]={k:"sigb",sig:sf,nome:got.nome,data:got.data,title:title||sf.l||"Firma"}})});
+  pg.items=pg.items.filter(it=>!(it.k==="txt"&&(/^(Data\s*)+$/.test(it.t)||/MOD \d\d\.\d\s*$/.test(it.t)||/^MODULO\b/.test(it.t))));
+  for(let i=0;i<pg.items.length-1;i++){const it=pg.items[i],nx=pg.items[i+1];if(it.k==="row"&&it.f.length===1&&it.f[0].t==="chk"&&!(it.f[0].l||"").trim()&&nx.k==="txt"){it.f[0].l=nx.t;pg.items.splice(i+1,1)}}
+  pg.items=pg.items.filter(it=>!(it.k==="row"&&!it.f.length)).map(it=>{if(it.k==="tab"){const keep=it.cols.map((c,ci)=>it.rows.some(r=>r.f[ci]));it.cols=it.cols.filter((c,ci)=>keep[ci]);it.rows=it.rows.map(r=>({l:r.l,f:r.f.filter((f,ci)=>keep[ci])})).filter(r=>r.f.some(Boolean))}return it}).filter(it=>!(it.k==="tab"&&!it.rows.length))})})();
 const FD={},DATES=new Set(SPEC.dates),CALCF=new Set(),CHK={};
-const allF=[];SPEC.pages.forEach(pg=>pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>allF.push(f));if(it.k==="tab")it.rows.forEach(r=>r.f.forEach(f=>allF.push(f)));if(it.k==="tri")it.names.forEach((n,i)=>{CHK[n]=it.on[i];FD[n]={n,t:"chk",on:it.on[i],p:it.p,r:it.r}})}));
+const allF=[];SPEC.pages.forEach(pg=>pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>allF.push(f));if(it.k==="tab")it.rows.forEach(r=>r.f.forEach(f=>f&&allF.push(f)));if(it.k==="sigb"){[it.sig,it.nome,it.data].forEach(f=>f&&allF.push(f))}if(it.k==="tri")it.names.forEach((n,i)=>{CHK[n]=it.on[i];FD[n]={n,t:"chk",on:it.on[i],p:it.p,r:it.r}})}));
 allF.forEach(f=>{if(f.t==="radio"){(FD[f.n]=FD[f.n]||Object.assign({},f,{ons:[]})).ons.push(f.on)}else FD[f.n]=FD[f.n]||f;if(f.t==="calc")CALCF.add(f.n);if(f.t==="chk")CHK[f.n]=f.on});
 SPEC.hidden0.forEach(n=>DISP[n]=1);
 // ---------- motore di calcolo: gli script del PDF su un documento simulato
@@ -178,7 +188,9 @@ function pageCover(pi){return SPEC.covers.find(c=>c.p===pi&&DISP[c.n]!==1&&(c.r[
 const hid=f=>DISP[f.n]===1||covered(f);
 // ---------- costruttori
 const tipH=t=>`<div class="tip">i &nbsp;${esc(t)}</div>`;
-function inputH(f,bare){const n=f.n,v=S[n]??"",l=esc(f.l||"")+(f.u?` <u>(${esc(f.u)})</u>`:"");const ro=RO[n]?" disabled":"";
+const NUMRX=/\((V|A|°C|°F|m|mm|kg|g|Ohm|mTorr|bar|MPa|kPa|Hz|%|kW|m2|m3|dm2|h|km|l|K|ore|min|rpm|m3\/h|l\/min|kg\/m3|kg\/m)\)|\b(n°|n\.|numero|q\.tà|quantità|lunghezza|carica|vuoto|tensione|corrente|pressione|temperatura|frequenza|potenza|apertura|superficie|altezza|volume|dislivello|portata|resistenza|ore|km|cap|indirizzo|iCp|AA|oP|iE|TL|TG|Ti|To|W\d|dichiarate|rilevate|totali|sistemi|moduli)\b/i;
+const isNum=(f,ctx)=>!!f&&(f.t==="tx"||f.t==="combo"&&false)&&!f.date&&!/mail|nome|note|modello|_mod$|_sn$|matricola|ser|cliente|indirizzo_imp|ind$|via|citta|tecnico|sat|inst|focus|riferimento/i.test(f.n+" "+(f.l||""))&&(!!f.u||NUMRX.test((f.l||"")+" "+(ctx||"")));
+function inputH(f,bare,ctx){const n=f.n,v=S[n]??"",l=esc(f.l||"")+(f.u?` <u>(${esc(f.u)})</u>`:"");const ro=RO[n]?" disabled":"";
   let h;
   if(f.t==="calc")h=String(val(n)).length>40||/\n/.test(val(n))?`<textarea readonly rows="${Math.min(6,Math.max(2,Math.ceil(String(val(n)).length/40)))}" class="calc ${cls(n)}" data-c="${n}" style="min-height:0;resize:none">${esc(val(n))}</textarea>`:`<input readonly class="calc ${cls(n)}" data-c="${n}" value="${esc(val(n))}">`;
   else if(f.t==="sel"&&(f.o||[]).length<=5&&(f.o||[]).every(x=>["","SI","NO","NV","NA","N.A.","OK","KO"].includes(x))&&!ITEMS[n]){const O=f.o.filter(Boolean);h=`<div class="seg2">${O.map(o=>`<button type="button" class="${v===o?"on"+(o==="NO"||o==="KO"?" no":""):""}" data-sv="${n}" data-v="${o}">${o==="NV"||o==="NA"?"N.A.":o}</button>`).join("")}</div>`;return bare?h:`<div class="tri" style="grid-column:1/-1"><div class="q">${l}</div>${h}</div>`}
@@ -187,8 +199,8 @@ function inputH(f,bare){const n=f.n,v=S[n]??"",l=esc(f.l||"")+(f.u?` <u>(${esc(f
   else if(f.t==="chk")return `<label class="chkf"${bare?"":' style="grid-column:1/-1"'}><input type="checkbox" data-n="${n}" ${S[n]&&S[n]!=="Off"?"checked":""}${ro}>${bare?"":esc(f.l||"")}</label>`;
   else if(f.t==="radio"){const F=FD[n];return `<div class="chips" style="grid-column:1/-1">${F.ons.map(o=>`<label class="chip"><input type="radio" name="r_${n}" data-r="${n}" value="${esc(o)}" ${S[n]===o?"checked":""}>${esc(o)}</label>`).join("")}</div>`}
   else if(f.t==="area")h=`<textarea data-n="${n}"${ro}>${esc(v)}</textarea>`;
-  else if(f.t==="sig")return `<div class="sigs" style="grid-column:1/-1"><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px">${esc(f.l||"Firma")}</div><canvas class="sig" data-sig="${n}"></canvas><div class="sigw" style="display:flex;gap:6px;align-items:center;margin-top:6px"><small style="flex:1;color:var(--mut)">Firmare con il dito, la penna o il mouse</small><button class="btn sm" onclick="clearSig('${n}')">Cancella</button></div></div>`;
-  else h=`<input data-n="${n}" type="${f.date?"date":/mail/i.test(n)?"email":"text"}" value="${esc(v)}"${ro}${/(_v\d|_l\d|_w|tens|_t[a-z]|kg|ohm|hlink|vuoto|press|_p[ab]|^p_|num|_n$|_h\d?$)/i.test(n)?' inputmode="decimal"':""}>`;
+  else if(f.t==="sig")return `<div class="sigs" style="grid-column:1/-1"><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px">${esc(f.l||"Firma")}</div><canvas class="sig" data-sig="${n}"></canvas><div class="sigw" style="display:flex;gap:6px;align-items:center;margin-top:6px"><small style="flex:1;color:var(--mut)">Tocca il riquadro per firmare a schermo intero</small><button class="btn sm" onclick="clearSig('${n}')">Cancella</button></div></div>`;
+  else h=`<input data-n="${n}" type="${f.date?"date":/mail/i.test(n)?"email":"text"}" value="${esc(v)}"${ro}${isNum(f,ctx)||/(_ind|^r\d+_ind)$/.test(n)?' inputmode="decimal" enterkeyhint="next"':' inputmode="text" enterkeyhint="next"'}>`;
   return bare?h:`<label${f.t==="area"||f.t==="calc"&&String(val(n)).length>40?' style="grid-column:1/-1"':""}>${l}${h}</label>`}
 function itemH(it){
   if(it.k==="sec")return null;
@@ -196,19 +208,23 @@ function itemH(it){
   if(it.k==="tip")return tipH(it.t);
   if(it.k==="row"){const F=it.f.filter(f=>!hid(f));if(!F.length)return"";if(F.length===1&&F[0].t==="sig")return inputH(F[0]);
     return `<div class="grid" style="margin:6px 0">${F.map(f=>inputH(f)).join("")}</div>`}
+  if(it.k==="sigb"){if(hid(it.sig))return"";return `<div class="sigbox"><div class="sigt">Firma - ${esc(it.title)}</div><div class="grid">${it.nome?inputH(it.nome):""}${it.data?inputH(it.data):""}</div>${inputH(Object.assign({},it.sig,{l:""}))}</div>`}
+  if(it.k==="uil"){if(it.cp!=null&&pageCover(it.cp))return"";const N=Math.max(1,Math.min(64,parseInt(val(it.cnt))||parseInt(val(it.alt))||1));
+    return `<div class="txt"><b>Unità interne collegate (${N})</b> - il numero di righe segue "U.I. dichiarate". Il modello si sceglie dall'elenco: basta scrivere le prime lettere.</div><datalist id="dl_uim">${UIM.map(x=>`<option value="${x}">`).join("")}</datalist><div class="scroll"><table class="ftab"><tr><th>U.I.</th><th>Modello</th><th>Matricola</th><th>N. indirizzo</th><th>Locale / zona</th></tr>${Array.from({length:N},(_,i)=>{const b=`s${it.s}_ui${i+1}_`;return `<tr><td class="rl">${i+1}</td><td><input data-n="${b}mod" list="dl_uim" autocomplete="off" value="${esc(S[b+"mod"]??"")}" style="min-width:150px"></td><td><input data-n="${b}sn" value="${esc(S[b+"sn"]??"")}" style="min-width:110px"></td><td><input data-n="${b}ind" inputmode="numeric" value="${esc(S[b+"ind"]??"")}" style="min-width:60px;width:70px"></td><td><input data-n="${b}loc" value="${esc(S[b+"loc"]??"")}" style="min-width:110px"></td></tr>`}).join("")}</table></div>`}
   if(it.k==="tri"){if(it.names.every(n=>DISP[n]===1)||covered(FD[it.names[0]]))return"";const cur=it.names.findIndex(n=>S[n]&&S[n]!=="Off");
     return `<div class="tri"><div class="q">${esc(it.l)}</div><div class="seg2">${it.o.map((o,i)=>`<button class="${i===cur?"on"+(o==="NO"||o==="KO"?" no":""):""}" data-tri="${it.names.join(",")}" data-i="${i}">${o==="NV"||o==="NA"?"N.A.":o}</button>`).join("")}</div></div>`}
-  if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>!hid(f)));if(!R.length)return"";
+  if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>f&&!hid(f)));if(!R.length)return"";
     const vis=it.cols.map((c,ci)=>R.some(r=>r.f[ci]&&!hid(r.f[ci])));
-    return `<div class="scroll" style="margin:8px 0"><table class="ftab"><tr><th></th>${it.cols.map((c,ci)=>vis[ci]?`<th>${esc(c)}</th>`:"").join("")}</tr>${R.map(r=>`<tr><td class="rl">${esc(r.l)}</td>${r.f.map((f,ci)=>vis[ci]?`<td>${hid(f)?"":inputH(f,true)}</td>`:"").join("")}</tr>`).join("")}</table></div>`}
+    return `<div class="scroll" style="margin:8px 0"><table class="ftab"><tr><th></th>${it.cols.map((c,ci)=>vis[ci]?`<th>${esc(c)}</th>`:"").join("")}</tr>${R.map(r=>`<tr><td class="rl">${esc(r.l)}</td>${r.f.map((f,ci)=>vis[ci]?`<td>${!f||hid(f)?"":inputH(f,true,it.cols[ci]+" "+r.l)}</td>`:"").join("")}</tr>`).join("")}</table></div>`}
   return ""}
 function pageH(pg){const pc=pageCover(pg.i);if(pc)return `<div class="covmsg">${esc(pc.msg.trim())}</div>`;
   let h="",open=false,body="";const flush=()=>{if(open||body.trim())h+=`<section class="card">${open?`<h2>${esc(open)}</h2>`:""}<div class="body">${body}</div></section>`;body=""};
-  pg.items.forEach(it=>{if(it.k==="sec"){flush();open=it.t}else{const x=itemH(it);if(x)body+=x}});flush();return h}
-const pageTitle=pg=>{const s=pg.items.find(i=>i.k==="sec");let t=s?s.t:"Pagina "+(pg.i+1);t=t.charAt(0)+t.slice(1).toLowerCase();return t.length>34?t.slice(0,32)+"…":t};
-function renderAll(){runCalc();
-  $("#nav").innerHTML=SPEC.pages.map((pg,i)=>`<button class="${i===tab?"on":""}${pageCover(pg.i)?" dim":""}" onclick="go(${i})">${esc(pageTitle(pg))}</button>`).join("");
-  $("#main").innerHTML=(tab===0&&IMPORT_HINT?`<div class="imp">${IMPORT_HINT}</div>`:"")+pageH(SPEC.pages[tab])+`<div class="navb">${tab?`<button class="btn" onclick="go(${tab-1})">← Indietro</button>`:"<span></span>"}${tab<SPEC.pages.length-1?`<button class="btn pri" onclick="go(${tab+1})">Avanti →</button>`:`<button class="btn pri" onclick="doPDF()">Genera PDF</button>`}</div>`;
+  let skip=false;pg.items.forEach(it=>{if(it.k==="sec"){flush();skip=it.cp!=null&&!!pageCover(it.cp);open=skip?false:it.t}else if(!skip){const x=itemH(it);if(x)body+=x}});flush();return h}
+const pageTitle=pg=>{if(pg.title)return pg.title;const f0=pg.items[0];if(f0&&f0.k==="txt"&&f0.t.length<60){const t=f0.t;return t.charAt(0)+t.slice(1).toLowerCase()}const s=pg.items.find(i=>i.k==="sec");let t=s?s.t:"Pagina "+(pg.i+1);t=t.charAt(0)+t.slice(1).toLowerCase();return t.length>34?t.slice(0,32)+"…":t};
+const VP=()=>SPEC.pages.map((pg,i)=>i).filter(i=>!pageCover(SPEC.pages[i].i));
+function renderAll(){runCalc();const V=VP();if(!V.includes(tab))tab=V.filter(i=>i<tab).pop()??V[0];const k=V.indexOf(tab),pv=V[k-1],nx=V[k+1];
+  $("#nav").innerHTML=V.map(i=>`<button class="${i===tab?"on":""}" onclick="go(${i})">${esc(pageTitle(SPEC.pages[i]))}</button>`).join("");
+  $("#main").innerHTML=(tab===0&&IMPORT_HINT?`<div class="imp">${IMPORT_HINT}</div>`:"")+pageH(SPEC.pages[tab])+`<div class="navb">${pv!=null?`<button class="btn" onclick="go(${pv})">← Indietro</button>`:"<span></span>"}${nx!=null?`<button class="btn pri" onclick="go(${nx})">Avanti →</button>`:`<button class="btn pri" onclick="doPDF()">Genera PDF</button>`}</div>`;
   initSig()}
 function soft(){runCalc();
   document.querySelectorAll("[data-n]").forEach(e=>{const n=e.dataset.n;if(e===document.activeElement)return;if(e.type==="checkbox")e.checked=!!(S[n]&&S[n]!=="Off");else if((S[n]??"")!==e.value&&e.tagName!=="SELECT")e.value=S[n]??""});
@@ -257,16 +273,19 @@ async function importPDF(file){try{await loadPdfLib();const pdf=await PDFLib.PDF
 // ---------- PDF
 function doPDF(){runCalc();let h=`<h1>${esc(SPEC.title)}</h1>`;
   const fv=f=>{if(f.t==="chk")return S[f.n]&&S[f.n]!=="Off"?"SI":"";if(f.t==="sig")return"";const v=String(val(f.n)??"");return DATES.has(f.n)?iso2it(v):v};
-  SPEC.pages.forEach(pg=>{if(pageCover(pg.i))return;let sec="",rows=[],pend=[];
+  SPEC.pages.forEach(pg=>{if(pageCover(pg.i))return;let sec="",rows=[],pend=[],skipS=false;
     const out=()=>{if(!rows.length&&!pend.length)return;h+=`<h2>${esc(sec||SPEC.title)}</h2>`;if(rows.length){let t="<table>";for(let i=0;i<rows.length;i+=2)t+=`<tr><td>${esc(rows[i][0])}</td><td>${esc(rows[i][1])}</td><td>${esc(rows[i+1]?rows[i+1][0]:"")}</td><td>${esc(rows[i+1]?rows[i+1][1]:"")}</td></tr>`;h+=t+"</table>"}h+=pend.join("");rows=[];pend=[]};
-    pg.items.forEach(it=>{if(it.k==="sec"){out();sec=it.t;return}
+    pg.items.forEach(it=>{if(it.k==="sec"){out();sec=it.t;skipS=it.cp!=null&&!!pageCover(it.cp);return}if(skipS)return;
       if(it.k==="row")it.f.forEach(f=>{if(hid(f))return;if(f.t==="sig"){if(sig[f.n])pend.push(`<table><tr><th>${esc(f.l||"Firma")}</th></tr><tr><td><img src="${sig[f.n]}"></td></tr></table>`);return}const v=fv(f);if(v)rows.push([(f.l||f.n)+(f.u?" ("+f.u+")":""),v])});
+      if(it.k==="sigb"){if(hid(it.sig))return;const nm=it.nome?val(it.nome.n):"",dt=it.data?iso2it(String(val(it.data.n)||"")):"";if(!nm&&!sig[it.sig.n])return;out();if(!sec)sec="Firme";pend.push(`<table><tr><th>Firma - ${esc(it.title)}${nm?": "+esc(nm):""}${dt?" - "+esc(dt):""}</th></tr><tr><td>${sig[it.sig.n]?`<img src="${sig[it.sig.n]}">`:""}</td></tr></table>`);out();return}
+      if(it.k==="uil"){if(it.cp!=null&&pageCover(it.cp))return;const N=Math.max(1,Math.min(64,parseInt(val(it.cnt))||parseInt(val(it.alt))||1)),b=i=>`s${it.s}_ui${i}_`,R2=[];for(let i=1;i<=N;i++)if(["mod","sn","ind","loc"].some(x=>S[b(i)+x]))R2.push([i].concat(["mod","sn","ind","loc"].map(x=>S[b(i)+x]||"")));if(R2.length){out();pend.push(`<table><tr><th>U.I.</th><th>Modello</th><th>Matricola</th><th>N. indirizzo</th><th>Locale / zona</th></tr>${R2.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>`)}return}
       if(it.k==="tri"){const i=it.names.findIndex(n=>S[n]&&S[n]!=="Off");if(i>=0)rows.push([it.l,it.o[i]==="NV"||it.o[i]==="NA"?"N.A.":it.o[i]])}
-      if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>!hid(f)&&fv(f)));if(R.length){out();pend.push(`<table><tr><th></th>${it.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${R.map(r=>`<tr><td>${esc(r.l)}</td>${r.f.map(f=>`<td>${esc(hid(f)?"":fv(f))}</td>`).join("")}</tr>`).join("")}</table>`)}}});
+      if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>f&&!hid(f)&&fv(f)));if(R.length){out();pend.push(`<table><tr><th></th>${it.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${R.map(r=>`<tr><td>${esc(r.l)}</td>${r.f.map(f=>`<td>${esc(!f||hid(f)?"":fv(f))}</td>`).join("")}</tr>`).join("")}</table>`)}}});
     out()});
   let box=$("#pdfsrc");if(!box){box=document.createElement("div");box.id="pdfsrc";box.style.display="none";document.body.appendChild(box)}box.innerHTML=h;
   PDFK.share(box,{title:SPEC.title,code:SPEC.code,name:base()})}
 load();PR.pull(S,KEYP);renderAll();
 </script>
+<script src="firma.js"></script>
 </body>
 </html>

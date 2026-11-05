@@ -401,5 +401,6 @@ async function doPrint(onlyCart){let d;try{d=pdfBuild(onlyCart===true)}catch(e){
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast("PDF generato: "+name)}
 load();PR.pull(S,"ut");renderAll();
 </script>
+<script src="firma.js"></script>
 </body>
 </html>
