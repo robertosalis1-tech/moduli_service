@@ -11,6 +11,8 @@ var MAP={
  "031":{pr_focus:"focus66",pr_cliente:"cliente",pr_installatore:"installatore",pr_indirizzo:"indirizzo"},
  "032":{vi_cliente:"cliente",vi_installatore:"installatore",vi_nome_tecnico:"tecnico"},
  "033":{v_cliente:"cliente",v_tel:"tel_cli",v_mail:"email_cli",v_ind:"indirizzo",v_focus:"focus66",v_data:"data_avv",v_inst:"installatore",v_sat:"sat",v_tec:"tecnico",s1_m1_mod:"mod_ue",s1_m1_sn:"ser_ue"},
+ "041":{imp_nome:"cliente",focus:"focus66",imp_ind:"indirizzo",inst:"installatore"},
+ "042":{ac_nome:"cliente",ac_tel:"tel_cli",ac_email:"email_cli"},
  "051":{focus:"focus66",cli_nome:"cliente",cli_tel:"tel_cli",cli_via:"indirizzo",cli_cap:"cap",cli_citta:"citta",cli_mail:"email_cli"},
  "052":{ordine_focus:"focus66",data_avv:"data_avv",sat_ditta:"sat",sat_tecnico:"tecnico",ute_nome:"cliente",ute_tel:"tel_cli",ute_email:"email_cli",ute_via:"indirizzo",inst_nome:"installatore",modello:"mod_ue"},
  "062":{cmp_sat:"sat",cmp_tecnico:"tecnico",cmp_tel:"sat_tel",cmp_email:"sat_email",cmp_mod_ue:"mod_ue",cmp_ser_ue:"ser_ue",cmp_ser_comp:"ser_comp",cmp_codice_ricambio:"comp_cod",cmp_codice_errore:"comp_err",cmp_n_intervento:"n_intervento"}};

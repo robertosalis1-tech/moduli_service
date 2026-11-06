@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Modulo assistenza airCloud Home</title>
+<style>
+
+:root{--red:#e60027;--navy:#1f2b45;--blue:#3d7ab8;--txt:#1f2b45;--mut:#667085;--line:#d5dce7;--bg:#f3f5f8;--fld:#fff8c4;--ok:#16794a;--okbg:#ddf3e6;--warn:#a86400;--warnbg:#fff1d6;--ko:#c00;--kobg:#ffe1e1;--na:#eceef1}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+header{background:#fff;position:sticky;top:0;z-index:20;box-shadow:0 1px 4px #0002}
+.band{background:var(--red);color:#fff;font-size:12px;padding:4px 16px}
+.hd{max-width:1100px;margin:auto;display:flex;align-items:center;gap:14px;padding:8px 16px;flex-wrap:wrap}
+.hd img{height:24px}
+.hd h1{font-size:17px;margin:0;flex:1;min-width:200px}
+.hd h1 small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 13px;font:inherit;font-weight:600;cursor:pointer;color:var(--navy)}
+.btn.pri{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+nav{max-width:1100px;margin:auto;display:flex;gap:4px;padding:0 12px;overflow-x:auto}
+nav button{border:0;background:none;padding:9px 11px;font:inherit;font-size:14px;font-weight:600;color:var(--mut);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--navy);border-color:var(--red)}
+nav button i{font-style:normal;display:inline-block;min-width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle;background:#ccd}
+nav button i.ok{background:var(--ok)}nav button i.warn{background:#e0a020}nav button i.ko{background:var(--ko)}
+main{max-width:1100px;margin:auto;padding:14px 16px 80px}
+.pane{display:none}.pane.on{display:block}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 3px #0001;margin:0 0 14px;overflow:hidden}
+.card>h2{margin:0;padding:9px 14px;font-size:13.5px;text-transform:uppercase;letter-spacing:.03em;background:var(--blue);color:#fff}
+.card.na{opacity:.55}.card.na>h2{background:#8a98aa}
+.card .na-msg{padding:16px;color:var(--mut);font-style:italic;background:var(--na)}
+.body{padding:12px 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px}
+label{display:block;font-size:12px;font-weight:600;color:var(--navy)}
+label u{text-decoration:none;color:var(--mut);font-weight:400}
+input,select,textarea{width:100%;margin-top:3px;padding:8px 9px;border:1px solid #c9d2df;border-radius:8px;font:inherit;background:var(--fld)}
+.calc{background:var(--okbg)!important;border-color:#bfe3cc!important;font-weight:600;color:var(--txt)}
+.calc.warn{background:var(--warnbg)!important;color:var(--warn)}.calc.ko{background:var(--kobg)!important;color:var(--ko)}.calc.ok{color:var(--ok)}
+input.warn{background:#ffd99a!important;border-color:#e0a020}
+input.ko{color:var(--ko);border-color:var(--ko)}input.ok{color:var(--ok)}
+textarea{min-height:80px}
+input.off{background:#d9dbe0!important;border-color:#d9dbe0}
+.fcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
+.fcs button{border:3px solid transparent;border-radius:10px;padding:2px;background:#fff;cursor:pointer}
+.fcs button.on{border-color:#1a73d9;box-shadow:0 0 0 3px #1a73d933}
+.fcs img{width:100%;display:block}
+.mors{position:relative;margin-top:10px}
+.mors img{width:100%;display:block}
+.mors i{position:absolute;top:-2px;bottom:-2px;border:2.5px solid;border-radius:4px}
+.mors i.in{border-color:#1a73d9;background:#1a73d914}.mors i.out{border-color:#f27300;background:#f2730014}
+.leg{margin-top:8px;font-size:13px}.leg span{display:inline-block;border-radius:12px;padding:3px 9px;margin:2px;font-weight:600}.leg .in{background:#e3efff;color:#0b4fa0}.leg .out{background:#ffeedd;color:#a24c00}
+.tip{background:#fbe1e1;color:#8a0a0a;font-size:12.5px;font-style:italic;padding:7px 10px;border-radius:8px;margin:10px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:14px;cursor:pointer;background:#fff}
+.chip input{width:18px;height:18px;margin:0;accent-color:var(--red)}
+.dips{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px 24px}
+.dip{display:flex;align-items:center;gap:10px}
+.dip b{width:120px;font-size:13px;font-weight:600}
+.dip .sw{display:flex;gap:4px}
+.dip .sw span{display:flex;flex-direction:column;align-items:center;font-size:10px;color:var(--mut)}
+.dip .sw button{width:24px;height:30px;border:1.5px solid #1f4f78;border-radius:4px;background:#0ff;cursor:pointer;padding:0;position:relative}
+.dip .sw button.on{background:#1f2b45}
+.dip .sw button::after{content:"";position:absolute;left:4px;right:4px;height:9px;background:#fff;border-radius:2px;bottom:3px}
+.dip .sw button.on::after{top:3px;bottom:auto}
+.dip.na{opacity:.35;pointer-events:none}
+table{border-collapse:collapse;width:100%}
+th{background:var(--blue);color:#fff;font-size:12px;text-align:left;padding:6px 7px}
+td{border-bottom:1px solid var(--line);padding:3px 5px;font-size:13px}
+td input{margin:0;padding:5px 6px}
+td.code{font-weight:700;color:#1f4f78;white-space:nowrap}
+tr.sub td{background:#e3ebf6;font-style:italic;font-weight:600;color:#1f4f78}
+td.na input{background:var(--na);border-color:var(--na)}
+.scroll{overflow-x:auto}
+.ck{display:grid;grid-template-columns:30px 1fr repeat(3,48px);align-items:center;border-bottom:1px solid var(--line);padding:5px 0;gap:4px}
+.ck .n{font-weight:700;color:var(--blue);text-align:center}.ck .t{font-size:13.5px}.ck .imp{color:var(--red);font-weight:700;font-size:11px}
+.ck input{width:20px;height:20px;justify-self:center;accent-color:var(--red)}
+.ck.na{opacity:.4;pointer-events:none}
+.ckh{font-size:12px;font-weight:700;color:var(--mut);border-bottom:2px solid var(--line)}.ckh span{text-align:center}
+.esito{padding:12px 14px;border-radius:10px;font-weight:700;font-size:16px}
+.esito.ok{background:var(--okbg);color:var(--ok)}.esito.warn{background:var(--warnbg);color:var(--warn)}.esito.ko{background:var(--kobg);color:var(--ko)}.esito.none{background:var(--na);color:var(--mut)}
+.esito ul{margin:6px 0 0;padding-left:18px;font-weight:500;font-size:14px}
+.pill{display:inline-block;border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;background:var(--na);color:var(--mut)}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.warn{background:var(--warnbg);color:var(--warn)}.pill.ko{background:var(--kobg);color:var(--ko)}
+.sig{border:1px dashed #9aa6b8;border-radius:10px;background:#fff;touch-action:none;width:100%;height:140px;display:block}
+.navb{display:flex;justify-content:space-between;margin-top:10px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;opacity:0;transition:.3s;z-index:50}
+.toast.on{opacity:1}
+#print{display:none}
+@media print{
+  header,main,.toast{display:none!important}
+  #print{display:block;font:9.5pt/1.3 Helvetica,Arial,sans-serif;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #print .pband{background:#e60027;color:#fff;font-size:8pt;padding:3pt 6pt;margin:4pt 0}
+  #print h1{font-size:15pt;margin:2pt 0}
+  #print h2{font-size:10pt;background:#3d7ab8;color:#fff;padding:3pt 6pt;margin:9pt 0 3pt;text-transform:uppercase}
+  #print table{width:100%;border-collapse:collapse;margin:2pt 0 5pt}
+  #print th{background:#e3ebf6;color:#1f2b45;border:1px solid #aab;font-size:7.5pt;padding:2pt 3pt;text-align:left}
+  #print td{border:1px solid #ccd;font-size:8pt;padding:2pt 4pt}
+  #print .pb{page-break-before:always}
+  #print .es{padding:5pt;font-weight:700;border:1px solid #999}
+  @page{size:A4;margin:11mm}
+}
+
+header{position:static!important;box-shadow:none!important}
+.navw{position:sticky;top:0;z-index:20;background:#fff;box-shadow:0 1px 4px #0002}
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.band{padding-top:calc(4px + env(safe-area-inset-top))}
+input:not([type=email]):not([type=date]):not([type=time]),textarea{text-transform:uppercase}
+.txt{font-size:13px;color:#3a4558;margin:8px 0}
+.tri{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:7px 0}
+.tri .q{font-size:13.5px}.seg2{display:flex;gap:4px}
+.seg2 button{min-width:46px;border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:6px 8px;font:inherit;font-weight:700;font-size:13px;color:var(--mut);cursor:pointer}
+.seg2 button.on{background:var(--navy);border-color:var(--navy);color:#fff}.seg2 button.on.no{background:var(--ko);border-color:var(--ko)}
+.ftab td{padding:3px 4px}.ftab td.rl{font-size:12.5px;font-weight:600;color:var(--navy);white-space:nowrap;max-width:200px;white-space:normal}
+.ftab input,.ftab select{min-width:70px;padding:5px 6px;margin:0}
+.ftab .calc{font-size:12.5px}
+.covmsg{background:#eceef1;border-radius:12px;padding:30px 16px;text-align:center;color:var(--mut);font-weight:600;white-space:pre-line}
+.chkf{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500}.chkf input{width:20px;height:20px;margin:0;accent-color:var(--red)}
+.sigs .sig{height:170px}
+nav button.dim{opacity:.45}
+.sigbox{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0;background:#fbfcfe}.sigt{font-weight:700;color:var(--navy);margin-bottom:6px}
+.imp{background:#eef5ff;border:1px solid #b9d3f3;border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:13.5px}
+</style>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><script src="pratica.js"></script><script src="lib/jspdf.umd.min.js"></script><script src="lib/jspdf.plugin.autotable.min.js"></script><script src="pdfk.js"></script><script src="pdffill.js"></script>
+</head>
+<body>
+<header>
+  <div class="band"><b>Bosch Home Comfort Cooling and Heating SAS</b> &nbsp;|&nbsp; MOD 04.2 - Rev. 10/2026</div>
+  <div class="hd"><a class="btn sm" href="./" style="text-decoration:none;white-space:nowrap">← Moduli</a>
+    <img src="logo.png" alt="Bosch">
+    <h1>Modulo assistenza airCloud Home<small>MOD 04.2 · app Moduli Service</small></h1>
+    <button class="btn sm" onclick="saveJSON()">Esporta dati</button>
+    <label class="btn sm" style="display:inline-block;margin:0">Importa<input type="file" accept=".json,.pdf,application/pdf" style="display:none" onchange="importFile(this)"></label>
+    <button class="btn sm" onclick="if(confirm('Cancellare tutti i dati inseriti in questo modulo?')){S={};sig={};PR.pull(S,KEYP);save();tab=0;renderAll()}">Nuovo</button>
+    <button class="btn pri" onclick="doPDF()">Genera PDF</button>
+  </div>
+</header>
+<div class="navw"><nav id="nav"></nav></div>
+<main id="main"></main>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const SPEC={"code": "MOD 04.2", "title": "Modulo assistenza airCloud Home", "pages": [{"i": 0, "items": [{"k": "sec", "t": "DATI DI CONTATTO"}, {"k": "row", "f": [{"n": "ac_nome", "r": [150, 127, 296, 140], "p": 0, "t": "tx", "l": "Nome e cognome"}, {"n": "ac_tel", "r": [404, 127, 567, 140], "p": 0, "t": "tx", "l": "Telefono"}]}, {"k": "row", "f": [{"n": "ac_email", "r": [150, 143, 567, 156], "p": 0, "t": "tx", "l": "Email per essere ricontattati"}]}, {"k": "row", "f": [{"n": "ac_account", "r": [200, 159, 430, 172], "p": 0, "t": "tx", "l": "Email o telefono usati per la registrazione"}]}, {"k": "tip", "t": "(password account non necessaria)"}, {"k": "sec", "t": "IDENTIFICATIVO / I MODULO WI-FI (DA ETICHETTA)"}, {"k": "row", "f": [{"n": "ac_mod_1", "r": [150, 200, 296, 213], "p": 0, "t": "tx", "l": "Modulo 1"}, {"n": "ac_mod_2", "r": [404, 200, 567, 213], "p": 0, "t": "tx", "l": "Modulo 2"}]}, {"k": "row", "f": [{"n": "ac_mod_3", "r": [150, 216, 296, 229], "p": 0, "t": "tx", "l": "Modulo 3"}, {"n": "ac_mod_4", "r": [404, 216, 567, 229], "p": 0, "t": "tx", "l": "Modulo 4"}]}, {"k": "row", "f": [{"n": "ac_mod_5", "r": [150, 232, 296, 245], "p": 0, "t": "tx", "l": "Modulo 5"}]}, {"k": "sec", "t": "DISPOSITIVO UTILIZZATO"}, {"k": "row", "f": [{"n": "ac_so", "r": [150, 273, 296, 286], "p": 0, "t": "sel", "o": ["", "Android", "iOS"], "l": "Sistema operativo del telefono"}, {"n": "ac_so_ver", "r": [404, 273, 567, 286], "p": 0, "t": "tx", "l": "Versione SO"}]}, {"k": "row", "f": [{"n": "ac_tel_modello", "r": [150, 289, 296, 302], "p": 0, "t": "tx", "l": "Modello del telefono"}, {"n": "ac_app_ver", "r": [404, 289, 567, 302], "p": 0, "t": "tx", "l": "Versione app airCloud Go"}]}, {"k": "sec", "t": "DETTAGLI DEL PROBLEMA"}, {"k": "row", "f": [{"n": "ac_data", "r": [150, 330, 296, 343], "p": 0, "t": "tx", "date": 1, "l": "Data del fenomeno (gg/mm/aaaa)"}, {"n": "ac_ora", "r": [404, 330, 567, 343], "p": 0, "t": "tx", "l": "Ora"}]}, {"k": "row", "f": [{"n": "ac_riprodotto", "r": [404, 346, 567, 359], "p": 0, "t": "sel", "o": ["", "SI", "NO", "Non testato"], "l": "Problema riprodotto su piattaforma diversa (Android / iOS)?"}]}, {"k": "sec", "t": "ALTRE INFORMAZIONI UTILI ALLA RISOLUZIONE"}, {"k": "row", "f": [{"n": "ac_note", "r": [28, 389, 567, 481], "p": 0, "t": "area", "l": "Altre informazioni utili alla risoluzione"}]}, {"k": "sec", "t": "CARATTERISTICHE WI-FI"}, {"k": "tip", "t": "Verificare che il Wi-Fi del router sia di tipo compatibile con l'interfaccia e correttamente configurato. Le impostazioni di default dei router forniti dagli operatori telefonici spesso non sono compatibili (es. WPA2, WPA2+WPA3, WPA3, MESH, altro non specificato)."}, {"k": "row", "f": [{"n": "ac_wifi_sec", "r": [150, 534, 296, 547], "p": 0, "t": "sel", "o": ["", "WPA2", "WPA2 + WPA3", "WPA3", "MESH", "Altro / non specificato"], "l": "Tipo di sicurezza Wi-Fi del router"}, {"n": "ac_wifi_24", "r": [440, 534, 567, 547], "p": 0, "t": "sel", "o": ["", "SI", "NO"], "l": "Rete Wi-Fi 2,4 GHz disponibile?"}]}, {"k": "sec", "t": "SUGGERIMENTI PER L'ASSOCIAZIONE AL WI-FI (METODO AP)"}, {"k": "txt", "t": "Disattivare i dati mobili del telefono per il tempo necessario alla configurazione (connessione via SIM). Assicurarsi che il telefono sia connesso alla rete Wi-Fi / punto di accesso a cui verrà collegato il climatizzatore. Per router MESH: attivare una \"Wi-Fi ospiti\" o \"Wi-Fi IoT\" senza MESH per i dispositivi che non la supportano. Alla richiesta \"Spegnere e riaccendere il climatizzatore\": togliere corrente solo al climatizzatore, il router deve restare alimentato."}, {"k": "sec", "t": "CONSENSO PRIVACY E FIRMA"}, {"k": "txt", "t": "Compilando il presente modulo si acconsente al trattamento dei dati personali per finalità di assistenza tecnica, in conformità alla normativa vigente in materia di protezione dei dati (Regolamento UE 2016/679)."}, {"k": "row", "f": [{"n": "ac_consenso_privacy", "r": [32, 669, 42, 679], "p": 0, "t": "chk", "on": "Yes", "l": "Firma del richiedente Consenso espresso al trattamento dei dati"}]}, {"k": "row", "f": [{"n": "ac_firma", "r": [300, 677, 567, 723], "p": 0, "t": "sig", "l": "Firma del richiedente"}]}, {"k": "row", "f": [{"n": "ac_data_firma", "r": [60, 690, 180, 703], "p": 0, "t": "tx", "l": "Data"}]}]}], "calc": [], "dates": ["ac_data"], "hidden0": [], "covers": []},KEYP="042",KEY="form_"+SPEC.code.replace(/\W/g,"")+"_v1",IMPORT_HINT="";
+let S={},C={},COL={},DISP={},RO={},ITEMS={},sig={},tab=0;
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// ---------- indice dei campi
+const UIM=[];
+(function prep(){SPEC.pages.forEach(pg=>{const sigs=[];pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>{if(f.t!=="sig"&&/firma/i.test(f.n)&&!/(nome|data)$/i.test(f.n)&&(f.t==="area"||f.t==="tx")&&f.r&&f.r[3]-f.r[1]>14)f.t="sig";if(f.t==="sig"&&/firma$/i.test(f.n))sigs.push(f)})});
+  sigs.forEach(sf=>{const P=sf.n.replace(/firma$/i,""),want={nome:P+"nome",data:P+"data"},got={};let title="";
+    const near=f=>!f.r||!sf.r||Math.abs(f.r[1]-sf.r[1])<120;
+    pg.items.forEach(it=>{if(it.k==="row")it.f=it.f.filter(f=>{for(const k in want)if(f.n===want[k]&&near(f)){got[k]=f;return false}return true});
+      if(it.k==="tab"){it.rows.forEach(r=>{r.f.forEach((f,ci)=>{for(const k in want)if(f&&f.n===want[k]&&near(f)){got[k]=f;if(k==="nome")title=(it.cols[ci]||"").replace(/FIRME|Nome e cognome/gi,"").trim();r.f[ci]=null}})})}});
+    if(got.nome)got.nome.l="Nome e cognome";if(got.data)got.data.l="Data";pg.items.forEach((it,i)=>{if(it.k==="row"&&it.f.length===1&&it.f[0]===sf)pg.items[i]={k:"sigb",sig:sf,nome:got.nome,data:got.data,title:title||sf.l||"Firma"}})});
+  pg.items=pg.items.filter(it=>!(it.k==="txt"&&(/^Verifica( \(segue\))?( SI)?( NO)? N\.A\.$/.test(it.t.trim())||/^(Data\s*)+$/.test(it.t)||/MOD \d\d\.\d\s*$/.test(it.t)||/^MODULO\b/.test(it.t))));
+  for(let i=0;i<pg.items.length-1;i++){const it=pg.items[i],nx=pg.items[i+1];if(it.k==="row"&&it.f.length===1&&it.f[0].t==="chk"&&!(it.f[0].l||"").trim()&&nx.k==="txt"){it.f[0].l=nx.t;pg.items.splice(i+1,1)}}
+  pg.items=pg.items.filter(it=>!(it.k==="row"&&!it.f.length)).map(it=>{if(it.k==="tab"){const keep=it.cols.map((c,ci)=>it.rows.some(r=>r.f[ci]));it.cols=it.cols.filter((c,ci)=>keep[ci]);it.rows=it.rows.map(r=>({l:r.l,f:r.f.filter((f,ci)=>keep[ci])})).filter(r=>r.f.some(Boolean))}return it}).filter(it=>!(it.k==="tab"&&!it.rows.length))})})();
+const FD={},DATES=new Set(SPEC.dates),CALCF=new Set(),CHK={};
+const allF=[];SPEC.pages.forEach(pg=>pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>allF.push(f));if(it.k==="tab")it.rows.forEach(r=>r.f.forEach(f=>f&&allF.push(f)));if(it.k==="sigb"){[it.sig,it.nome,it.data].forEach(f=>f&&allF.push(f))}if(it.fs)it.fs.forEach(f=>f&&allF.push(f));if(it.k==="tri")it.names.forEach((n,i)=>{CHK[n]=it.on[i];FD[n]={n,t:"chk",on:it.on[i],p:it.p,r:it.r}})}));
+allF.forEach(f=>{if(f.t==="radio"){(FD[f.n]=FD[f.n]||Object.assign({},f,{ons:[]})).ons.push(f.on)}else FD[f.n]=FD[f.n]||f;if(f.t==="calc")CALCF.add(f.n);if(f.t==="chk")CHK[f.n]=f.on});
+SPEC.hidden0.forEach(n=>DISP[n]=1);
+// ---------- motore di calcolo: gli script del PDF su un documento simulato
+const iso2it=v=>/^\d{4}-\d\d-\d\d$/.test(v)?v.split("-").reverse().join("/"):v;
+const it2iso=v=>{const m=/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/.exec(String(v||"").trim());return m?`${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`:v};
+const display={visible:0,hidden:1,noPrint:3,noView:2},color={black:["G",0],white:["G",1],red:["RGB",1,0,0],green:["RGB",0,1,0],blue:["RGB",0,0,1],transparent:["T"]};
+const app={alert(){},beep(){}};
+const EXT=(function(){;return typeof ext!=="undefined"?ext:{}})();
+EXT.items=Object.assign({cartbtn:{html:function(){return '<div class="cta" style="margin:10px 0"><button class="btn pri" onclick="doPDF(\'cart\')">PDF cartolina garanzia per l\'utente</button></div><div class="tip">i &nbsp;La cartolina (dati, condizioni di garanzia e ricevuta firmata) si genera anche da sola: inviarla all\'utente finale e a service-italia@bosch-hcgroup.com. Il PDF completo del verbale la include in fondo.</div>'},pdf:function(){return""}}},EXT.items||{});
+function runCalc(){try{EXT.pre&&EXT.pre()}catch(e){console.error(e)}if(!SPEC.calc.length){try{EXT.post&&EXT.post()}catch(e){console.error(e)}return}let changed=true;
+  for(let pass=0;pass<4&&changed;pass++){changed=false;const fields={};
+    const doc={getField(n){if(!(n in FD)&&!/^v_|cov|calc/.test(n)&&!SPEC.covers.some(c=>c.n===n)&&!(n in S)&&!(n in C)&&!SPEC.hidden0.includes(n))return fields[n]||(fields[n]=mk(n));return fields[n]||(fields[n]=mk(n))}};
+    function mk(n){return{name:n,
+      get value(){if(n in C)return C[n];if(n in CHK)return S[n]&&S[n]!=="Off"?S[n]:"Off";const v=S[n]??"";return DATES.has(n)?iso2it(v):v},
+      get valueAsString(){return String(this.value)},
+      set value(v){v=v==null?"":String(v);if(CALCF.has(n)||/cov/.test(n)){C[n]=v}else{if(DATES.has(n))v=it2iso(v);if((S[n]??"")!==v){S[n]=v;changed=true}}},
+      set textColor(c){COL[n]=c},get textColor(){return COL[n]||["G",0]},set fillColor(c){COL[n+"#bg"]=c},get fillColor(){return COL[n+"#bg"]||["T"]},
+      set borderColor(c){},get borderColor(){return["T"]},set strokeColor(c){},get strokeColor(){return["T"]},
+      get display(){return DISP[n]??0},set display(v){DISP[n]=v},get hidden(){return DISP[n]===1},set hidden(v){DISP[n]=v?1:0},
+      get readonly(){return !!RO[n]},set readonly(v){RO[n]=v},set textSize(v){},get textSize(){return 0},
+      get rect(){const f=FD[n];return f&&f.r?[f.r[0],842-f.r[1],f.r[2],842-f.r[3]]:[0,0,100,20]},get page(){const f=FD[n];return f?f.p:0},
+      get type(){const f=FD[n];return !f?"text":f.t==="sel"||f.t==="combo"?"combobox":f.t==="chk"?"checkbox":f.t==="radio"?"radiobutton":"text"},
+      setItems(a){ITEMS[n]=a},getItemAt(i){return (ITEMS[n]||[])[i]},get numItems(){return (ITEMS[n]||[]).length},checkThisBox(i,on){S[n]=on?(CHK[n]||"Yes"):"Off"},isBoxChecked(){return S[n]&&S[n]!=="Off"}}}
+    SPEC.calc.forEach(c=>{const ev={value:C[c.n]??"",target:doc.getField(c.n)};try{new Function("display","event","color","app",c.js).call(doc,display,ev,color,app)}catch(e){console.error(e)}})}
+  try{EXT.post&&EXT.post()}catch(e){console.error(e)}
+  save()}
+const cls=n=>{const b=COL[n+"#bg"];if(b&&b[0]==="RGB"){if(b[1]>0.95&&b[2]<0.9&&b[3]<0.9)return"ko";if(b[1]>0.95&&b[2]>0.85&&b[3]<0.8)return"warn";if(b[2]>0.9&&b[1]<0.9)return"ok"}
+  const c=COL[n];if(!c||c[0]!=="RGB")return"";if(c[1]>0.6&&c[2]<0.2)return"ko";if(c[1]>0.6&&c[2]>0.3&&c[3]<0.2)return"warn";if(c[2]>0.35&&c[1]<0.2)return"ok";return""};
+const val=n=>C[n]??S[n]??"";
+// ---------- coperture (sezioni non applicabili)
+const PGAREA=595*842;
+function covered(f){if(!f||!f.r)return false;return SPEC.covers.some(c=>c.p===f.p&&DISP[c.n]!==1&&f.r[0]>=c.r[0]-2&&f.r[2]<=c.r[2]+2&&f.r[1]>=c.r[1]-2&&f.r[3]<=c.r[3]+2)}
+function pageCover(pi){return SPEC.covers.find(c=>c.p===pi&&DISP[c.n]!==1&&(c.r[2]-c.r[0])*(c.r[3]-c.r[1])>PGAREA*0.55)}
+const hid=f=>DISP[f.n]===1||covered(f);
+// ---------- costruttori
+const tipH=t=>`<div class="tip">i &nbsp;${esc(t)}</div>`;
+const NUMRX=/\((V|A|°C|°F|m|mm|kg|g|Ohm|mTorr|bar|MPa|kPa|Hz|%|kW|m2|m3|dm2|h|km|l|K|ore|min|rpm|m3\/h|l\/min|kg\/m3|kg\/m)\)|\b(n°|n\.|numero|q\.tà|quantità|lunghezza|carica|vuoto|tensione|corrente|pressione|temperatura|frequenza|potenza|apertura|superficie|altezza|volume|dislivello|portata|resistenza|ore|km|cap|indirizzo|iCp|AA|oP|iE|TL|TG|Ti|To|W\d|dichiarate|rilevate|totali|sistemi|moduli)\b/i;
+const isNum=(f,ctx)=>!!f&&(f.t==="tx"||f.t==="combo"&&false)&&!f.date&&!/mail|nome|note|modello|_mod$|_sn$|matricola|ser|cliente|indirizzo_imp|ind$|via|citta|tecnico|sat|inst|focus|riferimento/i.test(f.n+" "+(f.l||""))&&(!!f.u||NUMRX.test((f.l||"")+" "+(ctx||"")));
+function inputH(f,bare,ctx){const n=f.n,v=S[n]??"",l=esc(f.l||"")+(f.u?` <u>(${esc(f.u)})</u>`:"");const ro=RO[n]?" disabled":"";
+  let h;
+  if(f.t==="calc")h=String(val(n)).length>40||/\n/.test(val(n))?`<textarea readonly rows="${Math.min(6,Math.max(2,Math.ceil(String(val(n)).length/40)))}" class="calc ${cls(n)}" data-c="${n}" style="min-height:0;resize:none">${esc(val(n))}</textarea>`:`<input readonly class="calc ${cls(n)}" data-c="${n}" value="${esc(val(n))}">`;
+  else if(f.t==="sel"&&(f.o||[]).length<=5&&(f.o||[]).every(x=>["","SI","NO","NV","NA","N.A.","OK","KO"].includes(x))&&!ITEMS[n]){const O=f.o.filter(Boolean);h=`<div class="seg2">${O.map(o=>`<button type="button" class="${v===o?"on"+(o==="NO"||o==="KO"?" no":""):""}" data-sv="${n}" data-v="${o}">${o==="NV"||o==="NA"?"N.A.":o}</button>`).join("")}</div>`;return bare?h:`<div class="tri" style="grid-column:1/-1"><div class="q">${l}</div>${h}</div>`}
+  else if(f.t==="sel"){const o=(ITEMS[n]||f.o||[""]).map(x=>Array.isArray(x)?x[0]:x);h=`<select data-n="${n}"${ro}>${(o.includes(v)?o:o.concat([v])).map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("")}</select>`}
+  else if(f.t==="combo"){const o=(ITEMS[n]||f.o||[]).map(x=>Array.isArray(x)?x[0]:x).filter(Boolean);h=`<input data-n="${n}" list="dl_${n}" autocomplete="off" value="${esc(v)}"${ro}><datalist id="dl_${n}">${o.map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`}
+  else if(f.t==="chk")return `<label class="chkf"${bare?"":' style="grid-column:1/-1"'}><input type="checkbox" data-n="${n}" ${S[n]&&S[n]!=="Off"?"checked":""}${ro}>${bare?"":esc(f.l||"")}</label>`;
+  else if(f.t==="radio"){const F=FD[n];return `<div class="chips" style="grid-column:1/-1">${F.ons.map(o=>`<label class="chip"><input type="radio" name="r_${n}" data-r="${n}" value="${esc(o)}" ${S[n]===o?"checked":""}>${esc(o)}</label>`).join("")}</div>`}
+  else if(f.t==="area")h=`<textarea data-n="${n}"${ro}>${esc(v)}</textarea>`;
+  else if(f.t==="sig")return `<div class="sigs" style="grid-column:1/-1"><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px">${esc(f.l||"Firma")}</div><canvas class="sig" data-sig="${n}"></canvas><div class="sigw" style="display:flex;gap:6px;align-items:center;margin-top:6px"><small style="flex:1;color:var(--mut)">Tocca il riquadro per firmare a schermo intero</small><button class="btn sm" onclick="clearSig('${n}')">Cancella</button></div></div>`;
+  else h=`<input data-n="${n}" type="${f.date?"date":/mail/i.test(n)?"email":"text"}" value="${esc(v)}"${ro}${isNum(f,ctx)||/(_ind|^r\d+_ind)$/.test(n)?' inputmode="decimal" enterkeyhint="next"':' inputmode="text" enterkeyhint="next"'}>`;
+  return bare?h:`<label${f.t==="area"||f.t==="calc"&&String(val(n)).length>40?' style="grid-column:1/-1"':""}>${l}${h}</label>`}
+function itemH(it){if(EXT.items&&EXT.items[it.k])return EXT.items[it.k].html(it);
+  if(it.k==="sec")return null;
+  if(it.k==="txt")return `<div class="txt">${esc(it.t)}</div>`;
+  if(it.k==="tip")return tipH(it.t);
+  if(it.k==="row"){const F=it.f.filter(f=>!hid(f));if(!F.length)return"";if(F.length===1&&F[0].t==="sig")return inputH(F[0]);
+    return `<div class="grid" style="margin:6px 0">${F.map(f=>inputH(f)).join("")}</div>`}
+  if(it.k==="sigb"){if(hid(it.sig))return"";return `<div class="sigbox"><div class="sigt">Firma - ${esc(it.title)}</div><div class="grid">${it.nome?inputH(it.nome):""}${it.data?inputH(it.data):""}</div>${inputH(Object.assign({},it.sig,{l:""}))}</div>`}
+  if(it.k==="uil"){if(it.cp!=null&&pageCover(it.cp))return"";const N=Math.max(1,Math.min(64,parseInt(val(it.cnt))||parseInt(val(it.alt))||1));
+    return `<div class="txt"><b>Unità interne collegate (${N})</b> - il numero di righe segue "U.I. dichiarate". Il modello si sceglie dall'elenco: basta scrivere le prime lettere.</div><datalist id="dl_uim">${UIM.map(x=>`<option value="${x}">`).join("")}</datalist><div class="scroll"><table class="ftab"><tr><th>U.I.</th><th>Modello</th><th>Matricola</th><th>N. indirizzo</th><th>Locale / zona</th></tr>${Array.from({length:N},(_,i)=>{const b=`s${it.s}_ui${i+1}_`;return `<tr><td class="rl">${i+1}</td><td><input data-n="${b}mod" list="dl_uim" autocomplete="off" value="${esc(S[b+"mod"]??"")}" style="min-width:150px"></td><td><input data-n="${b}sn" value="${esc(S[b+"sn"]??"")}" style="min-width:110px"></td><td><input data-n="${b}ind" inputmode="numeric" value="${esc(S[b+"ind"]??"")}" style="min-width:60px;width:70px"></td><td><input data-n="${b}loc" value="${esc(S[b+"loc"]??"")}" style="min-width:110px"></td></tr>`}).join("")}</table></div>`}
+  if(it.k==="tri"){if(it.names.every(n=>DISP[n]===1)||covered(FD[it.names[0]]))return"";const cur=it.names.findIndex(n=>S[n]&&S[n]!=="Off");
+    return `<div class="tri"><div class="q">${esc(it.l).replace(/\s*IMPORTANTE\s*$/,' <span style="display:inline-block;background:#e60027;color:#fff;font-size:10.5px;font-weight:700;border-radius:4px;padding:1px 5px">IMPORTANTE</span>')}</div><div class="seg2">${it.o.map((o,i)=>`<button class="${i===cur?"on"+(o==="NO"||o==="KO"?" no":""):""}" data-tri="${it.names.join(",")}" data-i="${i}">${o==="NV"||o==="NA"?"N.A.":o}</button>`).join("")}</div></div>`}
+  if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>f&&!hid(f)));if(!R.length)return"";
+    const vis=it.cols.map((c,ci)=>R.some(r=>r.f[ci]&&!hid(r.f[ci])));
+    const TH=[];it.cols.forEach((c,ci)=>{if(!vis[ci])return;const L=TH[TH.length-1];if(L&&L.c===c&&c&&L.last===ci-1){L.n++;L.last=ci}else TH.push({c,n:1,last:ci})});
+    return `<div class="scroll" style="margin:8px 0"><table class="ftab"><tr><th></th>${TH.map(h=>`<th${h.n>1?` colspan="${h.n}" style="text-align:center"`:""}>${esc(h.c)}</th>`).join("")}</tr>${R.map(r=>`<tr><td class="rl">${esc(r.l)}</td>${r.f.map((f,ci)=>vis[ci]?`<td>${!f||hid(f)?"":inputH(f,true,it.cols[ci]+" "+r.l)}</td>`:"").join("")}</tr>`).join("")}</table></div>`}
+  return ""}
+function pageH(pg){const pc=pageCover(pg.i);if(pc)return `<div class="covmsg">${esc(pc.msg.trim())}</div>`;
+  let h="",open=false,body="",chg=false;const flush=()=>{if(chg)body+=CHGNOTE;if(open||body.trim())h+=`<section class="card">${open?`<h2>${esc(open)}</h2>`:""}<div class="body">${body}</div></section>`;body="";chg=false};
+  let skip=false;pg.items.forEach(it=>{if(it.k==="sec"){flush();skip=it.cp!=null&&!!pageCover(it.cp);open=skip?false:it.t}else if(!skip){const x=itemH(it);if(x){body+=x;if(isChg(it))chg=true}}});flush();return h}
+const CHGNOTE=`<div class="tip" style="background:#fff4e0;border-color:#f0b45a;color:#7a3b00">⚠ &nbsp;<b>Calcolo della carica indicativo:</b> i conti sono approssimativi e l'unico riferimento certo è il manuale di installazione dell'unità. In caso di dubbio contattare il Service Hitachi.</div>`;
+const isChg=it=>it.k==="charge"||it.k==="riep033"||(it.k==="row"&&it.f.some(f=>f.t==="calc"&&/carica|refrigerante agg|kg di refr/i.test(f.l||"")))||(it.k==="tab"&&it.rows.some(r=>r.f.some(f=>f&&f.t==="calc"))&&(it.cols.join(" ")+" "+it.rows.map(r=>r.l).join(" ")).match(/carica|W0|W1|W2/i));
+const ACR=new Set("ACS UE UI U.E. U.I. VRF SAT PDC CSNET HP DSW RSW PCB H-LINK BMS LAN IP KNX BACNET GDPR BHC MOD NFC ATW TCIT ODUT IDUT FOCUS CE ISO EN UNI CEI DM DPR PED F-GAS SMS WI-FI APP SO NA NC COP EER PIN ID QR USB R32 R410A R290 R454B A2L A3 A1 DHW TV OK KO MA".split(" "));
+const sc=t=>{let first=true;return String(t).split(/(\s+|[\/(),:;-])/).map(w=>{if(!/[A-Za-zÀ-ÿ]/.test(w))return w;const u=w.toUpperCase().replace(/[.,;:]+$/,"");let r;if(/\d/.test(w)||ACR.has(u)||/^([A-Z]\.){2,}$/.test(w))r=w;else{r=w.toLowerCase();if(first)r=r.charAt(0).toUpperCase()+r.slice(1)}first=false;return r}).join("")};
+const BR=new Set("set free max pro samurai yutaki utopia mini hitachi bosch airh2o aircloud tap home go yutampo".split(" "));
+const pageTitle=pg=>{if(pg.title)return pg.title;const good=x=>x&&x.length>=6&&/[A-Za-zÀ-ÿ]{4}/.test(x)&&!/:\s*$|N\.A\.|\(segue\)|^Hc-|^\d+$/.test(x.trim()),s=pg.items.find(i=>i.k==="sec"&&good(i.t)),f0=pg.items[0];let t;
+  if(f0&&f0.k==="txt"&&f0.t.length<60&&good(f0.t))t=f0.t;else if(s)t=s.t;
+  else{const j=SPEC.pages.indexOf(pg);t=j>0?pageTitle(SPEC.pages[j-1]).replace(/ \(segue\)$/,"").replace(/…$/,"")+" (segue)":"Pagina "+(pg.i+1);return t.length>34?t.slice(0,32)+"…":t}
+  t=sc(t).replace(/\b([a-zà-ÿ0-9]+)\b/gi,(w,x,o)=>BR.has(w.toLowerCase())&&o>0?w.charAt(0).toUpperCase()+w.slice(1).toLowerCase().replace("airh2o","airH2O"):w).replace(/\b(Samurai|Yutaki) ([lmsh])\b/g,(a,b,c)=>b+" "+c.toUpperCase()).replace(/\bAirh2o\b/g,"airH2O").replace(/\bAircloud\b/g,"airCloud");return t.length>34?t.slice(0,32)+"…":t};
+const VP=()=>SPEC.pages.map((pg,i)=>i).filter(i=>!pageCover(SPEC.pages[i].i));
+function renderAll(){runCalc();const V=VP();if(!V.includes(tab))tab=V.filter(i=>i<tab).pop()??V[0];const k=V.indexOf(tab),pv=V[k-1],nx=V[k+1];
+  $("#nav").innerHTML=V.map(i=>`<button class="${i===tab?"on":""}" onclick="go(${i})">${esc(pageTitle(SPEC.pages[i]))}</button>`).join("");
+  $("#main").innerHTML=(tab===0&&IMPORT_HINT?`<div class="imp">${IMPORT_HINT}</div>`:"")+pageH(SPEC.pages[tab])+`<div class="navb">${pv!=null?`<button class="btn" onclick="go(${pv})">← Indietro</button>`:"<span></span>"}${nx!=null?`<button class="btn pri" onclick="go(${nx})">Avanti →</button>`:`<button class="btn pri" onclick="doPDF()">Genera PDF</button>`}</div>`;
+  initSig()}
+function soft(){runCalc();
+  document.querySelectorAll("[data-n]").forEach(e=>{const n=e.dataset.n;if(e===document.activeElement)return;if(e.type==="checkbox")e.checked=!!(S[n]&&S[n]!=="Off");else if((S[n]??"")!==e.value&&e.tagName!=="SELECT")e.value=S[n]??""});
+  document.querySelectorAll("[data-c]").forEach(e=>{e.value=val(e.dataset.c);e.className=e.className.replace(/\b(ok|warn|ko)\b/g,"").trim()+" "+cls(e.dataset.c)})}
+function go(i){tab=i;renderAll();window.scrollTo(0,0)}
+function rerender(){const y=window.scrollY;setTimeout(()=>{const a=document.activeElement,an=a&&a.dataset&&a.dataset.n;renderAll();window.scrollTo(0,y);if(an){const e=document.querySelector(`[data-n="${an}"]`);if(e)e.focus({preventScroll:true})}},0)}
+const NOUP=e=>e.type==="email"||e.type==="date"||e.type==="time";
+document.addEventListener("input",e=>{const t=e.target;if(!t.dataset.n||t.type==="checkbox"||t.tagName==="SELECT")return;
+  if(!NOUP(t)&&t.value!==t.value.toUpperCase()){const p=t.selectionStart;t.value=t.value.toUpperCase();try{t.setSelectionRange(p,p)}catch(x){}}
+  S[t.dataset.n]=t.value;save();soft()});
+document.addEventListener("change",e=>{const t=e.target;
+  if(t.dataset.r){S[t.dataset.r]=t.value;save();rerender();return}
+  if(!t.dataset.n)return;const n=t.dataset.n;
+  if(t.type==="checkbox")S[n]=t.checked?(CHK[n]||"Yes"):"Off";else S[n]=t.value;save();
+  if(t.tagName==="SELECT"||t.type==="checkbox")rerender();else{soft();rerender()}});
+document.addEventListener("click",e=>{const sv=e.target.closest("[data-sv]");if(sv){const n=sv.dataset.sv;S[n]=S[n]===sv.dataset.v?"":sv.dataset.v;save();rerender();return}
+  const b=e.target.closest("[data-tri]");if(!b)return;const N=b.dataset.tri.split(","),i=+b.dataset.i,was=S[N[i]]&&S[N[i]]!=="Off";
+  N.forEach((n,k)=>S[n]=k===i&&!was?(CHK[n]||"Yes"):"Off");save();rerender()});
+// ---------- firme
+function initSig(){document.querySelectorAll("canvas.sig").forEach(cv=>{const k=cv.dataset.sig,ctx=cv.getContext("2d"),R=2;cv.width=cv.clientWidth*R;cv.height=cv.clientHeight*R;
+  const pen=()=>{ctx.lineWidth=2.6*R;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#0b2a6b"};pen();
+  if(sig[k]){const im=new Image();im.onload=()=>{ctx.drawImage(im,0,0,cv.width,cv.height);pen()};im.src=sig[k]}
+  let dr=false,last=null;const pt=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*R,(e.clientY-r.top)*R]};
+  cv.onpointerdown=e=>{e.preventDefault();dr=true;try{cv.setPointerCapture(e.pointerId)}catch(x){}last=pt(e);ctx.beginPath();ctx.arc(last[0],last[1],ctx.lineWidth/2,0,7);ctx.fillStyle="#0b2a6b";ctx.fill()};
+  cv.onpointermove=e=>{if(!dr)return;e.preventDefault();const p=pt(e);ctx.beginPath();ctx.moveTo(last[0],last[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();last=p};
+  const end=()=>{if(!dr)return;dr=false;sig[k]=cv.toDataURL("image/png");save()};cv.onpointerup=end;cv.onpointercancel=end;cv.onpointerleave=end})}
+function clearSig(k){delete sig[k];save();const cv=document.querySelector(`canvas[data-sig="${k}"]`);if(cv)cv.getContext("2d").clearRect(0,0,cv.width,cv.height)}
+let rsz;window.addEventListener("resize",()=>{clearTimeout(rsz);rsz=setTimeout(initSig,250)});
+// ---------- salvataggio, import / export
+let tm;function save(){clearTimeout(tm);tm=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify({S,sig}));PR.push(S,KEYP)}catch(e){}},300)}
+function load(){try{const t=JSON.parse(localStorage.getItem(KEY)||"null");if(t){S=t.S||{};sig=t.sig||{}}}catch(e){}}
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),2200)}
+const base=()=>SPEC.code.replace(/\W+/g,"_")+"_"+String(S[Object.keys(S).find(k=>/cliente|ute_nome|cli_nome/.test(k))]||"modulo").replace(/[^\w-]+/g,"_");
+function saveJSON(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({modulo:SPEC.code,S,sig})],{type:"application/json"}));a.download=base()+".json";a.click()}
+function importFile(inp){const f=inp.files[0];if(!f)return;inp.value="";
+  if(/\.pdf$/i.test(f.name)||f.type==="application/pdf")return importPDF(f);
+  const r=new FileReader();r.onload=()=>{try{const t=JSON.parse(r.result);S=t.S||{};sig=t.sig||{};save();renderAll();toast("Dati importati")}catch(e){alert("File non valido")}};r.readAsText(f)}
+// legge un PDF compilato (es. check list ricevuta dall'installatore) e ne copia i valori nel modulo
+function loadPdfLib(){return window.PDFLib?Promise.resolve():new Promise((ok,ko)=>{const s=document.createElement("script");s.src="lib/pdf-lib.min.js";s.onload=ok;s.onerror=ko;document.head.appendChild(s)})}
+async function importPDF(file){try{await loadPdfLib();const pdf=await PDFLib.PDFDocument.load(await file.arrayBuffer(),{ignoreEncryption:true});const form=pdf.getForm();let n=0;
+  form.getFields().forEach(fl=>{const name=fl.getName(),L=PDFLib;let v;
+    try{if(fl instanceof L.PDFTextField)v=fl.getText()||"";else if(fl instanceof L.PDFDropdown||fl instanceof L.PDFOptionList)v=(fl.getSelected()||[])[0]||"";else if(fl instanceof L.PDFCheckBox)v=fl.isChecked()?(CHK[name]||"Yes"):"Off";else if(fl instanceof L.PDFRadioGroup)v=fl.getSelected()||"";else return}catch(e){return}
+    if(!(name in FD)&&!(name in CHK))return;if(CALCF.has(name))return;if(DATES.has(name))v=it2iso(v);if(v&&FD[name]&&FD[name].t!=="chk"&&FD[name].t!=="sig")v=v.toUpperCase();
+    if(FD[name]&&FD[name].t==="sig")return;if(v!==""&&v!=="Off"||S[name]){S[name]=v;n++}});
+  save();renderAll();toast(n+" campi importati dal PDF: controllare e completare in cantiere")}catch(e){console.error(e);alert("Impossibile leggere il PDF: "+e.message)}}
+// ---------- PDF
+const TPLKEY="042";
+function doPDF(only){if(EXT.pdf){if(only!=="cart"&&window.FOTO&&FOTO.check&&!FOTO.check())return Promise.resolve();const FO=window.FOTO;if(only==="cart")window.FOTO=null;return EXT.pdf(only).finally(()=>{window.FOTO=FO})}if(TPLKEY&&window.PDFFILL){runCalc();const cc=only==="cart";return PDFFILL.share({key:TPLKEY,values:Object.assign({},C,S),sig:sig,mode:cc?"cart":"full",title:SPEC.title,code:SPEC.code,cliente:S.cliente||S.v_cliente||S.ragione_sociale||"",name:base()+(cc?"_cartolina":"")})}runCalc();let h=`<h1>${esc(only==="cart"?"Cartolina garanzia":SPEC.title)}</h1>`;
+  const fv=f=>{if(f.t==="chk")return S[f.n]&&S[f.n]!=="Off"?"SI":"";if(f.t==="sig")return"";const v=String(val(f.n)??"");return DATES.has(f.n)?iso2it(v):v};
+  SPEC.pages.forEach(pg=>{if(pageCover(pg.i))return;if(only==="cart"&&!pg.cart)return;let sec="",rows=[],pend=[],skipS=false;
+    const out=()=>{if(!rows.length&&!pend.length)return;h+=`<h2>${esc(sec||SPEC.title)}</h2>`;if(rows.length){let t="<table>";for(let i=0;i<rows.length;i+=2)t+=`<tr><td>${esc(rows[i][0])}</td><td>${esc(rows[i][1])}</td><td>${esc(rows[i+1]?rows[i+1][0]:"")}</td><td>${esc(rows[i+1]?rows[i+1][1]:"")}</td></tr>`;h+=t+"</table>"}h+=pend.join("");rows=[];pend=[]};
+    pg.items.forEach(it=>{if(EXT.items&&EXT.items[it.k]){const x=EXT.items[it.k].pdf?EXT.items[it.k].pdf(it):"";if(x){out();pend.push(x)}return}if(it.k==="txt"&&it.pdf){pend.push(`<p>${esc(it.t)}</p>`);return}if(it.k==="sec"){out();sec=it.t;skipS=it.cp!=null&&!!pageCover(it.cp);return}if(skipS)return;
+      if(it.k==="row")it.f.forEach(f=>{if(hid(f))return;if(f.t==="sig"){if(sig[f.n])pend.push(`<table><tr><th>${esc(f.l||"Firma")}</th></tr><tr><td><img src="${sig[f.n]}"></td></tr></table>`);return}const v=fv(f);if(v)rows.push([(f.l||f.n)+(f.u?" ("+f.u+")":""),v])});
+      if(it.k==="sigb"){if(hid(it.sig))return;const nm=it.nome?val(it.nome.n):"",dt=it.data?iso2it(String(val(it.data.n)||"")):"";if(!nm&&!sig[it.sig.n])return;out();if(!sec)sec="Firme";pend.push(`<table><tr><th>Firma - ${esc(it.title)}${nm?": "+esc(nm):""}${dt?" - "+esc(dt):""}</th></tr><tr><td>${sig[it.sig.n]?`<img src="${sig[it.sig.n]}">`:""}</td></tr></table>`);out();return}
+      if(it.k==="uil"){if(it.cp!=null&&pageCover(it.cp))return;const N=Math.max(1,Math.min(64,parseInt(val(it.cnt))||parseInt(val(it.alt))||1)),b=i=>`s${it.s}_ui${i}_`,R2=[];for(let i=1;i<=N;i++)if(["mod","sn","ind","loc"].some(x=>S[b(i)+x]))R2.push([i].concat(["mod","sn","ind","loc"].map(x=>S[b(i)+x]||"")));if(R2.length){out();pend.push(`<table><tr><th>U.I.</th><th>Modello</th><th>Matricola</th><th>N. indirizzo</th><th>Locale / zona</th></tr>${R2.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>`)}return}
+      if(it.k==="tri"){const i=it.names.findIndex(n=>S[n]&&S[n]!=="Off");if(i>=0)rows.push([it.l,it.o[i]==="NV"||it.o[i]==="NA"?"N.A.":it.o[i]])}
+      if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>f&&!hid(f)&&fv(f)));if(R.length){out();pend.push(`<table><tr><th></th>${it.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${R.map(r=>`<tr><td>${esc(r.l)}</td>${r.f.map(f=>`<td>${esc(!f||hid(f)?"":fv(f))}</td>`).join("")}</tr>`).join("")}</table>`)}}});
+    out()});
+  let box=$("#pdfsrc");if(!box){box=document.createElement("div");box.id="pdfsrc";box.style.display="none";document.body.appendChild(box)}box.innerHTML=h;
+  const FO=window.FOTO;if(only==="cart")window.FOTO=null;try{PDFK.share(box,{title:only==="cart"?"Cartolina garanzia":SPEC.title,code:only==="cart"&&SPEC.cartCode?SPEC.cartCode:SPEC.code,name:base()+(only==="cart"?"_cartolina":"")})}finally{window.FOTO=FO}}
+load();PR.pull(S,KEYP);renderAll();
+</script>
+<script src="firma.js"></script><script src="foto.js"></script><script src="avvisi.js"></script>
+</body>
+</html>
