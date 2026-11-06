@@ -142,6 +142,7 @@ input:not([type=email]):not([type=date]):not([type=time]),textarea{text-transfor
 .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
 </style>
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><meta name="apple-mobile-web-app-title" content="Moduli SAT"><script src="pratica.js"></script>
+<script src="pdffill.js"></script>
 </head>
 <body>
 <header>
@@ -362,14 +363,15 @@ function pdfBuild(cli){runCalc();const {jsPDF}=window.jspdf,rnd=Array.from(crypt
       else{if(x.length===1){need(36);const w=(CW2-8)/3;d.setDrawColor(...LINE);d.rect(MG,y,w,24);d.setFontSize(7.5);d.setTextColor(...NAVY);d.text("Firma cliente per accettazione",MG+2,y+4);if(sig[x[0][0]]){try{d.addImage(sig[x[0][0]],"PNG",MG+2,y+6,w-4,17)}catch(e){}}y+=28}
         else sigBox(x.map(([k,l,nn])=>[k,l,PT(S[nn]||"")]))}})})}
   if(sats.length){newPage();grad(d,MG,y,CW2,9,ORANGE,[200,80,0]);d.setFont("helvetica","bold");d.setFontSize(10);d.setTextColor(255,255,255);d.text("PAGINA RISERVATA AL SAT - NON CONSEGNARE AL CLIENTE",MG+3,y+6.2);y+=13;sats.forEach(emitTab)}
-  const n=d.getNumberOfPages();for(let i=1;i<=n;i++){d.setPage(i);grad(d,MG,PH-12.5,CW2,0.6);d.setFont("helvetica","normal");d.setFontSize(6.8);d.setTextColor(...GREY);d.text("Bosch Home Comfort Cooling and Heating SAS - Via Marcantonio Colonna, 35 - 20149 Milano (MI) - www.hitachiaircon.com/it/",MG,PH-8.5);d.setFont("helvetica","bold");d.setTextColor(...NAVY);d.text("Pagina "+i+" di "+n,PW-MG,PH-8.5,{align:"right"})}
+  if(window.FOTO)FOTO.addPages(d);const n=d.getNumberOfPages();for(let i=1;i<=n;i++){d.setPage(i);grad(d,MG,PH-12.5,CW2,0.6);d.setFont("helvetica","normal");d.setFontSize(6.8);d.setTextColor(...GREY);d.text("Bosch Home Comfort Cooling and Heating SAS - Via Marcantonio Colonna, 35 - 20149 Milano (MI) - www.hitachiaircon.com/it/",MG,PH-8.5);d.setFont("helvetica","bold");d.setTextColor(...NAVY);d.text("Pagina "+i+" di "+n,PW-MG,PH-8.5,{align:"right"})}
   return d}
-async function doPrint(cli){let d;try{d=pdfBuild(cli)}catch(e){console.error(e);alert("Errore nella generazione del PDF: "+e.message);return}
+async function doPrint(cli){runCalc();return PDFFILL.share({key:"061",values:Object.assign({},C,S),sig:sig,mode:cli?"cli":"full",title:"Modulo di intervento",code:"MOD 06.1",cliente:S.cliente,name:base()+(cli?"_cliente":"_SAT")})}
+async function doPrintOld(cli){let d;try{d=pdfBuild(cli)}catch(e){console.error(e);alert("Errore nella generazione del PDF: "+e.message);return}
   const name=base()+(cli?"_cliente":"_SAT")+".pdf",blob=d.output("blob"),file=new File([blob],name,{type:"application/pdf"});
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return}}catch(e){if(e.name==="AbortError")return}
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast("PDF generato: "+name)}
 load();PR.pull(S,"mi");renderAll();
 </script>
-<script src="firma.js"></script>
+<script src="firma.js"></script><script src="foto.js"></script>
 </body>
 </html>

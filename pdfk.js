@@ -6,7 +6,7 @@ function PT(s){return String(s==null?"":s).replace(/☒|☑|✔|✓/g,"[X]").rep
 function grad(d,x,y,w,h,n){n=n||48;for(var i=0;i<n;i++){var t=i/(n-1),sw=w/n;d.setFillColor.apply(d,BLUE.map(function(c,j){return Math.round(c+(GREEN[j]-c)*t)}));d.rect(x+i*sw,y,i<n-1?sw+0.8:sw,h,"F")}}
 function logo(){var i=document.querySelector(".hd img");return i?i.src:null}
 function make(root,o){var jsPDF=window.jspdf.jsPDF,rnd=Array.from(crypto.getRandomValues(new Uint8Array(16)),function(b){return b.toString(16).padStart(2,"0")}).join("");
-  var d=new jsPDF({unit:"mm",format:"a4",compress:true,encryption:{userPassword:"",ownerPassword:rnd,userPermissions:["print"]}});
+  var d=new jsPDF(o.noEnc?{unit:"mm",format:"a4",compress:true}:{unit:"mm",format:"a4",compress:true,encryption:{userPassword:"",ownerPassword:rnd,userPermissions:["print"]}});
   var PW=210,PH=297,MG=14,CW=PW-2*MG,TOP=27,BOT=PH-16,y=TOP,LG=logo(),HD={};
   d.setProperties({title:o.title+(o.cliente?" - "+o.cliente:""),author:"Bosch Home Comfort Cooling and Heating SAS",creator:"Hitachi Cooling & Heating - app Moduli Service"});
   function head(){var pg=d.getCurrentPageInfo().pageNumber;if(HD[pg])return;HD[pg]=1;if(LG){try{d.addImage(LG,"PNG",MG,8,30,6.6)}catch(e){}}
@@ -39,6 +39,7 @@ function make(root,o){var jsPDF=window.jspdf.jsPDF,rnd=Array.from(crypto.getRand
   head();
   if(o.sub){d.setFont("helvetica","normal");d.setFontSize(9);d.setTextColor.apply(d,GREY)}
   walk(root);
+  if(window.FOTO)FOTO.addPages(d);
   var n=d.getNumberOfPages();for(var i=1;i<=n;i++){d.setPage(i);grad(d,MG,PH-12.5,CW,0.6);d.setFont("helvetica","normal");d.setFontSize(6.8);d.setTextColor.apply(d,GREY);d.text("Bosch Home Comfort Cooling and Heating SAS - Via Marcantonio Colonna, 35 - 20149 Milano (MI) - www.hitachiaircon.com/it/",MG,PH-8.5);d.setFont("helvetica","bold");d.setTextColor.apply(d,NAVY);d.text("Pagina "+i+" di "+n,PW-MG,PH-8.5,{align:"right"})}
   return d}
 async function share(root,o){var d;try{d=make(root,o)}catch(e){console.error(e);alert("Errore nella generazione del PDF: "+e.message);return}

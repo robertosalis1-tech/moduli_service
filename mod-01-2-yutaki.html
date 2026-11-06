@@ -101,6 +101,7 @@ td.na input{background:var(--na);border-color:var(--na)}
 </style>
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><meta name="apple-mobile-web-app-title" content="Moduli SAT"><script src="pratica.js"></script>
 <script src="lib/jspdf.umd.min.js"></script><script src="lib/jspdf.plugin.autotable.min.js"></script><script src="pdfk.js"></script>
+<script src="pdffill.js"></script>
 </head>
 <body>
 <header>
@@ -271,9 +272,9 @@ function doPrint(){runCalc();
   ${S.note_libere?`<p><b>Note:</b> ${esc(S.note_libere)}</p>`:""}
   <h2>Firme</h2><table><tr>${[["firma_installatore","Installatore"],["firma_cliente","Cliente"],["firma_tecnico_sat","Tecnico SAT"]].map(([k,l])=>`<th>${l}: ${esc(S[k+"_nome"]||"")}</th>`).join("")}</tr><tr>${["firma_installatore","firma_cliente","firma_tecnico_sat"].map(k=>`<td style="height:70px">${sig[k]?`<img src="${sig[k]}" style="height:65px">`:""}</td>`).join("")}</tr></table>
   <p>${ck("consenso_privacy")} Consenso al trattamento dei dati personali (GDPR) &nbsp; ${ck("consenso_sondaggi")} Consenso a sondaggi qualità ${sig.firma_cliente_consensi?`<br>Firma cliente per accettazione: <img src="${sig.firma_cliente_consensi}" style="height:40px;vertical-align:middle">`:""}</p>`;
-  $("#print").innerHTML=h;PDFK.share($("#print"),{title:"Modulo primo avviamento Yutaki airH2O",code:"MOD 01.2",cliente:S.cliente,name:base()})}
+  $("#print").innerHTML=h;PDFFILL.share({key:"yu",values:Object.assign({},C,S),sig:sig,mode:"full",title:"Modulo primo avviamento Yutaki airH2O",code:"MOD 01.2",cliente:S.cliente,name:base()})}
 load();PR.pull(S,"yu");renderAll();
 </script>
-<script src="firma.js"></script>
+<script src="firma.js"></script><script src="foto.js"></script>
 </body>
 </html>

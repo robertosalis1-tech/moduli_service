@@ -126,7 +126,7 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
 <body>
 <header>
   <div class="band"><b>Bosch Home Comfort Cooling and Heating SAS</b> &nbsp;|&nbsp; Hitachi Cooling &amp; Heating &nbsp;|&nbsp; Rev. 10/2026</div>
-  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.05-0731</small></h1></div>
+  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.06-0948</small></h1></div>
 </header>
 <main>
 <div class="inst" id="inst" style="display:none"><b>Installa l'app sul telefono:</b> in Safari tocca <b>Condividi</b> <span style="font-size:17px">⎋</span> → <b>Aggiungi alla schermata Home</b>. Su Android (Chrome): menu ⋮ → <b>Installa app</b>. Poi funziona anche senza rete.</div>
@@ -178,7 +178,7 @@ function draw(){const p=PR.get();
   document.getElementById("pf").innerHTML=F.map(([k,l])=>`<label>${l}<input data-k="${k}" ${k==="data_avv"?'type="date"':""} ${/email/.test(k)?'type="email"':""} value="${esc(p[k])}"></label>`).join("")}
 document.addEventListener("input",e=>{const k=e.target.dataset.k;if(!k)return;let v=e.target.value;if(e.target.type!=="email"&&e.target.type!=="date"){const pos=e.target.selectionStart;v=v.toUpperCase();e.target.value=v;try{e.target.setSelectionRange(pos,pos)}catch(x){}}const p=PR.get();p[k]=v;p._agg=new Date().toISOString();PR.set(p)});
 function nuova(){if(!confirm("Iniziare una nuova pratica? Vengono svuotati la pratica corrente e le bozze di tutti i moduli su questo dispositivo (esportare prima i dati se servono)."))return;
-  ["bhc_pratica_corrente_v1","yutaki_airh2o_bozza_v1","ut_ms_avviamento_bozza_v1","mod061_intervento_bozza_v1"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});draw()}
+  ["bhc_pratica_corrente_v1","yutaki_airh2o_bozza_v1","ut_ms_avviamento_bozza_v1","mod061_intervento_bozza_v1"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});try{Object.keys(localStorage).filter(k=>/^form_/.test(k)).forEach(k=>localStorage.removeItem(k))}catch(e){}try{indexedDB.deleteDatabase("moduli_foto")}catch(e){}draw()}
 const standalone=window.navigator.standalone||matchMedia("(display-mode: standalone)").matches;if(!standalone)document.getElementById("inst").style.display="block";
 draw();window.addEventListener("pageshow",draw);
 </script>

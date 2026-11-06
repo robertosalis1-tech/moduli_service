@@ -132,6 +132,7 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 <script src="lib/jspdf.umd.min.js"></script>
 <script src="lib/jspdf.plugin.autotable.min.js"></script>
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><meta name="apple-mobile-web-app-title" content="Moduli SAT"><script src="pratica.js"></script>
+<script src="pdffill.js"></script>
 </head>
 <body>
 <header>
@@ -393,14 +394,15 @@ function pdfBuild(onlyCart){runCalc();const d=pdfDoc(),ms=kind()==="ms",kk=K(),P
   sec("Firme",45);sigs(CSIG.map(([k,l,src])=>[k,l,S[k+"_nome"]||S[src]||"",fmtD(S[k+"_data"]||S.data)]));
   sec("Riservato a Bosch Home Comfort");AT({body:[["Cartolina ricevuta il","","Verificata da (tecnico BHC)","","Inserita su FOCUS il",""]],alternateRowStyles:{},columnStyles:{0:{fillColor:LBG,textColor:NAVY,fontStyle:"bold"},2:{fillColor:LBG,textColor:NAVY,fontStyle:"bold"},4:{fillColor:LBG,textColor:NAVY,fontStyle:"bold"}},bodyStyles:{minCellHeight:8}});
   // piè di pagina
-  const n=d.getNumberOfPages();for(let i=1;i<=n;i++){d.setPage(i);grad(d,MG,PH-12.5,CW2,0.6);d.setFont("helvetica","normal");d.setFontSize(6.8);d.setTextColor(...GREY);d.text("Bosch Home Comfort Cooling and Heating SAS - Via Marcantonio Colonna, 35 - 20149 Milano (MI) - www.hitachiaircon.com/it/",MG,PH-8.5);d.setFont("helvetica","bold");d.setTextColor(...NAVY);d.text("Pagina "+i+" di "+n,PW-MG,PH-8.5,{align:"right"})}
+  if(window.FOTO)FOTO.addPages(d);const n=d.getNumberOfPages();for(let i=1;i<=n;i++){d.setPage(i);grad(d,MG,PH-12.5,CW2,0.6);d.setFont("helvetica","normal");d.setFontSize(6.8);d.setTextColor(...GREY);d.text("Bosch Home Comfort Cooling and Heating SAS - Via Marcantonio Colonna, 35 - 20149 Milano (MI) - www.hitachiaircon.com/it/",MG,PH-8.5);d.setFont("helvetica","bold");d.setTextColor(...NAVY);d.text("Pagina "+i+" di "+n,PW-MG,PH-8.5,{align:"right"})}
   return d}
-async function doPrint(onlyCart){let d;try{d=pdfBuild(onlyCart===true)}catch(e){console.error(e);alert("Errore nella generazione del PDF: "+e.message);return}
+async function doPrint(onlyCart){runCalc();const cc=onlyCart===true,ms=kind()==="ms";return PDFFILL.share({key:ms?"ms":"ut",values:Object.assign({},C,S),sig:sig,mode:cc?"cart":"cli",title:ms?"Verbale avviamento Mini Set Free":"Verbale avviamento Utopia",code:ms?"MOD 02.3":"MOD 02.2",cliente:S.cliente,name:(cc?"Cartolina_garanzia_":"")+base()})}
+async function doPrintOld(onlyCart){let d;try{d=pdfBuild(onlyCart===true)}catch(e){console.error(e);alert("Errore nella generazione del PDF: "+e.message);return}
   const name=(onlyCart===true?"Cartolina_garanzia_":"")+base()+".pdf",blob=d.output("blob"),file=new File([blob],name,{type:"application/pdf"});
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return}}catch(e){if(e.name==="AbortError")return}
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast("PDF generato: "+name)}
 load();PR.pull(S,"ut");renderAll();
 </script>
-<script src="firma.js"></script>
+<script src="firma.js"></script><script src="foto.js"></script>
 </body>
 </html>

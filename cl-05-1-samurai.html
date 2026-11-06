@@ -121,7 +121,7 @@ nav button.dim{opacity:.45}
 .sigbox{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0;background:#fbfcfe}.sigt{font-weight:700;color:var(--navy);margin-bottom:6px}
 .imp{background:#eef5ff;border:1px solid #b9d3f3;border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:13.5px}
 </style>
-<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><script src="pratica.js"></script><script src="lib/jspdf.umd.min.js"></script><script src="lib/jspdf.plugin.autotable.min.js"></script><script src="pdfk.js"></script>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><script src="pratica.js"></script><script src="lib/jspdf.umd.min.js"></script><script src="lib/jspdf.plugin.autotable.min.js"></script><script src="pdfk.js"></script><script src="pdffill.js"></script>
 </head>
 <body>
 <header>
@@ -154,7 +154,7 @@ const UIM=[];
   for(let i=0;i<pg.items.length-1;i++){const it=pg.items[i],nx=pg.items[i+1];if(it.k==="row"&&it.f.length===1&&it.f[0].t==="chk"&&!(it.f[0].l||"").trim()&&nx.k==="txt"){it.f[0].l=nx.t;pg.items.splice(i+1,1)}}
   pg.items=pg.items.filter(it=>!(it.k==="row"&&!it.f.length)).map(it=>{if(it.k==="tab"){const keep=it.cols.map((c,ci)=>it.rows.some(r=>r.f[ci]));it.cols=it.cols.filter((c,ci)=>keep[ci]);it.rows=it.rows.map(r=>({l:r.l,f:r.f.filter((f,ci)=>keep[ci])})).filter(r=>r.f.some(Boolean))}return it}).filter(it=>!(it.k==="tab"&&!it.rows.length))})})();
 const FD={},DATES=new Set(SPEC.dates),CALCF=new Set(),CHK={};
-const allF=[];SPEC.pages.forEach(pg=>pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>allF.push(f));if(it.k==="tab")it.rows.forEach(r=>r.f.forEach(f=>f&&allF.push(f)));if(it.k==="sigb"){[it.sig,it.nome,it.data].forEach(f=>f&&allF.push(f))}if(it.k==="tri")it.names.forEach((n,i)=>{CHK[n]=it.on[i];FD[n]={n,t:"chk",on:it.on[i],p:it.p,r:it.r}})}));
+const allF=[];SPEC.pages.forEach(pg=>pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>allF.push(f));if(it.k==="tab")it.rows.forEach(r=>r.f.forEach(f=>f&&allF.push(f)));if(it.k==="sigb"){[it.sig,it.nome,it.data].forEach(f=>f&&allF.push(f))}if(it.fs)it.fs.forEach(f=>f&&allF.push(f));if(it.k==="tri")it.names.forEach((n,i)=>{CHK[n]=it.on[i];FD[n]={n,t:"chk",on:it.on[i],p:it.p,r:it.r}})}));
 allF.forEach(f=>{if(f.t==="radio"){(FD[f.n]=FD[f.n]||Object.assign({},f,{ons:[]})).ons.push(f.on)}else FD[f.n]=FD[f.n]||f;if(f.t==="calc")CALCF.add(f.n);if(f.t==="chk")CHK[f.n]=f.on});
 SPEC.hidden0.forEach(n=>DISP[n]=1);
 // ---------- motore di calcolo: gli script del PDF su un documento simulato
@@ -162,7 +162,8 @@ const iso2it=v=>/^\d{4}-\d\d-\d\d$/.test(v)?v.split("-").reverse().join("/"):v;
 const it2iso=v=>{const m=/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/.exec(String(v||"").trim());return m?`${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`:v};
 const display={visible:0,hidden:1,noPrint:3,noView:2},color={black:["G",0],white:["G",1],red:["RGB",1,0,0],green:["RGB",0,1,0],blue:["RGB",0,0,1],transparent:["T"]};
 const app={alert(){},beep(){}};
-function runCalc(){if(!SPEC.calc.length)return;let changed=true;
+const EXT=(function(){;return typeof ext!=="undefined"?ext:{}})();
+function runCalc(){try{EXT.pre&&EXT.pre()}catch(e){console.error(e)}if(!SPEC.calc.length){try{EXT.post&&EXT.post()}catch(e){console.error(e)}return}let changed=true;
   for(let pass=0;pass<4&&changed;pass++){changed=false;const fields={};
     const doc={getField(n){if(!(n in FD)&&!/^v_|cov|calc/.test(n)&&!SPEC.covers.some(c=>c.n===n)&&!(n in S)&&!(n in C)&&!SPEC.hidden0.includes(n))return fields[n]||(fields[n]=mk(n));return fields[n]||(fields[n]=mk(n))}};
     function mk(n){return{name:n,
@@ -177,6 +178,7 @@ function runCalc(){if(!SPEC.calc.length)return;let changed=true;
       get type(){const f=FD[n];return !f?"text":f.t==="sel"||f.t==="combo"?"combobox":f.t==="chk"?"checkbox":f.t==="radio"?"radiobutton":"text"},
       setItems(a){ITEMS[n]=a},getItemAt(i){return (ITEMS[n]||[])[i]},get numItems(){return (ITEMS[n]||[]).length},checkThisBox(i,on){S[n]=on?(CHK[n]||"Yes"):"Off"},isBoxChecked(){return S[n]&&S[n]!=="Off"}}}
     SPEC.calc.forEach(c=>{const ev={value:C[c.n]??"",target:doc.getField(c.n)};try{new Function("display","event","color","app",c.js).call(doc,display,ev,color,app)}catch(e){console.error(e)}})}
+  try{EXT.post&&EXT.post()}catch(e){console.error(e)}
   save()}
 const cls=n=>{const b=COL[n+"#bg"];if(b&&b[0]==="RGB"){if(b[1]>0.95&&b[2]<0.9&&b[3]<0.9)return"ko";if(b[1]>0.95&&b[2]>0.85&&b[3]<0.8)return"warn";if(b[2]>0.9&&b[1]<0.9)return"ok"}
   const c=COL[n];if(!c||c[0]!=="RGB")return"";if(c[1]>0.6&&c[2]<0.2)return"ko";if(c[1]>0.6&&c[2]>0.3&&c[3]<0.2)return"warn";if(c[2]>0.35&&c[1]<0.2)return"ok";return""};
@@ -202,7 +204,7 @@ function inputH(f,bare,ctx){const n=f.n,v=S[n]??"",l=esc(f.l||"")+(f.u?` <u>(${e
   else if(f.t==="sig")return `<div class="sigs" style="grid-column:1/-1"><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px">${esc(f.l||"Firma")}</div><canvas class="sig" data-sig="${n}"></canvas><div class="sigw" style="display:flex;gap:6px;align-items:center;margin-top:6px"><small style="flex:1;color:var(--mut)">Tocca il riquadro per firmare a schermo intero</small><button class="btn sm" onclick="clearSig('${n}')">Cancella</button></div></div>`;
   else h=`<input data-n="${n}" type="${f.date?"date":/mail/i.test(n)?"email":"text"}" value="${esc(v)}"${ro}${isNum(f,ctx)||/(_ind|^r\d+_ind)$/.test(n)?' inputmode="decimal" enterkeyhint="next"':' inputmode="text" enterkeyhint="next"'}>`;
   return bare?h:`<label${f.t==="area"||f.t==="calc"&&String(val(n)).length>40?' style="grid-column:1/-1"':""}>${l}${h}</label>`}
-function itemH(it){
+function itemH(it){if(EXT.items&&EXT.items[it.k])return EXT.items[it.k].html(it);
   if(it.k==="sec")return null;
   if(it.k==="txt")return `<div class="txt">${esc(it.t)}</div>`;
   if(it.k==="tip")return tipH(it.t);
@@ -271,11 +273,12 @@ async function importPDF(file){try{await loadPdfLib();const pdf=await PDFLib.PDF
     if(FD[name]&&FD[name].t==="sig")return;if(v!==""&&v!=="Off"||S[name]){S[name]=v;n++}});
   save();renderAll();toast(n+" campi importati dal PDF: controllare e completare in cantiere")}catch(e){console.error(e);alert("Impossibile leggere il PDF: "+e.message)}}
 // ---------- PDF
-function doPDF(){runCalc();let h=`<h1>${esc(SPEC.title)}</h1>`;
+const TPLKEY="";
+function doPDF(only){if(EXT.pdf){const FO=window.FOTO;if(only==="cart")window.FOTO=null;return EXT.pdf(only).finally(()=>{window.FOTO=FO})}if(TPLKEY&&window.PDFFILL){runCalc();const cc=only==="cart";return PDFFILL.share({key:TPLKEY,values:Object.assign({},C,S),sig:sig,mode:cc?"cart":"full",title:SPEC.title,code:SPEC.code,cliente:S.cliente||S.v_cliente||S.ragione_sociale||"",name:base()+(cc?"_cartolina":"")})}runCalc();let h=`<h1>${esc(only==="cart"?"Cartolina garanzia":SPEC.title)}</h1>`;
   const fv=f=>{if(f.t==="chk")return S[f.n]&&S[f.n]!=="Off"?"SI":"";if(f.t==="sig")return"";const v=String(val(f.n)??"");return DATES.has(f.n)?iso2it(v):v};
-  SPEC.pages.forEach(pg=>{if(pageCover(pg.i))return;let sec="",rows=[],pend=[],skipS=false;
+  SPEC.pages.forEach(pg=>{if(pageCover(pg.i))return;if(only==="cart"&&!pg.cart)return;let sec="",rows=[],pend=[],skipS=false;
     const out=()=>{if(!rows.length&&!pend.length)return;h+=`<h2>${esc(sec||SPEC.title)}</h2>`;if(rows.length){let t="<table>";for(let i=0;i<rows.length;i+=2)t+=`<tr><td>${esc(rows[i][0])}</td><td>${esc(rows[i][1])}</td><td>${esc(rows[i+1]?rows[i+1][0]:"")}</td><td>${esc(rows[i+1]?rows[i+1][1]:"")}</td></tr>`;h+=t+"</table>"}h+=pend.join("");rows=[];pend=[]};
-    pg.items.forEach(it=>{if(it.k==="sec"){out();sec=it.t;skipS=it.cp!=null&&!!pageCover(it.cp);return}if(skipS)return;
+    pg.items.forEach(it=>{if(EXT.items&&EXT.items[it.k]){const x=EXT.items[it.k].pdf?EXT.items[it.k].pdf(it):"";if(x){out();pend.push(x)}return}if(it.k==="txt"&&it.pdf){pend.push(`<p>${esc(it.t)}</p>`);return}if(it.k==="sec"){out();sec=it.t;skipS=it.cp!=null&&!!pageCover(it.cp);return}if(skipS)return;
       if(it.k==="row")it.f.forEach(f=>{if(hid(f))return;if(f.t==="sig"){if(sig[f.n])pend.push(`<table><tr><th>${esc(f.l||"Firma")}</th></tr><tr><td><img src="${sig[f.n]}"></td></tr></table>`);return}const v=fv(f);if(v)rows.push([(f.l||f.n)+(f.u?" ("+f.u+")":""),v])});
       if(it.k==="sigb"){if(hid(it.sig))return;const nm=it.nome?val(it.nome.n):"",dt=it.data?iso2it(String(val(it.data.n)||"")):"";if(!nm&&!sig[it.sig.n])return;out();if(!sec)sec="Firme";pend.push(`<table><tr><th>Firma - ${esc(it.title)}${nm?": "+esc(nm):""}${dt?" - "+esc(dt):""}</th></tr><tr><td>${sig[it.sig.n]?`<img src="${sig[it.sig.n]}">`:""}</td></tr></table>`);out();return}
       if(it.k==="uil"){if(it.cp!=null&&pageCover(it.cp))return;const N=Math.max(1,Math.min(64,parseInt(val(it.cnt))||parseInt(val(it.alt))||1)),b=i=>`s${it.s}_ui${i}_`,R2=[];for(let i=1;i<=N;i++)if(["mod","sn","ind","loc"].some(x=>S[b(i)+x]))R2.push([i].concat(["mod","sn","ind","loc"].map(x=>S[b(i)+x]||"")));if(R2.length){out();pend.push(`<table><tr><th>U.I.</th><th>Modello</th><th>Matricola</th><th>N. indirizzo</th><th>Locale / zona</th></tr>${R2.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>`)}return}
@@ -283,9 +286,9 @@ function doPDF(){runCalc();let h=`<h1>${esc(SPEC.title)}</h1>`;
       if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>f&&!hid(f)&&fv(f)));if(R.length){out();pend.push(`<table><tr><th></th>${it.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${R.map(r=>`<tr><td>${esc(r.l)}</td>${r.f.map(f=>`<td>${esc(!f||hid(f)?"":fv(f))}</td>`).join("")}</tr>`).join("")}</table>`)}}});
     out()});
   let box=$("#pdfsrc");if(!box){box=document.createElement("div");box.id="pdfsrc";box.style.display="none";document.body.appendChild(box)}box.innerHTML=h;
-  PDFK.share(box,{title:SPEC.title,code:SPEC.code,name:base()})}
+  const FO=window.FOTO;if(only==="cart")window.FOTO=null;try{PDFK.share(box,{title:only==="cart"?"Cartolina garanzia":SPEC.title,code:only==="cart"&&SPEC.cartCode?SPEC.cartCode:SPEC.code,name:base()+(only==="cart"?"_cartolina":"")})}finally{window.FOTO=FO}}
 load();PR.pull(S,KEYP);renderAll();
 </script>
-<script src="firma.js"></script>
+<script src="firma.js"></script><script src="foto.js"></script>
 </body>
 </html>
