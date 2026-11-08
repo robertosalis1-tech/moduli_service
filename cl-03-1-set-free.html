@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="it">
 <head>
+<meta name="robots" content="noindex,nofollow,noarchive,noimageindex">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -121,7 +122,7 @@ nav button.dim{opacity:.45}
 .sigbox{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0;background:#fbfcfe}.sigt{font-weight:700;color:var(--navy);margin-bottom:6px}
 .imp{background:#eef5ff;border:1px solid #b9d3f3;border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:13.5px}
 </style>
-<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><script src="pratica.js"></script><script src="lib/jspdf.umd.min.js"></script><script src="lib/jspdf.plugin.autotable.min.js"></script><script src="pdfk.js"></script><script src="pdffill.js"></script>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><script src="pratica.js"></script><script src="lib/jspdf.umd.min.js"></script><script src="lib/jspdf.plugin.autotable.min.js"></script><script src="pdfk.js"></script><script src="pdffill.js"></script><script src="trasf.js"></script>
 </head>
 <body>
 <header>
@@ -133,7 +134,9 @@ nav button.dim{opacity:.45}
     <label class="btn sm" style="display:inline-block;margin:0">Importa<input type="file" accept=".json,.pdf,application/pdf" style="display:none" onchange="importFile(this)"></label>
     <button class="btn sm" onclick="if(confirm('Cancellare tutti i dati inseriti in questo modulo?')){S={};sig={};PR.pull(S,KEYP);save();tab=0;renderAll()}">Nuovo</button>
     <button class="btn pri" onclick="doPDF()">Genera PDF</button>
+    <button class="btn sm" id="btnTech" onclick="toTech()" style="display:none">✉ Invia al tecnico</button>
   </div>
+  <div id="nextbox" style="display:none;margin:10px 14px 0;padding:12px 14px;border-radius:12px;background:#e8f5ee;border:1px solid #9fd3b5;color:#0b4d2b;font-size:14px"></div>
 </header>
 <div class="navw"><nav id="nav"></nav></div>
 <main id="main"></main>
@@ -299,6 +302,15 @@ function doPDF(only){if(EXT.pdf){if(only!=="cart"&&window.FOTO&&FOTO.check&&!FOT
   let box=$("#pdfsrc");if(!box){box=document.createElement("div");box.id="pdfsrc";box.style.display="none";document.body.appendChild(box)}box.innerHTML=h;
   const FO=window.FOTO;if(only==="cart")window.FOTO=null;try{PDFK.share(box,{title:only==="cart"?"Cartolina garanzia":SPEC.title,code:only==="cart"&&SPEC.cartCode?SPEC.cartCode:SPEC.code,name:base()+(only==="cart"?"_cartolina":"")})}finally{window.FOTO=FO}}
 load();PR.pull(S,KEYP);renderAll();
+// ---------- check list: invio al tecnico e caricamento dalla pagina iniziale
+let CLBYTES=null;
+function nextSteps(){const c=window.TRASF&&TRASF.CL[KEYP];if(!c)return;const b=$("#nextbox");b.style.display="block";
+  b.innerHTML=`<b>✓ Check list caricata.</b> I dati comuni (cliente, indirizzo, installatore, modelli e matricole) sono nella pratica corrente. Controllare i dati qui sotto, poi:<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${c.verb?`<a class="btn pri" href="${c.verb}" style="text-decoration:none">Apri ${esc(c.vt.split(" - ")[0])} precompilato</a>`:""}<button class="btn" onclick="toTech()">✉ Invia al tecnico</button></div>`}
+async function toTech(){save();await new Promise(r=>setTimeout(r,350));let b=CLBYTES;if(!b&&window.PDFFILL){try{runCalc();b=await PDFFILL.make({key:TPLKEY,values:Object.assign({},C,S),sig:sig,mode:"full",title:SPEC.title,code:SPEC.code,cliente:S.cliente||""})}catch(e){b=null}}TRASF.sendTech(KEYP,b)}
+if(window.TRASF&&TRASF.CL[KEYP])$("#btnTech").style.display="";
+if(/[?&]import=1/.test(location.search)){try{const r=JSON.parse(sessionStorage.getItem("cl_import")||"null");sessionStorage.removeItem("cl_import");history.replaceState(null,"",location.pathname);
+  if(r&&r.k===KEYP){const u=Uint8Array.from(atob(r.b),c=>c.charCodeAt(0));CLBYTES=u;S={};sig={};importPDF(new File([u],r.n||"checklist.pdf",{type:"application/pdf"})).then(nextSteps)}}catch(e){console.error(e)}}
+if(/[?&]ricevuta=1/.test(location.search)){history.replaceState(null,"",location.pathname);nextSteps()}
 </script>
 <script src="firma.js"></script><script src="foto.js"></script><script src="avvisi.js"></script>
 </body>

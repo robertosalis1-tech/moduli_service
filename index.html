@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="it">
 <head>
+<meta name="robots" content="noindex,nofollow,noarchive,noimageindex">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -120,15 +121,23 @@ h3{margin:18px 2px 8px;font-size:13px;text-transform:uppercase;letter-spacing:.0
 header{position:static!important}
 details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:10px}
 .sum{font-size:14px;color:var(--navy)}.sum b{font-weight:700}
+.cl2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.big{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;background:linear-gradient(135deg,#007bc0,#00884a);color:#fff;border:0;border-radius:14px;padding:14px 16px;cursor:pointer;font:inherit;margin:0}
+.big span{font-size:24px;line-height:1}.big b{font-size:15.5px}.big small{opacity:.9;font-size:12.5px;color:#fff}
+.sendp{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f7fafd;display:grid;gap:10px}
+.sendp label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--navy)}.sendp label.chk{flex-direction:row;align-items:center;gap:10px;font-weight:500}.sendp label.chk input{width:22px;height:22px;flex:0 0 22px;margin:0}
+.sendp select,.sendp input[type=email]{padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fffbe0}
+#imp{display:none;background:#e8f5ee;border:1px solid #9fd3b5;color:#0b4d2b;border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:14px}
 </style>
-<script src="pratica.js"></script>
+<script src="pratica.js"></script><script src="pdffill.js"></script><script src="trasf.js"></script>
 </head>
 <body>
 <header>
   <div class="band"><b>Bosch Home Comfort Cooling and Heating SAS</b> &nbsp;|&nbsp; Hitachi Cooling &amp; Heating &nbsp;|&nbsp; Rev. 10/2026</div>
-  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.06-1848</small></h1></div>
+  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.08-0535</small></h1></div>
 </header>
 <main>
+<div id="imp"></div>
 <div class="inst" id="inst" style="display:none"><b>Installa l'app sul telefono:</b> in Safari tocca <b>Condividi</b> <span style="font-size:17px">⎋</span> → <b>Aggiungi alla schermata Home</b>. Su Android (Chrome): menu ⋮ → <b>Installa app</b>. Poi funziona anche senza rete.</div>
 <h3>Moduli del tecnico SAT</h3>
 <div class="tiles">
@@ -143,6 +152,20 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
   <a class="tile" href="mod-04-2-aircloud.html"><div class="ic">04.2</div><div><b>Assistenza airCloud Home</b><small>Dati app, Wi-Fi e anomalia</small></div></a>
   <a class="tile" href="verifica-garanzia.html"><div class="ic">GAR</div><div><b>Verifica garanzia</b><small>Dalla matricola dell'unità esterna</small></div></a>
 </div>
+<h3>Check list con l'installatore</h3>
+<section class="card"><div class="body">
+  <div class="cl2">
+    <button class="big" onclick="openSend()"><span>✉</span><b>Invia check list all'installatore</b><small>Si apre la posta con il PDF da compilare, già intestato al cliente</small></button>
+    <label class="big"><span>⬆</span><b>Carica check list compilata</b><small>Il PDF tornato dall'installatore: i dati passano nel verbale da inviare al tecnico</small><input type="file" accept=".pdf,application/pdf" style="display:none" onchange="loadCL(this)"></label>
+  </div>
+  <div id="sendp" class="sendp" style="display:none">
+    <label>Check list da inviare<select id="s_k"></select></label>
+    <label>Email installatore<input id="s_mail" type="email" placeholder="facoltativa"></label>
+    <label class="chk"><input type="checkbox" id="s_pre" checked> Precompila con i dati della pratica corrente (cliente, indirizzo, modelli…)</label>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn pri" onclick="sendCL()">Invia</button><button class="btn" onclick="$('#sendp').style.display='none'">Annulla</button></div>
+  </div>
+  <div class="tip">i &nbsp;I dati restano solo su questo telefono e viaggiano solo dentro l'email: l'app non li invia a nessun sito (GitHub ospita solo le pagine vuote).</div>
+</div></section>
 <h3>Check list ricevute dall'installatore</h3>
 <div class="tiles">
   <a class="tile" href="cl-01-1-yutaki.html"><div class="ic">01.1</div><div><b>Check list Yutaki airH2O</b><small>Importa il PDF compilato</small></div></a>
@@ -181,6 +204,28 @@ function draw(){const p=PR.get();
 document.addEventListener("input",e=>{const k=e.target.dataset.k;if(!k)return;let v=e.target.value;if(e.target.type!=="email"&&e.target.type!=="date"){const pos=e.target.selectionStart;v=v.toUpperCase();e.target.value=v;try{e.target.setSelectionRange(pos,pos)}catch(x){}}const p=PR.get();p[k]=v;p._agg=new Date().toISOString();PR.set(p)});
 function nuova(){if(!confirm("Iniziare una nuova pratica? Vengono svuotati la pratica corrente e le bozze di tutti i moduli su questo dispositivo (esportare prima i dati se servono)."))return;
   ["bhc_pratica_corrente_v1","yutaki_airh2o_bozza_v1","ut_ms_avviamento_bozza_v1","mod061_intervento_bozza_v1"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});try{Object.keys(localStorage).filter(k=>/^form_/.test(k)).forEach(k=>localStorage.removeItem(k))}catch(e){}try{indexedDB.deleteDatabase("moduli_foto")}catch(e){}draw()}
+const $=q=>document.querySelector(q),CLSIG={"011": ["caldaia_logica", "cli_cognome", "contatore", "contatore_altro", "gas", "gas_add", "gas_d", "gas_m", "gas_tot", "liq_d", "liq_m", "p104"], "021": ["pu_all_data", "pu_all_elettrico", "pu_all_progetto", "pu_all_skeleton", "pu_cliente", "pu_data", "pu_data_collaudo", "pu_focus", "pu_indirizzo", "pu_installatore", "pu_q10_NA", "pu_q10_NO"], "031": ["pr_all_data", "pr_all_elettrico", "pr_all_progetto", "pr_all_skeleton", "pr_cliente", "pr_data", "pr_data_collaudo", "pr_focus", "pr_indirizzo", "pr_installatore", "pr_q10_NA", "pr_q10_NO"], "041": ["aree_r10_1", "aree_r1_1", "aree_r2_1", "aree_r3_1", "aree_r4_1", "aree_r5_1", "aree_r6_1", "aree_r7_1", "aree_r8_1", "aree_r9_1", "bms1_KO", "bms1_OK"], "051": ["appl", "cli_ref", "ctrl", "glic_esito", "glic_pct", "glic_tipo", "m1_carica", "m1_circ", "m1_co2", "m1_fgas", "m1_imax", "m1_kit"]};
+document.getElementById("s_k").innerHTML=Object.entries(TRASF.CL).map(([k,c])=>`<option value="${k}">${c.code} - ${c.t}</option>`).join("");
+function openSend(){const p=PR.get();$("#s_mail").value=p.email_inst||"";$("#sendp").style.display="grid";$("#sendp").scrollIntoView({behavior:"smooth",block:"center"})}
+async function sendCL(){const k=$("#s_k").value,c=TRASF.CL[k],p=PR.get(),mail=$("#s_mail").value.trim();if(mail){p.email_inst=mail;PR.set(p)}
+  const S={};if($("#s_pre").checked)PR.pull(S,k);let bytes;
+  try{bytes=await PDFFILL.prefill(k,S)}catch(e){alert("Errore nella preparazione del PDF: "+e.message);return}
+  const name=(c.code+" "+c.t+(p.cliente?" - "+p.cliente:"")).replace(/[^\w-]+/g,"_")+".pdf",file=new File([bytes],name,{type:"application/pdf"});
+  const sub=c.code+" "+c.t+(p.cliente?" - "+p.cliente:""),txt="Buongiorno,\nin allegato la "+c.t+" ("+c.code+")"+(p.cliente?" per l'impianto "+p.cliente+(p.citta?" - "+p.citta:""):"")+".\nVa compilata con Acrobat Reader (anche da telefono) e rimandata a questo indirizzo prima della data di avviamento.\n\nGrazie,\nService Hitachi Cooling & Heating";
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:sub,text:txt});$("#sendp").style.display="none";return}}catch(e){if(e.name==="AbortError")return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
+  setTimeout(()=>{location.href="mailto:"+encodeURIComponent(mail)+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(txt+"\n\n(allegare il PDF appena scaricato: "+name+")")},800);$("#sendp").style.display="none"}
+async function loadCL(inp){const f=inp.files[0];inp.value="";if(!f)return;try{const u=new Uint8Array(await f.arrayBuffer()),F=await PDFFILL.readFields(u),names=Object.keys(F);
+  let best=null,bs=0;for(const k in CLSIG){const sc=CLSIG[k].filter(n=>n in F).length;if(sc>bs){bs=sc;best=k}}
+  if(!best||bs<2){alert("Il PDF non sembra una check list Hitachi compilabile (01.1, 02.1, 03.1, 04.1, 05.1). Usare il PDF originale inviato all'installatore.");return}
+  let b="";for(let i=0;i<u.length;i+=8192)b+=String.fromCharCode.apply(null,u.subarray(i,i+8192));
+  try{sessionStorage.setItem("cl_import",JSON.stringify({k:best,n:f.name,b:btoa(b)}))}catch(e){alert("PDF troppo grande da passare al modulo: aprirlo dalla check list "+TRASF.CL[best].code+" con Importa.");location.href=TRASF.CL[best].page;return}
+  location.href=TRASF.CL[best].page+"?import=1"}catch(e){console.error(e);alert("Impossibile leggere il PDF: "+e.message)}}
+// pratica ricevuta dal link del collega
+(async function(){const m=location.hash.match(/^#d=(.+)$/);if(!m)return;history.replaceState(null,"",location.pathname);let o;try{o=await TRASF.unpack(m[1])}catch(e){alert("Link della pratica non valido o incompleto.");return}
+  const c=TRASF.CL[o.k]||{},p=o.p||{};if(!confirm("Caricare la pratica ricevuta?\n\n"+(p.cliente||"(cliente non indicato)")+(p.citta?" - "+p.citta:"")+"\n"+(c.code||"")+" "+(c.t||"")+"\n\nLa pratica corrente su questo telefono verrà sostituita."))return;
+  PR.set(Object.assign({},p,{_agg:new Date().toISOString()}));if(c.code)localStorage.setItem(TRASF.fkey(o.k),JSON.stringify({S:o.s||{},sig:{}}));
+  draw();const b=$("#imp");b.style.display="block";b.innerHTML=`<b>✓ Pratica ${esc(p.cliente||"")} caricata.</b> Dati cliente, installatore, modelli e matricole sono già nei moduli.<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${c.verb?`<a class="btn pri" style="text-decoration:none" href="${c.verb}">Apri ${esc(c.vt)}</a>`:""}${c.page?`<a class="btn" style="text-decoration:none" href="${c.page}?ricevuta=1">Vedi la check list ${esc(c.code)}</a>`:""}</div>`})();
 const standalone=window.navigator.standalone||matchMedia("(display-mode: standalone)").matches;if(!standalone)document.getElementById("inst").style.display="block";
 draw();window.addEventListener("pageshow",draw);
 </script>

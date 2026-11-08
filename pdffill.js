@@ -96,5 +96,14 @@ async function share(o){if(o.mode!=="cart"&&window.FOTO&&FOTO.check&&!FOTO.check
   var fn=String(o.name||"modulo").replace(/[^\w-]+/g,"_")+".pdf",blob=new Blob([bytes],{type:"application/pdf"}),file=new File([blob],fn,{type:"application/pdf"});
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:fn});return}}catch(e){if(e.name==="AbortError")return}
   var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000)}
-window.PDFFILL={make:make,share:share,tpl:ensure,b64:b64};
+// modulo compilabile (non bloccato) con alcuni campi già scritti: per inviarlo all'installatore
+async function prefill(key,values){var meta=await ensure(key),L=PDFLib;var pdf=await L.PDFDocument.load(b64(meta.b64),{updateMetadata:false}),form=pdf.getForm();
+  Object.keys(values||{}).forEach(function(n){var v=values[n];if(v==null||v==="")return;var f;try{f=form.getField(n)}catch(e){return}
+    try{if(f instanceof L.PDFTextField)f.setText(PT(iso(String(v))));else if(f instanceof L.PDFCheckBox){if(v&&v!=="Off")f.check()}else if(f instanceof L.PDFDropdown){v=PT(String(v));if(f.getOptions().indexOf(v)<0)f.addOptions([v]);f.select(v)}}catch(e){}});
+  return pdf.save({updateFieldAppearances:true})}
+// lettura dei campi di un PDF compilato
+async function readFields(bytes){await ensure0();var L=PDFLib,pdf=await L.PDFDocument.load(bytes,{ignoreEncryption:true}),out={};
+  pdf.getForm().getFields().forEach(function(fl){var n=fl.getName(),v;try{if(fl instanceof L.PDFTextField)v=fl.getText()||"";else if(fl instanceof L.PDFDropdown||fl instanceof L.PDFOptionList)v=(fl.getSelected()||[])[0]||"";else if(fl instanceof L.PDFCheckBox)v=fl.isChecked()?"Yes":"Off";else if(fl instanceof L.PDFRadioGroup)v=fl.getSelected()||"";else return}catch(e){return}out[n]=v});return out}
+async function ensure0(){if(!window.PDFLib)await loadScript("lib/pdf-lib.min.js","libreria PDF mancante (lib/pdf-lib.min.js)")}
+window.PDFFILL={make:make,share:share,tpl:ensure,b64:b64,prefill:prefill,readFields:readFields};
 })();
