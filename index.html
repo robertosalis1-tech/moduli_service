@@ -129,16 +129,16 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
 .sendp select,.sendp input[type=email]{padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fffbe0}
 #imp{display:none;background:#e8f5ee;border:1px solid #9fd3b5;color:#0b4d2b;border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:14px}
 </style>
-<script src="pratica.js"></script><script src="pdffill.js"></script><script src="trasf.js"></script>
+<script src="pratica.js"></script><script src="pdffill.js"></script><script src="trasf.js"></script><script src="mobile.js"></script>
 </head>
 <body>
 <header>
   <div class="band"><b>Bosch Home Comfort Cooling and Heating SAS</b> &nbsp;|&nbsp; Hitachi Cooling &amp; Heating &nbsp;|&nbsp; Rev. 10/2026</div>
-  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.08-0535</small></h1></div>
+  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.08-0743</small></h1></div>
 </header>
 <main>
 <div id="imp"></div>
-<div class="inst" id="inst" style="display:none"><b>Installa l'app sul telefono:</b> in Safari tocca <b>Condividi</b> <span style="font-size:17px">⎋</span> → <b>Aggiungi alla schermata Home</b>. Su Android (Chrome): menu ⋮ → <b>Installa app</b>. Poi funziona anche senza rete.</div>
+<div class="inst" id="inst" style="display:none"><b>Installa l'app sul telefono</b> (una volta sola):<br><b>iPhone:</b> apri <b>Safari</b> e scrivi l'indirizzo del sito (non dal link della mail: la finestra con la X non permette l'installazione) → tocca <b>···</b> in basso a destra → <b>Condividi</b> → scorri e tocca <b>Aggiungi alla schermata Home</b> → <b>Aggiungi</b>. Su iOS meno recenti il tasto <b>Condividi</b> ⎋ è già in basso.<br><b>Android (Chrome):</b> menu ⋮ → <b>Installa app</b>. Poi apri sempre l'app dall'icona: funziona anche senza rete.</div>
 <h3>Moduli del tecnico SAT</h3>
 <div class="tiles">
   <a class="tile" href="mod-01-2-yutaki.html"><div class="ic">01.2</div><div><b>Primo avviamento Yutaki airH2O</b><small>Verbale con firme e cartolina</small></div></a>
@@ -156,6 +156,7 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
 <section class="card"><div class="body">
   <div class="cl2">
     <button class="big" onclick="openSend()"><span>✉</span><b>Invia check list all'installatore</b><small>Si apre la posta con il PDF da compilare, già intestato al cliente</small></button>
+    <button class="big" onclick="pasteCL()" style="background:linear-gradient(135deg,#003e69,#007bc0)"><span>📋</span><b>Incolla pratica ricevuta</b><small>Il link mandato dall'ufficio o dal collega: nella mail tienilo premuto → Copia, poi tocca qui</small></button>
     <label class="big"><span>⬆</span><b>Carica check list compilata</b><small>Il PDF tornato dall'installatore: i dati passano nel verbale da inviare al tecnico</small><input type="file" accept=".pdf,application/pdf" style="display:none" onchange="loadCL(this)"></label>
   </div>
   <div id="sendp" class="sendp" style="display:none">
@@ -211,7 +212,7 @@ async function sendCL(){const k=$("#s_k").value,c=TRASF.CL[k],p=PR.get(),mail=$(
   const S={};if($("#s_pre").checked)PR.pull(S,k);let bytes;
   try{bytes=await PDFFILL.prefill(k,S)}catch(e){alert("Errore nella preparazione del PDF: "+e.message);return}
   const name=(c.code+" "+c.t+(p.cliente?" - "+p.cliente:"")).replace(/[^\w-]+/g,"_")+".pdf",file=new File([bytes],name,{type:"application/pdf"});
-  const sub=c.code+" "+c.t+(p.cliente?" - "+p.cliente:""),txt="Buongiorno,\nin allegato la "+c.t+" ("+c.code+")"+(p.cliente?" per l'impianto "+p.cliente+(p.citta?" - "+p.citta:""):"")+".\nVa compilata con Acrobat Reader (anche da telefono) e rimandata a questo indirizzo prima della data di avviamento.\n\nGrazie,\nService Hitachi Cooling & Heating";
+  const sub=c.code+" "+c.t+(p.cliente?" - "+p.cliente:""),txt="Buongiorno,\nin allegato la "+c.t+" ("+c.code+")"+(p.cliente?" per l'impianto "+p.cliente+(p.citta?" - "+p.citta:""):"")+".\nVa compilata con Acrobat Reader (anche da telefono) e rimandata a questo indirizzo prima della data di avviamento.\n\nGrazie";
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:sub,text:txt});$("#sendp").style.display="none";return}}catch(e){if(e.name==="AbortError")return}
   const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
   setTimeout(()=>{location.href="mailto:"+encodeURIComponent(mail)+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(txt+"\n\n(allegare il PDF appena scaricato: "+name+")")},800);$("#sendp").style.display="none"}
@@ -221,13 +222,19 @@ async function loadCL(inp){const f=inp.files[0];inp.value="";if(!f)return;try{co
   let b="";for(let i=0;i<u.length;i+=8192)b+=String.fromCharCode.apply(null,u.subarray(i,i+8192));
   try{sessionStorage.setItem("cl_import",JSON.stringify({k:best,n:f.name,b:btoa(b)}))}catch(e){alert("PDF troppo grande da passare al modulo: aprirlo dalla check list "+TRASF.CL[best].code+" con Importa.");location.href=TRASF.CL[best].page;return}
   location.href=TRASF.CL[best].page+"?import=1"}catch(e){console.error(e);alert("Impossibile leggere il PDF: "+e.message)}}
-// pratica ricevuta dal link del collega
-(async function(){const m=location.hash.match(/^#d=(.+)$/);if(!m)return;history.replaceState(null,"",location.pathname);let o;try{o=await TRASF.unpack(m[1])}catch(e){alert("Link della pratica non valido o incompleto.");return}
+// pratica ricevuta dal collega: dal link (#d=...) oppure incollando il link nell'app
+async function importPayload(code,fromLink){let o;try{o=await TRASF.unpack(code)}catch(e){alert("Link della pratica non valido o incompleto: copiare tutto il link dalla mail.");return}
   const c=TRASF.CL[o.k]||{},p=o.p||{};if(!confirm("Caricare la pratica ricevuta?\n\n"+(p.cliente||"(cliente non indicato)")+(p.citta?" - "+p.citta:"")+"\n"+(c.code||"")+" "+(c.t||"")+"\n\nLa pratica corrente su questo telefono verrà sostituita."))return;
   PR.set(Object.assign({},p,{_agg:new Date().toISOString()}));if(c.code)localStorage.setItem(TRASF.fkey(o.k),JSON.stringify({S:o.s||{},sig:{}}));
-  draw();const b=$("#imp");b.style.display="block";b.innerHTML=`<b>✓ Pratica ${esc(p.cliente||"")} caricata.</b> Dati cliente, installatore, modelli e matricole sono già nei moduli.<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${c.verb?`<a class="btn pri" style="text-decoration:none" href="${c.verb}">Apri ${esc(c.vt)}</a>`:""}${c.page?`<a class="btn" style="text-decoration:none" href="${c.page}?ricevuta=1">Vedi la check list ${esc(c.code)}</a>`:""}</div>`})();
+  draw();const inapp=fromLink&&!standalone,b=$("#imp");b.style.display="block";
+  b.innerHTML=`<b>✓ Pratica ${esc(p.cliente||"")} caricata.</b> Dati cliente, installatore, modelli e matricole sono già nei moduli.<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${c.verb?`<a class="btn pri" style="text-decoration:none" href="${c.verb}">Apri ${esc(c.vt)}</a>`:""}${c.page?`<a class="btn" style="text-decoration:none" href="${c.page}?ricevuta=1">Vedi la check list ${esc(c.code)}</a>`:""}</div>`+
+   (inapp?`<div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:#fff4e0;border:1px solid #f0b45a;color:#7a3b00"><b>Attenzione:</b> se il link si è aperto dentro la mail (pagina con la <b>X</b> in alto a sinistra) i dati restano solo in questa finestra. Per lavorare con l'app installata: nella mail <b>tieni premuto il link → Copia</b>, apri l'app <b>Moduli Service</b> dalla schermata Home e tocca <b>Incolla pratica ricevuta</b>.</div>`:"");b.scrollIntoView({behavior:"smooth"})}
+async function pasteCL(){let t="";try{t=await navigator.clipboard.readText()}catch(e){}
+  if(!/#d=|^[zj][A-Za-z0-9_-]{20,}$/.test((t||"").trim()))t=prompt("Incolla qui il link della pratica ricevuto per email (tieni premuto nel campo → Incolla):")||"";
+  const m=t.trim().match(/#d=([A-Za-z0-9_-]+)/)||t.trim().match(/^([zj][A-Za-z0-9_-]{20,})$/);if(!m){if(t)alert("Il testo incollato non contiene il link di una pratica.");return}importPayload(m[1],false)}
 const standalone=window.navigator.standalone||matchMedia("(display-mode: standalone)").matches;if(!standalone)document.getElementById("inst").style.display="block";
 draw();window.addEventListener("pageshow",draw);
+{const m=location.hash.match(/^#d=(.+)$/);if(m){history.replaceState(null,"",location.pathname);importPayload(m[1],true)}}
 </script>
 </body>
 </html>

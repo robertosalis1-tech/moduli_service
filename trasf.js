@@ -17,7 +17,7 @@ function base(){return location.href.split("#")[0].split("?")[0].replace(/[^\/]*
 async function linkFor(k){var p=PR.get(),d=null;try{d=JSON.parse(localStorage.getItem(fkey(k))||"null")}catch(e){}
   var o={v:1,k:k,p:p,s:d&&d.S||{},t:new Date().toISOString()};return base()+"index.html#d="+(await pack(o))}
 async function sendTech(k,pdfBytes){var c=CL[k],p=PR.get(),url=await linkFor(k);
-  var txt="Pratica "+(p.cliente||"")+(p.citta?" - "+p.citta:"")+"\n"+c.code+" "+c.t+" ricevuta dall'installatore.\n\nApri il link dal telefono per caricare i dati nell'app Moduli Service"+(c.vt?" (il "+c.vt+" sarà già precompilato)":"")+":\n"+url+"\n\nI dati viaggiano solo in questo link: non vengono salvati su internet.";
+  var txt="Pratica "+(p.cliente||"")+(p.citta?" - "+p.citta:"")+"\n"+c.code+" "+c.t+"\n\nPer caricare i dati nell'app Moduli Service"+(c.vt?" (il "+c.vt+" sarà già precompilato)":"")+":\n1) tieni premuto il link qui sotto e scegli Copia;\n2) apri l'app Moduli Service dalla schermata Home;\n3) tocca Incolla pratica ricevuta.\n(In alternativa salva il PDF allegato e nell'app tocca Carica check list compilata.)\n\n"+url+"\n\nI dati viaggiano solo in questa email: non vengono salvati su internet.";
   var sub="Pratica "+(p.cliente||"")+" - "+c.code+" compilata";
   try{if(pdfBytes&&navigator.canShare){var f=new File([pdfBytes],(c.code+"_"+(p.cliente||"pratica")).replace(/[^\w-]+/g,"_")+".pdf",{type:"application/pdf"});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:sub,text:txt});return}}
     if(navigator.share){await navigator.share({title:sub,text:txt});return}}catch(e){if(e.name==="AbortError")return}

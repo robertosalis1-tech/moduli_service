@@ -433,6 +433,6 @@ if(/[?&]import=1/.test(location.search)){try{const r=JSON.parse(sessionStorage.g
   if(r&&r.k===KEYP){const u=Uint8Array.from(atob(r.b),c=>c.charCodeAt(0));CLBYTES=u;S={};sig={};importPDF(new File([u],r.n||"checklist.pdf",{type:"application/pdf"})).then(nextSteps)}}catch(e){console.error(e)}}
 if(/[?&]ricevuta=1/.test(location.search)){history.replaceState(null,"",location.pathname);nextSteps()}
 </script>
-<script src="firma.js"></script><script src="foto.js"></script><script src="avvisi.js"></script>
+<script src="firma.js"></script><script src="foto.js"></script><script src="avvisi.js"></script><script src="mobile.js"></script>
 </body>
 </html>
