@@ -39,7 +39,7 @@ input,select,textarea{width:100%;margin-top:3px;padding:8px 9px;border:1px solid
 .calc{background:var(--okbg)!important;border-color:#bfe3cc!important;font-weight:600;color:var(--txt)}
 .calc.warn{background:var(--warnbg)!important;color:var(--warn)}.calc.ko{background:var(--kobg)!important;color:var(--ko)}.calc.ok{color:var(--ok)}
 input.warn{background:#ffd99a!important;border-color:#e0a020}
-input.ko{color:var(--ko);border-color:var(--ko)}input.ok{color:var(--ok)}
+input.ko,select.ko{color:var(--ko);border:2px solid var(--ko)!important;background:var(--kobg)!important;font-weight:700}input.warn,select.warn{border:2px solid #e0a020!important;background:var(--warnbg)!important}input.ok{color:var(--ok)}
 textarea{min-height:80px}
 input.off{background:#d9dbe0!important;border-color:#d9dbe0}
 .fcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
@@ -49,8 +49,8 @@ input.off{background:#d9dbe0!important;border-color:#d9dbe0}
 .mors{position:relative;margin-top:10px}
 .mors img{width:100%;display:block}
 .mors i{position:absolute;top:-2px;bottom:-2px;border:2.5px solid;border-radius:4px}
-.mors i.in{border-color:#1a73d9;background:#1a73d914}.mors i.out{border-color:#f27300;background:#f2730014}
-.leg{margin-top:8px;font-size:13px}.leg span{display:inline-block;border-radius:12px;padding:3px 9px;margin:2px;font-weight:600}.leg .in{background:#e3efff;color:#0b4fa0}.leg .out{background:#ffeedd;color:#a24c00}
+.mors i.in{border-color:#1a73d9;background:#1a73d914}.mors i.sn{border-color:#8a2be2;background:#8a2be214}.mors i.out{border-color:#f27300;background:#f2730014}
+.leg{margin-top:8px;font-size:13px}.leg span{display:inline-block;border-radius:12px;padding:3px 9px;margin:2px;font-weight:600}.leg .in{background:#e3efff;color:#0b4fa0}.leg .out{background:#ffeedd;color:#a24c00}.leg .sn{background:#f1e6fd;color:#5b1a9e}
 .tip{background:#fbe1e1;color:#8a0a0a;font-size:12.5px;font-style:italic;padding:7px 10px;border-radius:8px;margin:10px 0 0}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:14px;cursor:pointer;background:#fff}
@@ -374,5 +374,6 @@ async function doPrintOld(cli){let d;try{d=pdfBuild(cli)}catch(e){console.error(
 load();PR.pull(S,"mi");renderAll();
 </script>
 <script src="firma.js"></script><script src="foto.js"></script><script src="avvisi.js"></script><script src="mobile.js"></script>
+<script src="regupd.js"></script>
 </body>
 </html>
