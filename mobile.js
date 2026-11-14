@@ -25,4 +25,13 @@ var touch=("ontouchstart" in window)||navigator.maxTouchPoints>0;
 document.addEventListener("focusin",function(e){if(!touch||!isNum(e.target))return;cur=e.target;if(!bar)mk();bar.style.display="flex";place();setTimeout(place,300);setTimeout(place,700)});
 document.addEventListener("focusout",function(e){setTimeout(function(){if(!isNum(document.activeElement)){cur=null;if(bar)bar.style.display="none"}},120)});
 if(window.visualViewport){visualViewport.addEventListener("resize",place);visualViewport.addEventListener("scroll",place)}
+
+// MAIUSCOLO: tutte le caselle di testo si compilano in maiuscolo (escluse email, numeri, date e caselle con elenco a scelta)
+var NOUPRX=/mail|pec|url|sito|password|pwd|web/i;
+function upOk(t){if(!t||t.readOnly||t.disabled)return false;if(t.tagName==="TEXTAREA")return !NOUPRX.test((t.dataset.n||t.name||t.id||""));
+  if(t.tagName!=="INPUT")return false;var ty=(t.getAttribute("type")||"text").toLowerCase();if(ty!=="text"&&ty!=="search")return false;
+  if(/^(decimal|numeric|tel|email|url)$/.test(t.getAttribute("inputmode")||""))return false;if(t.dataset.noup!=null)return false;if(t.hasAttribute("list")){var dl=t.list,os=dl?dl.options:[];for(var i=0;i<os.length&&i<400;i++){var ov=os[i].value||"";if(ov!==ov.toUpperCase())return false}}
+  return !NOUPRX.test((t.dataset.n||"")+" "+(t.name||"")+" "+(t.id||"")+" "+(t.placeholder||""))}
+window.addEventListener("input",function(e){var t=e.target;if(e.isComposing||!upOk(t))return;var v=t.value,u=v.toUpperCase();if(v===u)return;var a=t.selectionStart,b=t.selectionEnd;t.value=u;try{t.setSelectionRange(a,b)}catch(x){}},true);
+document.addEventListener("compositionend",function(e){var t=e.target;if(upOk(t)&&t.value!==t.value.toUpperCase()){t.value=t.value.toUpperCase();t.dispatchEvent(new Event("input",{bubbles:true}))}},true);
 })();

@@ -7,6 +7,24 @@ function V(){try{return S}catch(e){return {}}}
 function num(n){var v=V()[n];if(v==null||v==="")return null;var x=Number(String(v).replace(",",".").replace(/[\s>≥<≤]/g,""));return isNaN(x)?null:x}
 function fx(v,k){return String((Math.round(v*Math.pow(10,k))/Math.pow(10,k)).toFixed(k)).replace(".",",")}
 function rule(f,lbl,o){o=o||{};R.push({f:f,lbl:lbl,bal:o.bal,rng:o.rng,u:o.u||"",min:o.min})}
+function custom(fn){R.push({fn:fn})}
+function raw(n){var v=V()[n];return v==null?"":String(v).trim()}
+function compChecks(T,W,E,X){return function(){var o=[],v=T?num(T):null;if(v!==null){if(v>=180&&v<=260){if(v<207||v>253)o.push([[T],"Tensione monofase "+fx(v,0)+" V fuori dal campo 207-253 V: verificare l'alimentazione (può danneggiare compressore e inverter)"])}
+      else if(v>=300&&v<=480){if(v<360||v>440)o.push([[T],"Tensione trifase "+fx(v,0)+" V fuori dal campo 360-440 V: verificare l'alimentazione"])}else o.push([[T],"Tensione "+fx(v,0)+" V anomala: né monofase (230 V) né trifase (400 V)"])}
+    var L=["R u-v","R v-w","R w-u"],w=W.map(num);
+    W.forEach(function(n,i){var r=raw(n);if(!r)return;
+      if(/^(ol|o\.l\.|inf|∞|aperto|open)/i.test(r)||w[i]!==null&&w[i]>=50)o.push([[n],L[i]+": avvolgimento interrotto (circuito aperto). Possibile filo bruciato o protezione termica interna aperta: ricontrollare a compressore freddo"]);
+      else if(w[i]!==null&&w[i]<=0.05)o.push([[n],L[i]+" = "+fx(w[i],2)+" Ω: quasi nulla. Possibile avvolgimento in corto circuito, oppure puntali non azzerati: ripetere la misura"])});
+    var ok=w.filter(function(x){return x!==null&&x>0.05&&x<50});
+    if(ok.length===3){var m=(ok[0]+ok[1]+ok[2])/3,d=Math.max.apply(null,ok.map(function(x){return Math.abs(x-m)/m*100}));
+      if(d>10)o.push([W,"Squilibrio tra gli avvolgimenti "+fx(d,0)+"% (max 10%): possibili spire in corto circuito. Ripetere la misura a compressore freddo con strumento adatto alle basse resistenze"])}
+    var LE=["R u-pe","R v-pe","R w-pe"];
+    E.forEach(function(n,i){var e=num(n);if(e===null)return;
+      if(e<0.1)o.push([[n],LE[i]+" = "+fx(e,2)+" MΩ: guasto a terra (avvolgimento a massa). Compressore da sostituire; verificare anche modulo inverter, cavi e morsettiera"]);
+      else if(e<1)o.push([[n],LE[i]+" = "+fx(e,2)+" MΩ: isolamento insufficiente (min 1 MΩ), possibile dispersione. Se l'unità è rimasta ferma, il refrigerante liquido nel carter abbassa l'isolamento: alimentare la resistenza carter 6-12 ore e ripetere la misura"])});
+    if(X&&V().cmp_blocco_meccanico==="Yes"&&!V().cmp_inverter)o.push([["cmp_inverter_note"],"Blocco meccanico: la verifica del modulo inverter con compressore scollegato è obbligatoria"]);
+    return o}}
+
 function grpV(s,p,lbl3,lblf){ // tensioni e correnti come nei moduli Utopia / Yutaki
   rule(["tens_l12"+s,"tens_l23"+s,"tens_l31"+s],p+"Tensioni concatenate",{bal:2,rng:[360,440],u:"V"});
   rule(["tens_l1n"+s,"tens_l2n"+s,"tens_l3n"+s],p+"Tensioni di fase",{bal:2,rng:[207,253],u:"V"});
@@ -18,11 +36,12 @@ else if(/^mod-03-3/.test(PG)){for(var k=1;k<=8;k++)rule(["s"+k+"_v12","s"+k+"_v2
 else if(/^mod-05-2/.test(PG)){rule(["v_12","v_23","v_31"],"Tensioni a vuoto",{bal:2,rng:[360,440],u:"V"});rule(["vl_12","vl_23","vl_31"],"Tensioni sotto carico",{bal:2,rng:[360,440],u:"V"});
   for(var k=1;k<=4;k++)rule(["i"+k+"_l1","i"+k+"_l2","i"+k+"_l3"],"Modulo "+k+": correnti",{bal:10,u:"A"})}
 else if(/^mod-06-1/.test(PG)){rule(["v12","v23","v31"],"Tensioni",{bal:3,rng:function(){return V().alim==="Monofase"?[207,253]:[360,440]},u:"V"});
-  rule(["i1","i2","i3"],"Correnti",{bal:10,u:"A"});rule(["r_uv","r_vw","r_wu"],"Resistenza avvolgimenti compressore",{bal:5,u:"Ohm"});
-  rule(["r_upe","r_vpe","r_wpe"],"Isolamento verso terra",{min:1,u:"MOhm"});rule(["r_hlink"],"Resistenza linea H-LINK",{rng:[60,90],u:"Ohm"})}
+  rule(["i1","i2","i3"],"Correnti",{bal:10,u:"A"});custom(compChecks(null,["r_uv","r_vw","r_wu"],["r_upe","r_vpe","r_wpe"],0));
+rule(["r_hlink"],"Resistenza linea H-LINK",{rng:[60,90],u:"Ohm"})}
+else if(/^mod-06-2/.test(PG))custom(compChecks("cmp_tensione",["cmp_r_uv","cmp_r_vw","cmp_r_wu"],["cmp_r_upe","cmp_r_vpe","cmp_r_wpe"],1));
 function msgCalc(n){return /diam/.test(n)?"Diametro diverso dal nominale di catalogo: verificare. La carica aggiuntiva viene ricalcolata sul diametro reale.":/gm_agg|carica|refr|_w\d*$|wcar/.test(n)?"Carica ricalcolata per diametro non nominale: verificare il valore.":"Valore diverso dal nominale: verificare."}
 function evalAll(){var M={},L=[];function add(n,m,sum){(M[n]=M[n]||[]).indexOf(m)<0&&M[n].push(m);if(sum!==false&&L.indexOf(m)<0)L.push(m)}
-  R.forEach(function(r){var vs=r.f.map(num),rg=typeof r.rng==="function"?r.rng():r.rng;
+  R.forEach(function(r){if(r.fn){(r.fn()||[]).forEach(function(x){x[0].forEach(function(n,i){i===x[0].length-1?add(n,x[1]):add(n,"\u0000",false)})});return}var vs=r.f.map(num),rg=typeof r.rng==="function"?r.rng():r.rng;
     if(rg)r.f.forEach(function(n,i){var v=vs[i];if(v!==null&&(v<rg[0]||v>rg[1]))add(n,r.lbl+": "+fx(v,v%1?1:0)+" "+r.u+" fuori dal campo "+rg[0]+"-"+rg[1]+" "+r.u)});
     if(r.min!=null)r.f.forEach(function(n,i){var v=vs[i];if(v!==null&&v<r.min)add(n,r.lbl+": "+fx(v,2)+" "+r.u+" sotto il minimo di "+r.min+" "+r.u)});
     if(r.bal&&vs.every(function(v){return v!==null})){var m=vs.reduce(function(a,b){return a+b},0)/vs.length;if(m>0){var dv=vs.map(function(v){return Math.abs(v-m)/m*100}),p=Math.max.apply(null,dv);
@@ -42,7 +61,7 @@ function run(){busy=true;try{var E=evalAll(),extra=[];last=E;
     // campo di misura indicato nella riga della tabella (es. 0~199): valore fuori campo
     var tr=el.closest&&el.closest("tr");if(tr&&el.dataset.n&&el.value!==""){var u=tr.querySelector("u");var mm=u&&u.textContent.trim().match(/^(-?\d+(?:[.,]\d+)?)\s*[~–]\s*(-?\d+(?:[.,]\d+)?)$/);
       if(mm){var lo=Number(mm[1].replace(",",".")),hi=Number(mm[2].replace(",",".")),x=Number(el.value.replace(",","."));if(!isNaN(x)&&(x<lo||x>hi)){var d=(u.parentNode.childNodes[0].textContent||"Parametro").trim();var t=d+": "+el.value+" fuori dal campo del display ("+lo+"-"+hi+")";ms.push("fuori campo "+lo+"-"+hi);extra.push(t)}}}
-    if(!ms.length)return;el.classList.add("avv-hl");var box=document.createElement("span");box.className="avvm";box.textContent="⚠ "+ms.join(" · ");
+    if(!ms.length)return;el.classList.add("avv-hl");ms=ms.filter(function(m){return m!=="\u0000"});if(!ms.length)return;var box=document.createElement("span");box.className="avvm";box.textContent="⚠ "+ms.join(" · ");
     var lab=el.closest("label");if(tr&&!lab){el.parentNode.appendChild(box)}else if(lab){lab.appendChild(box)}else el.insertAdjacentElement("afterend",box)});
   var all=E.L.concat(extra.filter(function(x){return E.L.indexOf(x)<0}));last.all=all;
   var b=document.getElementById("avvb");if(!b){b=document.createElement("button");b.id="avvb";b.onclick=panel;document.body.appendChild(b)}

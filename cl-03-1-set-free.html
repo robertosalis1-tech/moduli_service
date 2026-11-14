@@ -39,7 +39,7 @@ input,select,textarea{width:100%;margin-top:3px;padding:8px 9px;border:1px solid
 .calc{background:var(--okbg)!important;border-color:#bfe3cc!important;font-weight:600;color:var(--txt)}
 .calc.warn{background:var(--warnbg)!important;color:var(--warn)}.calc.ko{background:var(--kobg)!important;color:var(--ko)}.calc.ok{color:var(--ok)}
 input.warn{background:#ffd99a!important;border-color:#e0a020}
-input.ko{color:var(--ko);border-color:var(--ko)}input.ok{color:var(--ok)}
+input.ko,select.ko{color:var(--ko);border:2px solid var(--ko)!important;background:var(--kobg)!important;font-weight:700}input.warn,select.warn{border:2px solid #e0a020!important;background:var(--warnbg)!important}input.ok{color:var(--ok)}
 textarea{min-height:80px}
 input.off{background:#d9dbe0!important;border-color:#d9dbe0}
 .fcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
@@ -49,8 +49,8 @@ input.off{background:#d9dbe0!important;border-color:#d9dbe0}
 .mors{position:relative;margin-top:10px}
 .mors img{width:100%;display:block}
 .mors i{position:absolute;top:-2px;bottom:-2px;border:2.5px solid;border-radius:4px}
-.mors i.in{border-color:#1a73d9;background:#1a73d914}.mors i.out{border-color:#f27300;background:#f2730014}
-.leg{margin-top:8px;font-size:13px}.leg span{display:inline-block;border-radius:12px;padding:3px 9px;margin:2px;font-weight:600}.leg .in{background:#e3efff;color:#0b4fa0}.leg .out{background:#ffeedd;color:#a24c00}
+.mors i.in{border-color:#1a73d9;background:#1a73d914}.mors i.sn{border-color:#8a2be2;background:#8a2be214}.mors i.out{border-color:#f27300;background:#f2730014}
+.leg{margin-top:8px;font-size:13px}.leg span{display:inline-block;border-radius:12px;padding:3px 9px;margin:2px;font-weight:600}.leg .in{background:#e3efff;color:#0b4fa0}.leg .out{background:#ffeedd;color:#a24c00}.leg .sn{background:#f1e6fd;color:#5b1a9e}
 .tip{background:#fbe1e1;color:#8a0a0a;font-size:12.5px;font-style:italic;padding:7px 10px;border-radius:8px;margin:10px 0 0}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:14px;cursor:pointer;background:#fff}
@@ -191,7 +191,7 @@ const LOCNOTE=it=>{const tip=t=>`<div class="tip" style="background:#e8f5ee;bord
     return tip("R32 con carica di "+String(m).replace(".",",")+" kg (1,84 kg o più): compila il locale più piccolo e ricava Amin dalla tabella del manuale in base alla carica e all'altezza di installazione.")}
   if(it.loc==="y32q"&&S.q67_SI==="Yes")return tip("Carica inferiore a 1,84 kg: nessun requisito di superficie del locale. Le verifiche seguenti sono segnate N.A. in automatico.");return""};
 const allF=[];SPEC.pages.forEach(pg=>pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>allF.push(f));if(it.k==="tab")it.rows.forEach(r=>r.f.forEach(f=>f&&allF.push(f)));if(it.k==="sigb"){[it.sig,it.nome,it.data].forEach(f=>f&&allF.push(f))}if(it.fs)it.fs.forEach(f=>f&&allF.push(f));if(it.k==="tri")it.names.forEach((n,i)=>{CHK[n]=it.on[i];FD[n]={n,t:"chk",on:it.on[i],p:it.p,r:it.r}})}));
-allF.forEach(f=>{if(f.t==="radio"){(FD[f.n]=FD[f.n]||Object.assign({},f,{ons:[]})).ons.push(f.on)}else FD[f.n]=FD[f.n]||f;if(f.t==="calc")CALCF.add(f.n);if(f.t==="chk")CHK[f.n]=f.on});
+allF.forEach(f=>{if(f.t==="radio"){const R=(FD[f.n]=FD[f.n]||Object.assign({},f,{ons:[],labs:[]}));R.ons.push(f.on);R.labs.push(f.l||f.on)}else FD[f.n]=FD[f.n]||f;if(f.t==="calc")CALCF.add(f.n);if(f.t==="chk")CHK[f.n]=f.on});
 SPEC.hidden0.forEach(n=>DISP[n]=1);
 // ---------- motore di calcolo: gli script del PDF su un documento simulato
 const iso2it=v=>/^\d{4}-\d\d-\d\d$/.test(v)?v.split("-").reverse().join("/"):v;
@@ -236,7 +236,7 @@ function inputH(f,bare,ctx){const n=f.n,v=S[n]??"",l=esc(f.l||"")+(f.u?` <u>(${e
   else if(f.t==="sel"){const o=(ITEMS[n]||f.o||[""]).map(x=>Array.isArray(x)?x[0]:x);h=`<select data-n="${n}"${ro}>${(o.includes(v)?o:o.concat([v])).map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("")}</select>`}
   else if(f.t==="combo"){const o=(ITEMS[n]||f.o||[]).map(x=>Array.isArray(x)?x[0]:x).filter(Boolean);h=`<input data-n="${n}" list="dl_${n}" autocomplete="off" value="${esc(v)}"${ro}><datalist id="dl_${n}">${o.map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`}
   else if(f.t==="chk")return `<label class="chkf"${bare?"":' style="grid-column:1/-1"'}><input type="checkbox" data-n="${n}" ${S[n]&&S[n]!=="Off"?"checked":""}${ro}>${bare?"":esc(f.l||"")}</label>`;
-  else if(f.t==="radio"){const F=FD[n];return `<div class="chips" style="grid-column:1/-1">${F.ons.map(o=>`<label class="chip"><input type="radio" name="r_${n}" data-r="${n}" value="${esc(o)}" ${S[n]===o?"checked":""}>${esc(o)}</label>`).join("")}</div>`}
+  else if(f.t==="radio"){const F=FD[n];if(f.r&&F.r&&f.r!==F.r&&f.r.join()!==F.r.join())return"";return `<div class="seg2 rad" style="grid-column:1/-1;flex-wrap:wrap">${F.ons.map((o,i)=>`<button type="button" class="${S[n]===o?"on"+(/^(KO|NO)$/.test(o)?" no":""):""}" data-sv="${n}" data-v="${esc(o)}">${esc(F.labs[i]||o)}</button>`).join("")}</div><small style="grid-column:1/-1;color:var(--mut);margin-top:-4px">Tocca di nuovo la scelta per toglierla.</small>`}
   else if(f.t==="area")h=`<textarea data-n="${n}"${ro}>${esc(v)}</textarea>`;
   else if(f.t==="sig")return `<div class="sigs" style="grid-column:1/-1"><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px">${esc(f.l||"Firma")}</div><canvas class="sig" data-sig="${n}"></canvas><div class="sigw" style="display:flex;gap:6px;align-items:center;margin-top:6px"><small style="flex:1;color:var(--mut)">Tocca il riquadro per firmare a schermo intero</small><button class="btn sm" onclick="clearSig('${n}')">Cancella</button></div></div>`;
   else h=`<input data-n="${n}" type="${f.date?"date":/mail/i.test(n)?"email":"text"}" value="${esc(v)}"${ro}${isNum(f,ctx)||/(_ind|^r\d+_ind)$/.test(n)?' inputmode="decimal" enterkeyhint="next"':' inputmode="text" enterkeyhint="next"'}>`;
@@ -345,5 +345,6 @@ if(/[?&]import=1/.test(location.search)){try{const r=JSON.parse(sessionStorage.g
 if(/[?&]ricevuta=1/.test(location.search)){history.replaceState(null,"",location.pathname);nextSteps()}
 </script>
 <script src="firma.js"></script><script src="foto.js"></script><script src="avvisi.js"></script><script src="mobile.js"></script>
+<script src="pdfview.js"></script>
 </body>
 </html>
