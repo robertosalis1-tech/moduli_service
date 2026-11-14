@@ -217,6 +217,37 @@ function runCalc(){try{locAuto()}catch(e){console.error(e)}try{EXT.pre&&EXT.pre(
     SPEC.calc.forEach(c=>{const ev={value:C[c.n]??"",target:doc.getField(c.n)};try{new Function("display","event","color","app",c.js).call(doc,display,ev,color,app)}catch(e){console.error(e)}})}
   try{EXT.post&&EXT.post()}catch(e){console.error(e)}
   save()}
+// ---- spazi di rispetto con piu' unita' (web): misure a-e, configurazione, f, g e disegno dall'alto che segue la configurazione
+const SP_CONF=["","Unità singola","Affiancate in fila (cascata / modulare)","Su più file","Sovrapposte (2 in altezza)"];
+const SP_DIRS=["","Uscita aria verso il retro della fila successiva","Retro contro retro","Uscite aria affacciate"];
+function spN(){return Number(S.sp_n||((S.cascata==="SI"||!("cascata" in S))?(S.n_unita||S.n_ue):"")||0)}
+function spKey(){const c=String(S.sp_conf||"").toLowerCase(),n=spN();if(/sovrap/.test(c))return"stack";if(/file/.test(c))return"rows";if(/affianc/.test(c))return"row";if(/singol/.test(c))return"one";return n>1?"row":"one"}
+function spSvg(){const k=spKey(),nn=spN(),n=Math.max(1,Math.min(4,nn||(k==="one"?1:2)));
+  const col=q=>{const c=cls("sp_"+q);return c==="ko"?"#c8102e":c==="ok"?"#1a7f37":"#1f4e79"};
+  const lab=q=>{const v=S["sp_"+q];return q+(v!==undefined&&v!==""?" = "+v:"")};
+  const W=380,y0=56,rows=k==="rows",NN=k==="one"?1:n,gap=NN>3?30:40,uw=Math.min(62,(W-92-(NN-1)*gap)/NN),uh=34,x0=Math.max(46,(W-NN*uw-(NN-1)*gap)/2);
+  let s=`<svg id="spsvg" viewBox="0 0 ${W} ${rows?250:190}" style="width:100%;max-width:520px;display:block;margin:6px auto 10px;font:11px system-ui,Arial"><defs><marker id="spa" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="5" markerHeight="5" orient="auto"><circle cx="4" cy="4" r="3" fill="context-stroke"/></marker></defs>`;
+  s+=`<line x1="20" y1="24" x2="${W-20}" y2="24" stroke="#888" stroke-dasharray="5 3" stroke-width="1.5"/><text x="22" y="18" fill="#777" font-style="italic" font-size="10">parete / ostacolo (retro)</text>`;
+  const dim=(x1,y1,x2,y2,q,dx,dy)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col(q)}" stroke-width="1.6" marker-start="url(#spa)" marker-end="url(#spa)"/><text x="${(x1+x2)/2+(dx||0)}" y="${(y1+y2)/2+(dy||0)}" fill="${col(q)}" font-weight="700">${esc(lab(q))}</text>`;
+  const unit=(x,y,t,dash)=>`<rect x="${x}" y="${y}" width="${uw}" height="${uh}" rx="3" fill="${dash?"none":"#e1e6ee"}" stroke="${dash?"#999":"#4b5563"}" stroke-width="${dash?1:1.4}" ${dash?'stroke-dasharray="4 3"':""}/><text x="${x+uw/2}" y="${y+uh/2+4}" text-anchor="middle" fill="${dash?"#888":"#333"}" font-size="10" font-weight="${dash?400:700}">${t}</text>`;
+  if(k==="stack"){s+=unit(x0,y0,"Unità 2 (sopra)")+unit(x0,y0+uh+6,"Unità 1");s+=`<text x="${x0+uw+14}" y="${y0+uh+8}" fill="#555" font-size="10">max 2 in altezza${nn>2?' — <tspan fill="#c8102e" font-weight="700">'+nn+' unità: non ammesso</tspan>':""}</text>`}
+  else{const N=k==="one"?1:n;for(let i=0;i<N;i++)s+=unit(x0+i*(uw+gap),y0,N===1?"Unità":(i===N-1&&nn>4?"Unità "+nn:"Unità "+(i+1)));
+    if(N>1)s+=dim(x0+uw,y0+uh/2,x0+uw+gap,y0+uh/2,"f",-6,-6);if(nn>4)s+=`<text x="${x0+3*(uw+gap)-gap/2}" y="${y0+uh/2+4}" text-anchor="middle" fill="#555">…</text>`;
+    if(rows){const ry=y0+uh+70;for(let i=0;i<N;i++)s+=unit(x0+i*(uw+gap),ry,"2a fila",1);s+=dim(x0+uw/2,y0+uh,x0+uw/2,ry,"g",6,4);
+      const d=String(S.sp_dir||"");s+=`<text x="${W/2}" y="${ry+uh+22}" text-anchor="middle" fill="#555" font-size="10">${esc(d||"indicare l'orientamento delle file")}</text>`}
+    const xr=x0+(N-1)*(uw+gap)+uw;s+=dim(x0+uw/2,y0,x0+uw/2,24,"a",6,4)+dim(14,y0+uh/2+8,x0,y0+uh/2+8,"b",-4,-5)+dim(xr,y0+uh/2+8,W-14,y0+uh/2+8,"c",-4,-5);
+    s+=dim(xr-uw/2,y0+uh,xr-uw/2,y0+uh+(rows?40:60),"d",6,6);if(!rows)s+=`<text x="${xr-uw/2}" y="${y0+uh+76}" text-anchor="middle" fill="#777" font-style="italic" font-size="10">uscita aria (fronte)</text>`}
+  return s+`</svg>`}
+function spCard(extraTip){const ks=[["a","a - retro / ingresso aria"],["b","b - lato sinistro"],["c","c - lato destro (servizio)"],["d","d - fronte / uscita aria"],["e","e - sopra (spazio libero)"]],k=spKey();
+  const fld=(q,l)=>`<label>${l} <u>(mm) · min ${esc(String(C["sp_"+q+"_min"]||"-").replace(/^>=\s*/,""))}</u><input data-n="sp_${q}" inputmode="decimal" class="${cls("sp_"+q)}" value="${esc(S["sp_"+q]??"")}"></label>`;
+  return grid([F("sp_conf","Installazione",{sel:SP_CONF}),F("sp_n","N° unità",{num:1})].concat(k==="rows"?[F("sp_dir","Orientamento delle file",{sel:SP_DIRS})]:[]))
+   +spSvg()
+   +`<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${ks.map(([q,l])=>fld(q,l)).join("")}${k==="row"||k==="rows"?fld("f","f - tra le unità affiancate"):""}${k==="rows"?fld("g","g - tra le file"):""}</div>`
+   +grid([F("sp_es","Esito spazi di rispetto",{calc:1})])
+   +tip("Misurare le distanze dagli ostacoli; i minimi arrivano dal manuale del modello U.E. Con più unità scegliere come sono installate: affiancate (anche in cascata o modulari), su più file o sovrapposte; il disegno si adatta e le distanze f (tra le unità) e g (tra le file) vengono confrontate con le figure del manuale."+(extraTip||""))}
+
+function spRefresh(){const v=document.getElementById("spsvg");if(v)v.outerHTML=spSvg();["a","b","c","d","e","f","g"].forEach(q=>{const e=document.querySelector(`[data-n="sp_${q}"]`);if(e&&e!==document.activeElement)e.className=cls("sp_"+q)})}
+
 const cls=n=>{const b=COL[n+"#bg"];if(b&&b[0]==="RGB"){if(b[1]>0.95&&b[2]<0.9&&b[3]<0.9)return"ko";if(b[1]>0.95&&b[2]>0.85&&b[3]<0.8)return"warn";if(b[2]>0.9&&b[1]<0.9)return"ok"}
   const c=COL[n];if(!c||c[0]!=="RGB")return"";if(c[1]>0.6&&c[2]<0.2)return"ko";if(c[1]>0.6&&c[2]>0.3&&c[3]<0.2)return"warn";if(c[2]>0.35&&c[1]<0.2)return"ok";return""};
 const val=n=>C[n]??S[n]??"";
@@ -241,9 +272,10 @@ function inputH(f,bare,ctx){const n=f.n,v=S[n]??"",l=esc(f.l||"")+(f.u?` <u>(${e
   else if(f.t==="sig")return `<div class="sigs" style="grid-column:1/-1"><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px">${esc(f.l||"Firma")}</div><canvas class="sig" data-sig="${n}"></canvas><div class="sigw" style="display:flex;gap:6px;align-items:center;margin-top:6px"><small style="flex:1;color:var(--mut)">Tocca il riquadro per firmare a schermo intero</small><button class="btn sm" onclick="clearSig('${n}')">Cancella</button></div></div>`;
   else h=`<input data-n="${n}" type="${f.date?"date":/mail/i.test(n)?"email":"text"}" value="${esc(v)}"${ro}${isNum(f,ctx)||/(_ind|^r\d+_ind)$/.test(n)?' inputmode="decimal" enterkeyhint="next"':' inputmode="text" enterkeyhint="next"'}>`;
   return bare?h:`<label${f.t==="area"||f.t==="calc"&&String(val(n)).length>40?' style="grid-column:1/-1"':""}>${l}${h}</label>`}
-function itemH(it){if(EXT.items&&EXT.items[it.k])return EXT.items[it.k].html(it);
+function itemH(it){if(it.ifchk&&S[it.ifchk]!=="Yes")return"";if(it.ifnotchk&&S[it.ifnotchk]==="Yes")return"";if(EXT.items&&EXT.items[it.k])return EXT.items[it.k].html(it);
   if(it.k==="sec")return null;
   if(it.k==="txt")return `<div class="txt">${esc(it.t)}</div>`;
+  if(it.k==="spdraw")return spSvg();
   if(it.k==="tip")return tipH(it.t);
   if(it.k==="row"){const F=it.f.filter(f=>!hid(f));if(!F.length)return"";if(F.length===1&&F[0].t==="sig")return inputH(F[0]);
     return `<div class="grid" style="margin:6px 0">${F.map(f=>inputH(f)).join("")}</div>`}
@@ -276,7 +308,7 @@ function renderAll(){runCalc();const V=VP();if(!V.includes(tab))tab=V.filter(i=>
   initSig()}
 function soft(){runCalc();
   document.querySelectorAll("[data-n]").forEach(e=>{const n=e.dataset.n;if(e===document.activeElement)return;if(e.type==="checkbox")e.checked=!!(S[n]&&S[n]!=="Off");else if((S[n]??"")!==e.value&&e.tagName!=="SELECT")e.value=S[n]??""});
-  document.querySelectorAll("[data-c]").forEach(e=>{e.value=val(e.dataset.c);e.className=e.className.replace(/\b(ok|warn|ko)\b/g,"").trim()+" "+cls(e.dataset.c)})}
+  document.querySelectorAll("[data-c]").forEach(e=>{e.value=val(e.dataset.c);e.className=e.className.replace(/\b(ok|warn|ko)\b/g,"").trim()+" "+cls(e.dataset.c)});try{spRefresh()}catch(e){}}
 function go(i){tab=i;renderAll();window.scrollTo(0,0)}
 function rerender(){const y=window.scrollY;setTimeout(()=>{const a=document.activeElement,an=a&&a.dataset&&a.dataset.n;renderAll();window.scrollTo(0,y);if(an){const e=document.querySelector(`[data-n="${an}"]`);if(e)e.focus({preventScroll:true})}},0)}
 const NOUP=e=>e.type==="email"||e.type==="date"||e.type==="time";

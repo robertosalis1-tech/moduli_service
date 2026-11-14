@@ -9,15 +9,19 @@ function fx(v,k){return String((Math.round(v*Math.pow(10,k))/Math.pow(10,k)).toF
 function rule(f,lbl,o){o=o||{};R.push({f:f,lbl:lbl,bal:o.bal,rng:o.rng,u:o.u||"",min:o.min})}
 function custom(fn){R.push({fn:fn})}
 function raw(n){var v=V()[n];return v==null?"":String(v).trim()}
-function compChecks(T,W,E,X){return function(){var o=[],v=T?num(T):null;if(v!==null){if(v>=180&&v<=260){if(v<207||v>253)o.push([[T],"Tensione monofase "+fx(v,0)+" V fuori dal campo 207-253 V: verificare l'alimentazione (può danneggiare compressore e inverter)"])}
+function compChecks(T,W,E,X,NOM,TMP){return function(){var o=[],v=T?num(T):null;if(v!==null){if(v>=180&&v<=260){if(v<207||v>253)o.push([[T],"Tensione monofase "+fx(v,0)+" V fuori dal campo 207-253 V: verificare l'alimentazione (può danneggiare compressore e inverter)"])}
       else if(v>=300&&v<=480){if(v<360||v>440)o.push([[T],"Tensione trifase "+fx(v,0)+" V fuori dal campo 360-440 V: verificare l'alimentazione"])}else o.push([[T],"Tensione "+fx(v,0)+" V anomala: né monofase (230 V) né trifase (400 V)"])}
-    var L=["R u-v","R v-w","R w-u"],w=W.map(num);
-    W.forEach(function(n,i){var r=raw(n);if(!r)return;
-      if(/^(ol|o\.l\.|inf|∞|aperto|open)/i.test(r)||w[i]!==null&&w[i]>=50)o.push([[n],L[i]+": avvolgimento interrotto (circuito aperto). Possibile filo bruciato o protezione termica interna aperta: ricontrollare a compressore freddo"]);
-      else if(w[i]!==null&&w[i]<=0.05)o.push([[n],L[i]+" = "+fx(w[i],2)+" Ω: quasi nulla. Possibile avvolgimento in corto circuito, oppure puntali non azzerati: ripetere la misura"])});
-    var ok=w.filter(function(x){return x!==null&&x>0.05&&x<50});
-    if(ok.length===3){var m=(ok[0]+ok[1]+ok[2])/3,d=Math.max.apply(null,ok.map(function(x){return Math.abs(x-m)/m*100}));
-      if(d>10)o.push([W,"Squilibrio tra gli avvolgimenti "+fx(d,0)+"% (max 10%): possibili spire in corto circuito. Ripetere la misura a compressore freddo con strumento adatto alle basse resistenze"])}
+    var L=["R u-v","R v-w","R w-u"],rn=NOM?num(NOM):null,tc=TMP?num(TMP):null,k=(tc!==null&&tc>-30&&tc<120)?1+0.00393*(tc-20):1,w=W.map(num),c20=[];
+    if(rn!==null&&rn<=0)rn=null;
+    W.forEach(function(n,i){var r=raw(n);c20.push(null);if(!r)return;
+      if(/^(ol|o\.l|inf|∞|aperto|open)/i.test(r)||w[i]!==null&&(rn?w[i]>3*rn:w[i]>=50))o.push([[n],L[i]+": avvolgimento interrotto (circuito aperto). Possibile filo bruciato o protezione termica interna aperta: ricontrollare a compressore freddo"]);
+      else if(w[i]!==null&&w[i]<=0.05)o.push([[n],L[i]+" = "+fx(w[i],2)+" Ω: praticamente zero. Corto tra le fasi, oppure puntali in corto / non azzerati: ripetere la misura"]);
+      else if(w[i]!==null){c20[i]=w[i]/k;if(rn){var dv=(c20[i]-rn)/rn*100;
+        if(dv<-15)o.push([[n],L[i]+" = "+fx(w[i],2)+" Ω"+(k!==1?" ("+fx(c20[i],2)+" Ω a 20 °C)":"")+": "+fx(dv,0)+"% rispetto alla nominale "+fx(rn,2)+" Ω (soglia ±15%). Resistenza troppo bassa: possibili spire in corto circuito"]);
+        else if(dv>15)o.push([[n],L[i]+" = "+fx(w[i],2)+" Ω"+(k!==1?" ("+fx(c20[i],2)+" Ω a 20 °C)":"")+": +"+fx(dv,0)+"% rispetto alla nominale "+fx(rn,2)+" Ω (soglia ±15%). Resistenza troppo alta: morsetti/connessioni ossidati o allentati, cavi di misura, oppure compressore ancora caldo (indicare la temperatura)"])}}});
+    var ok=c20.filter(function(x){return x!==null});
+    if(ok.length===3){var m=(ok[0]+ok[1]+ok[2])/3,dd=Math.max.apply(null,ok.map(function(x){return Math.abs(x-m)})),d=dd<=Math.max(0.02,Math.min(0.1,m*0.25))?0:dd/m*100;
+      if(d>10)o.push([W,"Squilibrio tra le fasi "+fx(d,0)+"% (max 10%): un avvolgimento si discosta dagli altri, possibile avvolgimento danneggiato. Ripetere la misura a compressore freddo con strumento adatto alle basse resistenze"])}
     var LE=["R u-pe","R v-pe","R w-pe"];
     E.forEach(function(n,i){var e=num(n);if(e===null)return;
       if(e<0.1)o.push([[n],LE[i]+" = "+fx(e,2)+" MΩ: guasto a terra (avvolgimento a massa). Compressore da sostituire; verificare anche modulo inverter, cavi e morsettiera"]);
@@ -36,9 +40,9 @@ else if(/^mod-03-3/.test(PG)){for(var k=1;k<=8;k++)rule(["s"+k+"_v12","s"+k+"_v2
 else if(/^mod-05-2/.test(PG)){rule(["v_12","v_23","v_31"],"Tensioni a vuoto",{bal:2,rng:[360,440],u:"V"});rule(["vl_12","vl_23","vl_31"],"Tensioni sotto carico",{bal:2,rng:[360,440],u:"V"});
   for(var k=1;k<=4;k++)rule(["i"+k+"_l1","i"+k+"_l2","i"+k+"_l3"],"Modulo "+k+": correnti",{bal:10,u:"A"})}
 else if(/^mod-06-1/.test(PG)){rule(["v12","v23","v31"],"Tensioni",{bal:3,rng:function(){return V().alim==="Monofase"?[207,253]:[360,440]},u:"V"});
-  rule(["i1","i2","i3"],"Correnti",{bal:10,u:"A"});custom(compChecks(null,["r_uv","r_vw","r_wu"],["r_upe","r_vpe","r_wpe"],0));
+  rule(["i1","i2","i3"],"Correnti",{bal:10,u:"A"});custom(compChecks(null,["r_uv","r_vw","r_wu"],["r_upe","r_vpe","r_wpe"],0,"r_nom","t_cmp"));
 rule(["r_hlink"],"Resistenza linea H-LINK",{rng:[60,90],u:"Ohm"})}
-else if(/^mod-06-2/.test(PG))custom(compChecks("cmp_tensione",["cmp_r_uv","cmp_r_vw","cmp_r_wu"],["cmp_r_upe","cmp_r_vpe","cmp_r_wpe"],1));
+else if(/^mod-06-2/.test(PG))custom(compChecks("cmp_tensione",["cmp_r_uv","cmp_r_vw","cmp_r_wu"],["cmp_r_upe","cmp_r_vpe","cmp_r_wpe"],1,"cmp_r_nom","cmp_t_cmp"));
 function msgCalc(n){return /diam/.test(n)?"Diametro diverso dal nominale di catalogo: verificare. La carica aggiuntiva viene ricalcolata sul diametro reale.":/gm_agg|carica|refr|_w\d*$|wcar/.test(n)?"Carica ricalcolata per diametro non nominale: verificare il valore.":"Valore diverso dal nominale: verificare."}
 function evalAll(){var M={},L=[];function add(n,m,sum){(M[n]=M[n]||[]).indexOf(m)<0&&M[n].push(m);if(sum!==false&&L.indexOf(m)<0)L.push(m)}
   R.forEach(function(r){if(r.fn){(r.fn()||[]).forEach(function(x){x[0].forEach(function(n,i){i===x[0].length-1?add(n,x[1]):add(n,"\u0000",false)})});return}var vs=r.f.map(num),rg=typeof r.rng==="function"?r.rng():r.rng;
