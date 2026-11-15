@@ -1,13 +1,11 @@
-AGGIORNAMENTO APP MODULI SERVICE - 14/11/2026
+AGGIORNAMENTO APP MODULI SERVICE - 15/11/2026
 
-Questa cartella contiene SOLO i file cambiati il 13 e il 14 novembre (la cartella "moduli_service (da caricare)" contiene invece l'app completa, gia' aggiornata).
+Contiene i file cambiati il 15/11 (informative privacy cliente finale e installatore, MOD 08.1 con contatti DPO).
+Se NON hai ancora caricato la cartella "Aggiornamento GitHub 14-11-2026", carica prima quella e poi questa.
 
 Come caricarli su GitHub (robertosalis1-tech/moduli_service):
-1. Apri il repository su github.com > "Add file" > "Upload files".
-2. Trascina nella pagina TUTTO il contenuto di questa cartella (i file e le cartelle lib, pdf, pdf-tpl), non la cartella stessa.
-3. In fondo scrivi un messaggio (es. "Aggiornamento 14-11-2026") e premi "Commit changes".
-4. Dopo 1-2 minuti apri l'app e ricarica la pagina: in alto deve comparire la nuova versione.
-
-Novita': modulo 08.1 Aggiornamento anagrafica partner, nuove diciture privacy (presa visione + consensi facoltativi), diagnosi compressore 06.2, spazi di rispetto con piu' unita'.
-Non caricare reg.js / reg-info.json da altre cartelle.
-Questo LEGGIMI non serve su GitHub: se lo trascini insieme agli altri file non succede nulla.
+1. github.com > repository > "Add file" > "Upload files".
+2. Trascina nella pagina il CONTENUTO di questa cartella (file + cartelle pdf e pdf-tpl).
+3. Messaggio "Aggiornamento 15-11-2026" > "Commit changes".
+4. Dopo 1-2 minuti ricarica l'app.
+Non caricare reg.js / reg-info.json. Questo LEGGIMI non serve su GitHub (se lo carichi non succede nulla).
