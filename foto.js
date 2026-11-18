@@ -6,7 +6,8 @@ var CATS=["Targhetta unità esterna","Targhetta unità interna","Targhetta compr
 var OLD={"Impianto / installazione":"Foto generale unità esterne / impianto"};
 // foto richieste per modulo (promemoria, non bloccante)
 var PG=location.pathname.split("/").pop(),ALL=[0,1,2,3,4,5];
-var REQ=/^mod-04/.test(PG)?[]:/^mod-03-2/.test(PG)?[0,1,5]:/^mod-05-2/.test(PG)?[0,2,4,5]:/^mod-06-2/.test(PG)?[0,2,4,5]:/^mod-/.test(PG)?ALL:[];
+var REQ=/^mod-06-3/.test(PG)?[]:/^mod-04/.test(PG)?[]:/^mod-03-2/.test(PG)?[0,1,5]:/^mod-05-2/.test(PG)?[0,2,4,5]:/^mod-06-2/.test(PG)?[0,2,4,5]:/^mod-/.test(PG)?ALL:[];
+if(/^mod-06-3/.test(PG)){CATS=["Fronte","Retro","Lato sinistro","Lato destro","Sopra","Sotto / base","Targhetta matricola","DDT con riserva","Dettaglio del danno","Altro"];REQ=[0,1,2,3,4,5,6,7,8]}
 if(/^mod-05-2/.test(PG)){CATS[0]="Targhetta unità (chiller)";CATS[4]="Scheda elettronica unità";CATS[5]="Foto generale unità / impianto"}
 function catOf(f){return OLD[f.cat]||f.cat}
 function missing(){return REQ.filter(function(i){return !list.some(function(f){return catOf(f)===CATS[i]})}).map(function(i){return CATS[i]})}
@@ -47,8 +48,8 @@ function open(){var p=document.createElement("div");p.id="fotop";document.body.a
   p.onchange=function(e){var t=e.target;if(t.dataset.cat!=null){list[+t.dataset.cat].cat=t.value;store();draw();btn()}};
   p.oninput=function(e){var t=e.target;if(t.dataset.note!=null){list[+t.dataset.note].note=t.value;clearTimeout(p._t);p._t=setTimeout(store,400)}}}
 // pagine "Allegati fotografici" (2 foto per pagina) in un PDF jsPDF già costruito
-function addPages(d){if(!list.length)return;var PW=210,PH=297,MG=14,CW=PW-2*MG,lg=document.querySelector(".hd img");
-  var srt=list.slice().sort(function(a,b){return CATS.indexOf(catOf(a))-CATS.indexOf(catOf(b))});
+function addPages(d,skip){skip=skip||{};var src=list.filter(function(f){return !skip[f.id]});if(!src.length)return;var PW=210,PH=297,MG=14,CW=PW-2*MG,lg=document.querySelector(".hd img");
+  var srt=src.slice().sort(function(a,b){return CATS.indexOf(catOf(a))-CATS.indexOf(catOf(b))});
   for(var i=0;i<srt.length;i++){if(i%2===0){d.addPage();try{if(lg)d.addImage(lg.src,"PNG",MG,8,30,6.6)}catch(e){}
       d.setFillColor(0,123,192);d.rect(0,19,PW,1.8,"F");d.setFont("helvetica","bold");d.setFontSize(12);d.setTextColor(0,62,105);d.text("Allegati fotografici",PW-MG,13,{align:"right"})}
     var f=srt[i],top=i%2===0?27:27+128,boxH=112,sc=Math.min(CW/f.w,boxH/f.h),w=f.w*sc,h=f.h*sc;
@@ -57,6 +58,6 @@ function addPages(d){if(!list.length)return;var PW=210,PH=297,MG=14,CW=PW-2*MG,l
     d.setFont("helvetica","normal");d.setFontSize(7);d.setTextColor(110,118,130);d.text(String(f.t||""),PW-MG,top+4,{align:"right"});
     try{d.addImage(f.data,"JPEG",MG+(CW-w)/2,top+7,w,h)}catch(e){}}}
 function check(){var m=missing();if(!m.length)return true;return confirm("Promemoria foto - mancano:\n\n- "+m.join("\n- ")+"\n\nLe foto si aggiungono con il pulsante 📷 Foto in basso a destra.\n\nGenerare comunque il PDF?")}
-window.FOTO={addPages:addPages,count:function(){return list.length},missing:missing,check:check,open:open};
+window.FOTO={addPages:addPages,list:function(){return list.map(function(f){return {id:f.id,cat:catOf(f),data:f.data,w:f.w,h:f.h,note:f.note}})},count:function(){return list.length},missing:missing,check:check,open:open};
 load().then(btn);
 })();

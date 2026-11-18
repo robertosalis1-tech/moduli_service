@@ -15,6 +15,7 @@ var MAP={
  "042":{ac_nome:"cliente",ac_tel:"tel_cli",ac_email:"email_cli"},
  "051":{inst_ditta:"installatore",inst_tel:"tel_inst",inst_mail:"email_inst",focus:"focus66",cli_nome:"cliente",cli_tel:"tel_cli",cli_via:"indirizzo",cli_cap:"cap",cli_citta:"citta",cli_mail:"email_cli"},
  "052":{ordine_focus:"focus66",data_avv:"data_avv",sat_ditta:"sat",sat_tecnico:"tecnico",ute_nome:"cliente",ute_tel:"tel_cli",ute_email:"email_cli",ute_via:"indirizzo",inst_nome:"installatore",modello:"mod_ue"},
+ "063":{dt_cliente:"installatore",dt_cli_email:"email_inst",dt_dest_nome:"cliente",dt_dest_indirizzo:"indirizzo",dt_dest_citta:"citta",dt_u0_modello:"mod_ue",dt_u0_matricola:"ser_ue"},
  "062":{cmp_sat:"sat",cmp_tecnico:"tecnico",cmp_tel:"sat_tel",cmp_email:"sat_email",cmp_mod_ue:"mod_ue",cmp_ser_ue:"ser_ue",cmp_ser_comp:"ser_comp",cmp_codice_ricambio:"comp_cod",cmp_codice_errore:"comp_err",cmp_n_intervento:"n_intervento"}};
 function get(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}}}
 function set(p){try{localStorage.setItem(KEY,JSON.stringify(p))}catch(e){}}

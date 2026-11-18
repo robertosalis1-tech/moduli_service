@@ -133,7 +133,6 @@ nav button.dim{opacity:.45}
     <button class="btn sm" onclick="saveJSON()">Esporta dati</button>
     <label class="btn sm" style="display:inline-block;margin:0">Importa<input type="file" accept=".json,.pdf,application/pdf" style="display:none" onchange="importFile(this)"></label>
     <button class="btn sm" onclick="if(confirm('Cancellare tutti i dati inseriti in questo modulo?')){S={};sig={};PR.pull(S,KEYP);save();tab=0;renderAll()}">Nuovo</button>
-    <button class="btn pri" onclick="doPDF()">Genera PDF</button>
     <button class="btn sm" id="btnTech" onclick="toTech()" style="display:none">✉ Invia al tecnico</button>
   </div>
   <div id="nextbox" style="display:none;margin:10px 14px 0;padding:12px 14px;border-radius:12px;background:#e8f5ee;border:1px solid #9fd3b5;color:#0b4d2b;font-size:14px"></div>

@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta name="robots" content="noindex,nofollow,noarchive,noimageindex">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Segnalazione danno da trasporto</title>
+<style>
+
+:root{--red:#e60027;--navy:#1f2b45;--blue:#3d7ab8;--txt:#1f2b45;--mut:#667085;--line:#d5dce7;--bg:#f3f5f8;--fld:#fff8c4;--ok:#16794a;--okbg:#ddf3e6;--warn:#a86400;--warnbg:#fff1d6;--ko:#c00;--kobg:#ffe1e1;--na:#eceef1}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+header{background:#fff;position:sticky;top:0;z-index:20;box-shadow:0 1px 4px #0002}
+.band{background:var(--red);color:#fff;font-size:12px;padding:4px 16px}
+.hd{max-width:1100px;margin:auto;display:flex;align-items:center;gap:14px;padding:8px 16px;flex-wrap:wrap}
+.hd img{height:24px}
+.hd h1{font-size:17px;margin:0;flex:1;min-width:200px}
+.hd h1 small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 13px;font:inherit;font-weight:600;cursor:pointer;color:var(--navy)}
+.btn.pri{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+nav{max-width:1100px;margin:auto;display:flex;gap:4px;padding:0 12px;overflow-x:auto}
+nav button{border:0;background:none;padding:9px 11px;font:inherit;font-size:14px;font-weight:600;color:var(--mut);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--navy);border-color:var(--red)}
+nav button i{font-style:normal;display:inline-block;min-width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle;background:#ccd}
+nav button i.ok{background:var(--ok)}nav button i.warn{background:#e0a020}nav button i.ko{background:var(--ko)}
+main{max-width:1100px;margin:auto;padding:14px 16px 80px}
+.pane{display:none}.pane.on{display:block}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 3px #0001;margin:0 0 14px;overflow:hidden}
+.card>h2{margin:0;padding:9px 14px;font-size:13.5px;text-transform:uppercase;letter-spacing:.03em;background:var(--blue);color:#fff}
+.card.na{opacity:.55}.card.na>h2{background:#8a98aa}
+.card .na-msg{padding:16px;color:var(--mut);font-style:italic;background:var(--na)}
+.body{padding:12px 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px}
+label{display:block;font-size:12px;font-weight:600;color:var(--navy)}
+label u{text-decoration:none;color:var(--mut);font-weight:400}
+input,select,textarea{width:100%;margin-top:3px;padding:8px 9px;border:1px solid #c9d2df;border-radius:8px;font:inherit;background:var(--fld)}
+.calc{background:var(--okbg)!important;border-color:#bfe3cc!important;font-weight:600;color:var(--txt)}
+.calc.warn{background:var(--warnbg)!important;color:var(--warn)}.calc.ko{background:var(--kobg)!important;color:var(--ko)}.calc.ok{color:var(--ok)}
+input.warn{background:#ffd99a!important;border-color:#e0a020}
+input.ko,select.ko{color:var(--ko);border:2px solid var(--ko)!important;background:var(--kobg)!important;font-weight:700}input.warn,select.warn{border:2px solid #e0a020!important;background:var(--warnbg)!important}input.ok{color:var(--ok)}
+textarea{min-height:80px}
+input.off{background:#d9dbe0!important;border-color:#d9dbe0}
+.fcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
+.fcs button{border:3px solid transparent;border-radius:10px;padding:2px;background:#fff;cursor:pointer}
+.fcs button.on{border-color:#1a73d9;box-shadow:0 0 0 3px #1a73d933}
+.fcs img{width:100%;display:block}
+.mors{position:relative;margin-top:10px}
+.mors img{width:100%;display:block}
+.mors i{position:absolute;top:-2px;bottom:-2px;border:2.5px solid;border-radius:4px}
+.mors i.in{border-color:#1a73d9;background:#1a73d914}.mors i.sn{border-color:#8a2be2;background:#8a2be214}.mors i.out{border-color:#f27300;background:#f2730014}
+.leg{margin-top:8px;font-size:13px}.leg span{display:inline-block;border-radius:12px;padding:3px 9px;margin:2px;font-weight:600}.leg .in{background:#e3efff;color:#0b4fa0}.leg .out{background:#ffeedd;color:#a24c00}.leg .sn{background:#f1e6fd;color:#5b1a9e}
+.tip{background:#fbe1e1;color:#8a0a0a;font-size:12.5px;font-style:italic;padding:7px 10px;border-radius:8px;margin:10px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:14px;cursor:pointer;background:#fff}
+.chip input{width:18px;height:18px;margin:0;accent-color:var(--red)}
+.dips{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px 24px}
+.dip{display:flex;align-items:center;gap:10px}
+.dip b{width:120px;font-size:13px;font-weight:600}
+.dip .sw{display:flex;gap:4px}
+.dip .sw span{display:flex;flex-direction:column;align-items:center;font-size:10px;color:var(--mut)}
+.dip .sw button{width:24px;height:30px;border:1.5px solid #1f4f78;border-radius:4px;background:#0ff;cursor:pointer;padding:0;position:relative}
+.dip .sw button.on{background:#1f2b45}
+.dip .sw button::after{content:"";position:absolute;left:4px;right:4px;height:9px;background:#fff;border-radius:2px;bottom:3px}
+.dip .sw button.on::after{top:3px;bottom:auto}
+.dip.na{opacity:.35;pointer-events:none}
+table{border-collapse:collapse;width:100%}
+th{background:var(--blue);color:#fff;font-size:12px;text-align:left;padding:6px 7px}
+td{border-bottom:1px solid var(--line);padding:3px 5px;font-size:13px}
+td input{margin:0;padding:5px 6px}
+td.code{font-weight:700;color:#1f4f78;white-space:nowrap}
+tr.sub td{background:#e3ebf6;font-style:italic;font-weight:600;color:#1f4f78}
+td.na input{background:var(--na);border-color:var(--na)}
+.scroll{overflow-x:auto}
+.ck{display:grid;grid-template-columns:30px 1fr repeat(3,48px);align-items:center;border-bottom:1px solid var(--line);padding:5px 0;gap:4px}
+.ck .n{font-weight:700;color:var(--blue);text-align:center}.ck .t{font-size:13.5px}.ck .imp{color:var(--red);font-weight:700;font-size:11px}
+.ck input{width:20px;height:20px;justify-self:center;accent-color:var(--red)}
+.ck.na{opacity:.4;pointer-events:none}
+.ckh{font-size:12px;font-weight:700;color:var(--mut);border-bottom:2px solid var(--line)}.ckh span{text-align:center}
+.esito{padding:12px 14px;border-radius:10px;font-weight:700;font-size:16px}
+.esito.ok{background:var(--okbg);color:var(--ok)}.esito.warn{background:var(--warnbg);color:var(--warn)}.esito.ko{background:var(--kobg);color:var(--ko)}.esito.none{background:var(--na);color:var(--mut)}
+.esito ul{margin:6px 0 0;padding-left:18px;font-weight:500;font-size:14px}
+.pill{display:inline-block;border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;background:var(--na);color:var(--mut)}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.warn{background:var(--warnbg);color:var(--warn)}.pill.ko{background:var(--kobg);color:var(--ko)}
+.sig{border:1px dashed #9aa6b8;border-radius:10px;background:#fff;touch-action:none;width:100%;height:140px;display:block}
+.navb{display:flex;justify-content:space-between;margin-top:10px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;opacity:0;transition:.3s;z-index:50}
+.toast.on{opacity:1}
+#print{display:none}
+@media print{
+  header,main,.toast{display:none!important}
+  #print{display:block;font:9.5pt/1.3 Helvetica,Arial,sans-serif;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #print .pband{background:#e60027;color:#fff;font-size:8pt;padding:3pt 6pt;margin:4pt 0}
+  #print h1{font-size:15pt;margin:2pt 0}
+  #print h2{font-size:10pt;background:#3d7ab8;color:#fff;padding:3pt 6pt;margin:9pt 0 3pt;text-transform:uppercase}
+  #print table{width:100%;border-collapse:collapse;margin:2pt 0 5pt}
+  #print th{background:#e3ebf6;color:#1f2b45;border:1px solid #aab;font-size:7.5pt;padding:2pt 3pt;text-align:left}
+  #print td{border:1px solid #ccd;font-size:8pt;padding:2pt 4pt}
+  #print .pb{page-break-before:always}
+  #print .es{padding:5pt;font-weight:700;border:1px solid #999}
+  @page{size:A4;margin:11mm}
+}
+
+header{position:static!important;box-shadow:none!important}
+.navw{position:sticky;top:0;z-index:20;background:#fff;box-shadow:0 1px 4px #0002}
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.band{padding-top:calc(4px + env(safe-area-inset-top))}
+input:not([type=email]):not([type=date]):not([type=time]),textarea{text-transform:uppercase}
+.txt{font-size:13px;color:#3a4558;margin:8px 0}
+.tri{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:7px 0}
+.tri .q{font-size:13.5px}.seg2{display:flex;gap:4px}
+.seg2 button{min-width:46px;border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:6px 8px;font:inherit;font-weight:700;font-size:13px;color:var(--mut);cursor:pointer}
+.seg2 button.on{background:var(--navy);border-color:var(--navy);color:#fff}.seg2 button.on.no{background:var(--ko);border-color:var(--ko)}
+.ftab td{padding:3px 4px}.ftab td.rl{font-size:12.5px;font-weight:600;color:var(--navy);white-space:nowrap;max-width:200px;white-space:normal}
+.ftab input,.ftab select{min-width:70px;padding:5px 6px;margin:0}
+.ftab .calc{font-size:12.5px}
+.covmsg{background:#eceef1;border-radius:12px;padding:30px 16px;text-align:center;color:var(--mut);font-weight:600;white-space:pre-line}
+.chkf{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500}.chkf input{width:20px;height:20px;margin:0;accent-color:var(--red)}
+.sigs .sig{height:170px}
+nav button.dim{opacity:.45}
+.sigbox{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0;background:#fbfcfe}.sigt{font-weight:700;color:var(--navy);margin-bottom:6px}
+.imp{background:#eef5ff;border:1px solid #b9d3f3;border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:13.5px}
+</style>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><script src="pratica.js"></script><script src="lib/jspdf.umd.min.js"></script><script src="lib/jspdf.plugin.autotable.min.js"></script><script src="pdfk.js"></script><script src="pdffill.js"></script><script src="trasf.js"></script>
+</head>
+<body>
+<header>
+  <div class="band"><b>Bosch Home Comfort Cooling and Heating SAS</b> &nbsp;|&nbsp; MOD 06.3 - Rev. 10/2026</div>
+  <div class="hd"><a class="btn sm" href="./" style="text-decoration:none;white-space:nowrap">← Moduli</a>
+    <img src="logo.png" alt="Bosch">
+    <h1>Segnalazione danno da trasporto<small>MOD 06.3 · app Moduli Service</small></h1>
+    <button class="btn sm" onclick="saveJSON()">Esporta dati</button>
+    <label class="btn sm" style="display:inline-block;margin:0">Importa<input type="file" accept=".json,.pdf,application/pdf" style="display:none" onchange="importFile(this)"></label>
+    <button class="btn sm" onclick="if(confirm('Cancellare tutti i dati inseriti in questo modulo?')){S={};sig={};PR.pull(S,KEYP);save();tab=0;renderAll()}">Nuovo</button>
+    <button class="btn sm" id="btnTech" onclick="toTech()" style="display:none">✉ Invia al tecnico</button>
+  </div>
+  <div id="nextbox" style="display:none;margin:10px 14px 0;padding:12px 14px;border-radius:12px;background:#e8f5ee;border:1px solid #9fd3b5;color:#0b4d2b;font-size:14px"></div>
+</header>
+<div class="navw"><nav id="nav"></nav></div>
+<main id="main"></main>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const SPEC={"code": "MOD 06.3", "title": "Segnalazione danno da trasporto", "pages": [{"i": 0, "items": [{"k": "txt", "t": "Segnalazione danno da trasporto MOD 06.3"}, {"k": "tip", "t": "Compilare alla consegna, prima di aprire o installare la merce. Le foto si caricano con il pulsante 📷 Foto in basso a destra, scegliendo la categoria (Fronte, Retro, Targhetta, DDT, ...): nel PDF vanno nei riquadri della pagina 2. Inviare il PDF a B&B, Area Manager e Service."}, {"k": "sec", "t": "DATI SPEDIZIONE"}, {"k": "row", "f": [{"n": "dt_data", "r": [128, 214, 296, 227.6], "p": 0, "t": "tx", "l": "Data segnalazione", "date": 1}, {"n": "dt_data_consegna", "r": [404, 214, 559.3, 227.6], "p": 0, "t": "tx", "l": "Data consegna", "date": 1}]}, {"k": "row", "f": [{"n": "dt_agenzia", "r": [128, 231, 296, 244.6], "p": 0, "t": "tx", "l": "Agenzia"}, {"n": "dt_ref_agenzia", "r": [404, 231, 559.3, 244.6], "p": 0, "t": "tx", "l": "Referente agenzia"}]}, {"k": "row", "f": [{"n": "dt_delivery", "r": [128, 248, 296, 261.6], "p": 0, "t": "tx", "l": "N° delivery"}, {"n": "dt_ordine", "r": [404, 248, 559.3, 261.6], "p": 0, "t": "tx", "l": "N° d'ordine"}]}, {"k": "row", "f": [{"n": "dt_corriere", "r": [128, 265, 296, 278.6], "p": 0, "t": "tx", "l": "Corriere"}, {"n": "dt_ddt", "r": [404, 265, 559.3, 278.6], "p": 0, "t": "tx", "l": "N° DDT / lettera di vettura"}]}, {"k": "sec", "t": "DATI CLIENTE"}, {"k": "row", "f": [{"n": "dt_cliente", "r": [128, 307, 559.3, 320.6], "p": 0, "t": "tx", "l": "Cliente (ragione sociale)"}]}, {"k": "row", "f": [{"n": "dt_cli_ref", "r": [128, 324, 296, 337.6], "p": 0, "t": "tx", "l": "Referente"}, {"n": "dt_cli_tel", "r": [404, 324, 559.3, 337.6], "p": 0, "t": "tx", "l": "Telefono"}]}, {"k": "row", "f": [{"n": "dt_cli_email", "r": [128, 341, 296, 354.6], "p": 0, "t": "tx", "l": "Email"}, {"n": "dt_cli_piva", "r": [404, 341, 559.3, 354.6], "p": 0, "t": "tx", "l": "P. IVA / C.F."}]}, {"k": "sec", "t": "DESTINAZIONE MERCE"}, {"k": "row", "f": [{"n": "dt_ubicazione", "r": [128, 383, 138, 393], "p": 0, "t": "radio", "l": "Presso il cliente", "on": "Cliente"}, {"n": "dt_ubicazione", "r": [238, 383, 248, 393], "p": 0, "t": "radio", "l": "In cantiere", "on": "Cantiere"}, {"n": "dt_ubicazione", "r": [348, 383, 358, 393], "p": 0, "t": "radio", "l": "Presso l'agenzia", "on": "Agenzia"}]}, {"k": "row", "f": [{"n": "dt_dest_nome", "r": [128, 400, 559.3, 413.6], "p": 0, "t": "tx", "l": "Destinatario"}]}, {"k": "row", "f": [{"n": "dt_dest_indirizzo", "r": [128, 417, 559.3, 430.6], "p": 0, "t": "tx", "l": "Indirizzo di destinazione"}]}, {"k": "row", "f": [{"n": "dt_dest_citta", "r": [128, 434, 296, 447.6], "p": 0, "t": "tx", "l": "Città / Prov."}, {"n": "dt_dest_ref", "r": [404, 434, 559.3, 447.6], "p": 0, "t": "tx", "l": "Referente in loco / tel."}]}, {"k": "sec", "t": "UNITÀ COINVOLTE"}, {"k": "tab", "cols": ["Modello", "Matricola", "Q.tà", "Tipo di danno"], "rows": [{"l": "1", "f": [{"n": "dt_u0_modello", "r": [54, 487, 204, 500.6], "p": 0, "t": "combo", "l": "Modello", "o": [""]}, {"n": "dt_u0_matricola", "r": [208, 487, 338, 500.6], "p": 0, "t": "combo", "l": "Matricola", "o": [""]}, {"n": "dt_u0_qta", "r": [342, 487, 376, 500.6], "p": 0, "t": "tx", "l": "Q.tà"}, {"n": "dt_u0_tipo", "r": [380, 487, 559.3, 500.6], "p": 0, "t": "sel", "l": "Tipo di danno", "o": ["", "Solo imballo", "Graffi / estetico", "Ammaccatura", "Rottura / deformazione", "Perdita refrigerante", "Parti mancanti", "Altro"]}]}, {"l": "2", "f": [{"n": "dt_u1_modello", "r": [54, 503, 204, 516.6], "p": 0, "t": "combo", "l": "Modello", "o": [""]}, {"n": "dt_u1_matricola", "r": [208, 503, 338, 516.6], "p": 0, "t": "combo", "l": "Matricola", "o": [""]}, {"n": "dt_u1_qta", "r": [342, 503, 376, 516.6], "p": 0, "t": "tx", "l": "Q.tà"}, {"n": "dt_u1_tipo", "r": [380, 503, 559.3, 516.6], "p": 0, "t": "sel", "l": "Tipo di danno", "o": ["", "Solo imballo", "Graffi / estetico", "Ammaccatura", "Rottura / deformazione", "Perdita refrigerante", "Parti mancanti", "Altro"]}]}, {"l": "3", "f": [{"n": "dt_u2_modello", "r": [54, 519, 204, 532.6], "p": 0, "t": "combo", "l": "Modello", "o": [""]}, {"n": "dt_u2_matricola", "r": [208, 519, 338, 532.6], "p": 0, "t": "combo", "l": "Matricola", "o": [""]}, {"n": "dt_u2_qta", "r": [342, 519, 376, 532.6], "p": 0, "t": "tx", "l": "Q.tà"}, {"n": "dt_u2_tipo", "r": [380, 519, 559.3, 532.6], "p": 0, "t": "sel", "l": "Tipo di danno", "o": ["", "Solo imballo", "Graffi / estetico", "Ammaccatura", "Rottura / deformazione", "Perdita refrigerante", "Parti mancanti", "Altro"]}]}, {"l": "4", "f": [{"n": "dt_u3_modello", "r": [54, 535, 204, 548.6], "p": 0, "t": "combo", "l": "Modello", "o": [""]}, {"n": "dt_u3_matricola", "r": [208, 535, 338, 548.6], "p": 0, "t": "combo", "l": "Matricola", "o": [""]}, {"n": "dt_u3_qta", "r": [342, 535, 376, 548.6], "p": 0, "t": "tx", "l": "Q.tà"}, {"n": "dt_u3_tipo", "r": [380, 535, 559.3, 548.6], "p": 0, "t": "sel", "l": "Tipo di danno", "o": ["", "Solo imballo", "Graffi / estetico", "Ammaccatura", "Rottura / deformazione", "Perdita refrigerante", "Parti mancanti", "Altro"]}]}]}, {"k": "sec", "t": "CONSTATAZIONE DEL DANNO"}, {"k": "row", "f": [{"n": "dt_riserva", "r": [290, 577, 338, 590.6], "p": 0, "t": "sel", "l": "Danno segnalato con riserva specifica sul DDT?", "o": ["", "SI", "NO"]}, {"n": "dt_riserva_testo", "r": [393.6, 577, 559.3, 590.6], "p": 0, "t": "tx", "l": "Testo riserva"}]}, {"k": "row", "f": [{"n": "dt_solo_imballo", "r": [290, 594, 338, 607.6], "p": 0, "t": "sel", "l": "Il danno è solo sull'imballo?", "o": ["", "SI", "NO"]}, {"n": "dt_imballo_conservato", "r": [445.6, 594, 493.6, 607.6], "p": 0, "t": "sel", "l": "Imballo originale conservato?", "o": ["", "SI", "NO"]}]}, {"k": "row", "f": [{"n": "dt_ispezionata", "r": [290, 611, 338, 624.6], "p": 0, "t": "sel", "l": "La merce è stata ispezionata (imballo aperto)?", "o": ["", "SI", "NO"]}, {"n": "dt_ispezionata_da", "r": [372.4, 611, 559.3, 624.6], "p": 0, "t": "tx", "l": "Da chi"}]}, {"k": "row", "f": [{"n": "dt_installata", "r": [290, 628, 338, 641.6], "p": 0, "t": "sel", "l": "L'unità è già stata installata o alimentata?", "o": ["", "SI", "NO"]}, {"n": "dt_installata_dove", "r": [368.8, 628, 559.3, 641.6], "p": 0, "t": "tx", "l": "Dove"}]}, {"k": "row", "f": [{"n": "dt_richiesta_sat", "r": [290, 645, 338, 658.6], "p": 0, "t": "sel", "l": "Si richiede l'intervento del SAT per la verifica?", "o": ["", "SI", "NO"]}, {"n": "dt_sat_proposto", "r": [396.0, 645, 559.3, 658.6], "p": 0, "t": "tx", "l": "SAT proposto"}]}, {"k": "tip", "t": "Riserva specifica sul DDT (la dicitura generica \"con riserva\" non basta); foto di tutti i lati, della targhetta e del DDT prima di aprire o spostare la merce; imballo conservato; non installare né alimentare un'unità danneggiata prima della valutazione Hitachi; danni non visibili: denuncia entro 8 giorni dal ricevimento (art. 1698 c.c.)."}]}, {"i": 1, "items": [{"k": "sec", "t": "LATI DANNEGGIATI E GRAVITÀ STIMATA"}, {"k": "row", "f": [{"n": "dt_lato_fronte", "r": [40, 140, 50, 150], "p": 1, "t": "chk", "l": "Fronte", "on": "Yes"}, {"n": "dt_lato_retro", "r": [40, 157, 50, 167], "p": 1, "t": "chk", "l": "Retro", "on": "Yes"}, {"n": "dt_lato_sx", "r": [40, 174, 50, 184], "p": 1, "t": "chk", "l": "Lato sinistro", "on": "Yes"}]}, {"k": "row", "f": [{"n": "dt_lato_dx", "r": [150, 140, 160, 150], "p": 1, "t": "chk", "l": "Lato destro", "on": "Yes"}, {"n": "dt_lato_sopra", "r": [150, 157, 160, 167], "p": 1, "t": "chk", "l": "Sopra", "on": "Yes"}, {"n": "dt_lato_sotto", "r": [150, 174, 160, 184], "p": 1, "t": "chk", "l": "Sotto / base", "on": "Yes"}]}, {"k": "row", "f": [{"n": "dt_gravita", "r": [300, 140, 310, 150], "p": 1, "t": "radio", "l": "Lieve - solo estetico, unità utilizzabile", "on": "Lieve"}, {"n": "dt_gravita", "r": [300, 157, 310, 167], "p": 1, "t": "radio", "l": "Media - funzionalità da verificare", "on": "Media"}, {"n": "dt_gravita", "r": [300, 174, 310, 184], "p": 1, "t": "radio", "l": "Grave - unità non installabile", "on": "Grave"}]}, {"k": "sec", "t": "DESCRIZIONE DEL DANNO"}, {"k": "row", "f": [{"n": "dt_descrizione", "r": [36, 219, 559.3, 263], "p": 1, "t": "area", "l": "Descrizione del danno"}]}, {"k": "sec", "t": "DOCUMENTAZIONE FOTOGRAFICA"}, {"k": "tip", "t": "Caricare le foto con il pulsante 📷 Foto in basso a destra: 1 Fronte, 2 Retro, 3 Lato sinistro, 4 Lato destro, 5 Sopra, 6 Sotto / base, 7 Targhetta matricola, 8 DDT con riserva, 9 Dettaglio del danno. Nel PDF ogni foto va nel suo riquadro; le foto in più si aggiungono in fondo come allegati."}, {"k": "sec", "t": "COMPILATO DA (AGENZIA / DITTA INSTALLATRICE)"}, {"k": "txt", "t": "Con la firma chi compila dichiara che i dati sono corretti e che quanto visibile nelle foto corrisponde al danno reale."}, {"k": "row", "f": [{"n": "dt_comp_nome", "r": [128, 664, 296, 677.6], "p": 1, "t": "tx", "l": "Nome e cognome"}, {"n": "dt_comp_data", "r": [404, 664, 559.3, 677.6], "p": 1, "t": "tx", "l": "Data", "date": 1}]}, {"k": "row", "f": [{"n": "dt_comp_firma", "r": [128, 682, 559.3, 706], "p": 1, "t": "sig", "l": "Firma di chi compila"}]}, {"k": "tip", "t": "Informativa privacy (art. 13 GDPR): titolare Bosch Home Comfort Cooling and Heating SAS, DPO@bosch.com. I dati servono a gestire il danno, il reclamo verso trasportatore o assicurazione e l'eventuale riparazione o sostituzione; li ricevono solo Service, B&B, Area Manager, SAT incaricato e trasportatore / assicurazione. Informativa completa: MOD 09.2. Nel PDF per Bosch / SAT l'informativa non viene riportata."}]}, {"i": 2, "items": [{"k": "tip", "t": "Pagina riservata a Hitachi Service e B&B: non va compilata da agenzia, cliente o ditta installatrice."}, {"k": "sec", "t": "RISERVATO HITACHI SERVICE"}, {"k": "row", "f": [{"n": "dt_hs_valutazione", "r": [128, 130, 296, 143.6], "p": 2, "t": "sel", "l": "Valutazione sulle foto", "o": ["", "Riparabile", "Non riparabile", "Da verificare con SAT"]}, {"n": "dt_hs_gestione", "r": [404, 130, 559.3, 143.6], "p": 2, "t": "sel", "l": "Gestione pratica", "o": ["", "B&B: reso e nuova unità", "Service: invio parti", "Service: sostituzione unità", "SAT: intervento in garanzia (OT)"]}]}, {"k": "row", "f": [{"n": "dt_hs_pratica", "r": [128, 147, 296, 160.6], "p": 2, "t": "tx", "l": "N° pratica"}, {"n": "dt_hs_data", "r": [404, 147, 559.3, 160.6], "p": 2, "t": "tx", "l": "Data valutazione"}]}, {"k": "row", "f": [{"n": "dt_hs_note", "r": [128, 164, 296, 177.6], "p": 2, "t": "tx", "l": "Codici parti / note"}, {"n": "dt_hs_valutatore", "r": [404, 164, 559.3, 177.6], "p": 2, "t": "tx", "l": "Valutato da"}]}, {"k": "row", "f": [{"n": "dt_hs_categoria", "r": [128, 181, 296, 194.6], "p": 2, "t": "sel", "l": "Categoria prodotto", "o": ["", "Sistemi PAC, VRF", "Idronico (Yutaki)", "RAC e HS", "Controlli", "Altro"]}, {"n": "dt_hs_tecnico", "r": [404, 181, 559.3, 194.6], "p": 2, "t": "sel", "l": "Tecnico Service", "o": ["", "Roberto Salis", "Edoardo Sforza", "Giorgio Lentinu", "Claudio Viarengo", "Matteo Arosio", "Marco Giarda"]}]}, {"k": "row", "f": [{"n": "dt_hs_riserva", "r": [128, 198, 296, 211.6], "p": 2, "t": "sel", "l": "Riserva sul DDT", "o": ["", "Sì - riserva specifica", "Sì - riserva generica", "No", "Da verificare"]}, {"n": "dt_hs_causa", "r": [404, 198, 559.3, 211.6], "p": 2, "t": "sel", "l": "Causa del danno", "o": ["", "Urto / colpo", "Caduta", "Schiacciamento", "Movimentazione (muletto)", "Imballo inadeguato", "Non determinabile"]}]}, {"k": "row", "f": [{"n": "dt_hs_am", "r": [128, 215, 296, 228.6], "p": 2, "t": "sel", "l": "AM avvisato", "o": ["", "Sì", "No"]}, {"n": "dt_hs_sat", "r": [404, 215, 559.3, 228.6], "p": 2, "t": "tx", "l": "SAT incaricato"}]}, {"k": "row", "f": [{"n": "dt_hs_avvio", "r": [128, 232, 296, 245.6], "p": 2, "t": "tx", "l": "Avvio intervento"}, {"n": "dt_hs_eseguito", "r": [404, 232, 559.3, 245.6], "p": 2, "t": "tx", "l": "Intervento eseguito"}]}, {"k": "row", "f": [{"n": "dt_hs_costo", "r": [128, 249, 296, 262.6], "p": 2, "t": "tx", "l": "Costo service (€)"}, {"n": "dt_hs_costo_ricambi", "r": [404, 249, 559.3, 262.6], "p": 2, "t": "tx", "l": "Costo ricambi (€)"}]}, {"k": "row", "f": [{"n": "dt_hs_costo_unita", "r": [128, 266, 296, 279.6], "p": 2, "t": "tx", "l": "Costo nuova unità (€)"}, {"n": "dt_hs_costo_ot", "r": [404, 266, 559.3, 279.6], "p": 2, "t": "tx", "l": "Costo OT / SAT (€)"}]}, {"k": "row", "f": [{"n": "dt_hs_esito", "r": [128, 283, 296, 296.6], "p": 2, "t": "sel", "l": "Esito economico", "o": ["", "In definizione", "A carico Bosch", "Addebitato al trasportatore", "Rimborso assicurazione", "A carico cliente / agenzia", "Nessun costo"]}]}, {"k": "sec", "t": "RISERVATO B&B - RESO E RITIRO A MASQUEFA"}, {"k": "row", "f": [{"n": "dt_bb_rma", "r": [128, 328, 296, 341.6], "p": 2, "t": "tx", "l": "N° pratica reso / RMA"}, {"n": "dt_bb_data_reso", "r": [404, 328, 559.3, 341.6], "p": 2, "t": "tx", "l": "Data richiesta reso"}]}, {"k": "row", "f": [{"n": "dt_bb_ordine", "r": [128, 345, 296, 358.6], "p": 2, "t": "tx", "l": "N° ordine nuova unità"}, {"n": "dt_bb_consegna", "r": [404, 345, 559.3, 358.6], "p": 2, "t": "tx", "l": "Consegna nuova unità"}]}, {"k": "row", "f": [{"n": "dt_bb_ritiro", "r": [128, 362, 296, 375.6], "p": 2, "t": "tx", "l": "Ritiro unità danneggiata"}, {"n": "dt_bb_ddt_ritiro", "r": [404, 362, 559.3, 375.6], "p": 2, "t": "tx", "l": "Corriere / DDT ritiro"}]}, {"k": "row", "f": [{"n": "dt_bb_arrivo", "r": [128, 379, 296, 392.6], "p": 2, "t": "tx", "l": "Arrivo a Masquefa"}, {"n": "dt_bb_verifica", "r": [404, 379, 559.3, 392.6], "p": 2, "t": "sel", "l": "Esito verifica Masquefa", "o": ["", "In verifica", "Danno confermato", "Danno non confermato", "Unità riparabile"]}]}, {"k": "row", "f": [{"n": "dt_bb_addebito", "r": [128, 396, 296, 409.6], "p": 2, "t": "sel", "l": "Addebito al trasportatore", "o": ["", "Sì", "No", "In valutazione"]}, {"n": "dt_bb_recuperato", "r": [404, 396, 559.3, 409.6], "p": 2, "t": "tx", "l": "Importo recuperato (€)"}]}, {"k": "row", "f": [{"n": "dt_bb_riserva_conf", "r": [128, 414.8, 138, 424.8], "p": 2, "t": "chk", "l": "Riserva conf. Logisteed (copia bolla con riserva ricevuta)", "on": "Yes"}, {"n": "dt_bb_azione", "r": [404, 413, 559.3, 426.6], "p": 2, "t": "sel", "l": "Azione seguita", "o": ["", "In attesa conferma", "Rimborso assicurazione", "Recupero rimborso da Logisteed", "Reso unità", "Reso e nuova unità", "Addebito al trasportatore", "Nessuna azione"]}]}, {"k": "row", "f": [{"n": "dt_bb_note", "r": [128, 430, 559.3, 470], "p": 2, "t": "area", "l": "Note B&B"}]}]}], "calc": [], "dates": ["dt_data", "dt_data_consegna", "dt_comp_data"], "hidden0": [], "covers": []},KEYP="063",KEY="form_"+SPEC.code.replace(/\W/g,"")+"_v1",IMPORT_HINT="";
+let S={},C={},COL={},DISP={},RO={},ITEMS={},sig={},tab=0;
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// ---------- indice dei campi
+const UIM=[];
+(function prep(){SPEC.pages.forEach(pg=>{const sigs=[];pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>{if(f.t!=="sig"&&/firma/i.test(f.n)&&!/(nome|data)$/i.test(f.n)&&(f.t==="area"||f.t==="tx")&&f.r&&f.r[3]-f.r[1]>14)f.t="sig";if(f.t==="sig"&&/firma$/i.test(f.n))sigs.push(f)})});
+  sigs.forEach(sf=>{const P=sf.n.replace(/firma$/i,""),want={nome:P+"nome",data:P+"data"},got={};let title="";
+    const near=f=>!f.r||!sf.r||Math.abs(f.r[1]-sf.r[1])<120;
+    pg.items.forEach(it=>{if(it.k==="row")it.f=it.f.filter(f=>{for(const k in want)if(f.n===want[k]&&near(f)){got[k]=f;return false}return true});
+      if(it.k==="tab"){it.rows.forEach(r=>{r.f.forEach((f,ci)=>{for(const k in want)if(f&&f.n===want[k]&&near(f)){got[k]=f;if(k==="nome")title=(it.cols[ci]||"").replace(/FIRME|Nome e cognome/gi,"").trim();r.f[ci]=null}})})}});
+    if(got.nome)got.nome.l="Nome e cognome";if(got.data)got.data.l="Data";pg.items.forEach((it,i)=>{if(it.k==="row"&&it.f.length===1&&it.f[0]===sf)pg.items[i]={k:"sigb",sig:sf,nome:got.nome,data:got.data,title:title||sf.l||"Firma"}})});
+  pg.items=pg.items.filter(it=>!(it.k==="txt"&&(/^Verifica( \(segue\))?( SI)?( NO)? N\.A\.$/.test(it.t.trim())||/^(Data\s*)+$/.test(it.t)||/MOD \d\d\.\d\s*$/.test(it.t)||/^MODULO\b/.test(it.t))));
+  for(let i=0;i<pg.items.length-1;i++){const it=pg.items[i],nx=pg.items[i+1];if(it.k==="row"&&it.f.length===1&&it.f[0].t==="chk"&&!(it.f[0].l||"").trim()&&nx.k==="txt"){it.f[0].l=nx.t;pg.items.splice(i+1,1)}}
+  pg.items=pg.items.filter(it=>!(it.k==="row"&&!it.f.length)).map(it=>{if(it.k==="tab"){const keep=it.cols.map((c,ci)=>it.rows.some(r=>r.f[ci]));it.cols=it.cols.filter((c,ci)=>keep[ci]);it.rows=it.rows.map(r=>({l:r.l,f:r.f.filter((f,ci)=>keep[ci])})).filter(r=>r.f.some(Boolean))}return it}).filter(it=>!(it.k==="tab"&&!it.rows.length))})})();
+const FD={},DATES=new Set(SPEC.dates),CALCF=new Set(),CHK={};
+// ---------- requisiti dei locali: le verifiche compaiono solo se servono
+// R32: carica totale sotto 1,84 kg = nessun requisito di superficie minima (manuali Hitachi TCIT0150 / TCIT0153)
+// R410A: nessuna soglia, si verifica sempre la concentrazione nel locale più piccolo (EN 378-1, 0,44 kg/m3)
+const numv=v=>{const x=parseFloat(String(v??"").replace(",","."));return isNaN(x)?null:x},TRI={};
+(function(){let seg=null;SPEC.pages.forEach(pg=>{const ix=pg.items.findIndex(it=>it.k==="tri"&&it.base==="q67"),rl=pg.items.findIndex(it=>it.k==="row"&&it.f.some(f=>f.n==="r32_locale"));
+  if(ix>0&&rl>=0&&rl<ix){const q=pg.items.splice(ix,1)[0];pg.items.splice(rl+1,0,q)}
+  pg.items.forEach(it=>{const t=it.t||"",ns=it.k==="row"?it.f.map(f=>f.n):[];if(it.k==="tri")TRI[it.base]=it;
+    if(it.k==="sec")seg=null;
+    if(it.k==="txt"){if(/^Impianti R410A/.test(t))seg="r410";else if(/^Impianti R32/.test(t))seg="r32";else if(/^Se i requisiti dei locali|^Se la superficie del locale/.test(t))seg=null}
+    if(ns.some(n=>/^LOC_(area|h|vol)$/.test(n)))it.loc="room";else if(ns.some(n=>/^LOC_(ui|h0)$/.test(n)))it.loc="r32";
+    else if(it.k==="tri"&&it.base==="LOC_5")it.loc="r32q";else if(it.k==="tri"&&it.base==="q67"){it.loc="y32q";seg="y32"}else if(it.k==="tri"&&it.base==="q74")it.loc=null;
+    else if(ns.some(n=>/^r32_(inst|h0|area|amin|areab|anv|ab)$/.test(n)))it.loc="y32";else if(!(it.k==="row"&&ns.some(n=>/^LOC_(gas|carica)$/.test(n))))it.loc=seg})})})();
+const locHide=it=>{const c=it.loc;if(!c)return false;if(c==="y32q")return false;if(c==="y32")return S.q67_SI==="Yes";
+  const g=S.LOC_gas||"",m=numv(S.LOC_carica);if(!g)return true;if(g==="R410A")return c==="r32"||c==="r32q";
+  if(c==="r410")return true;if(c==="r32q")return false;return m!==null&&m<1.84};
+function setTri(b,v){const it=TRI[b];if(!it)return;it.names.forEach((n,i)=>{S[n]=it.o[i]===v?(it.on[i]||"Yes"):"Off"})}
+function triVal(b){const it=TRI[b];if(!it)return"";const i=it.names.findIndex(n=>S[n]&&S[n]!=="Off");return i<0?"":it.o[i]}
+function locAuto(){const A={};if(TRI.LOC_5){const g=S.LOC_gas,m=numv(S.LOC_carica),r32=[6,7,8,9,10,11];
+    if(g==="R410A")[5].concat(r32).forEach(k=>A["LOC_"+k]="NA");
+    else if(g==="R32"){[1,2,3,4].forEach(k=>A["LOC_"+k]="NA");if(m!==null){A.LOC_5=m<1.84?"SI":"NO";if(m<1.84)r32.forEach(k=>A["LOC_"+k]="NA")}}}
+  if(TRI.q67&&S.q67_SI==="Yes")[68,69,70,71,72,73].forEach(k=>A["q"+k]="NA");
+  let prev={};try{prev=JSON.parse(S._la||"{}")}catch(e){}
+  Object.keys(prev).forEach(b=>{if(A[b]!==prev[b]&&triVal(b)===prev[b])TRI[b].names.forEach(n=>S[n]="Off")});
+  Object.keys(A).forEach(b=>setTri(b,A[b]));S._la=JSON.stringify(A)}
+const LOCNOTE=it=>{const tip=t=>`<div class="tip" style="background:#e8f5ee;border-color:#9fd3b5;color:#0b4d2b">i &nbsp;${t}</div>`;
+  if(it.k==="row"&&it.f.some(f=>f.n==="LOC_gas")){const g=S.LOC_gas||"",m=numv(S.LOC_carica);
+    if(!g)return tip("Scegli il refrigerante e scrivi la carica totale: le verifiche dei locali compaiono solo se servono.");
+    if(g==="R410A")return tip("R410A: non c'è una carica minima che esclude la verifica. Compila il locale più piccolo: la concentrazione C deve essere al massimo 0,44 kg/m3 (EN 378-1).");
+    if(m===null)return tip("R32: scrivi la carica totale. Sotto 1,84 kg non ci sono requisiti di superficie minima del locale.");
+    if(m<1.84)return tip("R32 con carica totale di "+String(m).replace(".",",")+" kg, inferiore a 1,84 kg: nessun requisito di superficie minima del locale (manuali Hitachi TCIT0150 / TCIT0153). Le verifiche dei locali sono segnate N.A. in automatico.");
+    return tip("R32 con carica di "+String(m).replace(".",",")+" kg (1,84 kg o più): compila il locale più piccolo e ricava Amin dalla tabella del manuale in base alla carica e all'altezza di installazione.")}
+  if(it.loc==="y32q"&&S.q67_SI==="Yes")return tip("Carica inferiore a 1,84 kg: nessun requisito di superficie del locale. Le verifiche seguenti sono segnate N.A. in automatico.");return""};
+const allF=[];SPEC.pages.forEach(pg=>pg.items.forEach(it=>{if(it.k==="row")it.f.forEach(f=>allF.push(f));if(it.k==="tab")it.rows.forEach(r=>r.f.forEach(f=>f&&allF.push(f)));if(it.k==="sigb"){[it.sig,it.nome,it.data].forEach(f=>f&&allF.push(f))}if(it.fs)it.fs.forEach(f=>f&&allF.push(f));if(it.k==="tri")it.names.forEach((n,i)=>{CHK[n]=it.on[i];FD[n]={n,t:"chk",on:it.on[i],p:it.p,r:it.r}})}));
+allF.forEach(f=>{if(f.t==="radio"){const R=(FD[f.n]=FD[f.n]||Object.assign({},f,{ons:[],labs:[]}));R.ons.push(f.on);R.labs.push(f.l||f.on)}else FD[f.n]=FD[f.n]||f;if(f.t==="calc")CALCF.add(f.n);if(f.t==="chk")CHK[f.n]=f.on});
+SPEC.hidden0.forEach(n=>DISP[n]=1);
+// ---------- motore di calcolo: gli script del PDF su un documento simulato
+const iso2it=v=>/^\d{4}-\d\d-\d\d$/.test(v)?v.split("-").reverse().join("/"):v;
+const it2iso=v=>{const m=/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/.exec(String(v||"").trim());return m?`${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`:v};
+const display={visible:0,hidden:1,noPrint:3,noView:2},color={black:["G",0],white:["G",1],red:["RGB",1,0,0],green:["RGB",0,1,0],blue:["RGB",0,0,1],transparent:["T"]};
+const app={alert(){},beep(){}};
+const EXT=(function(){;return typeof ext!=="undefined"?ext:{}})();
+EXT.items=Object.assign({cartbtn:{html:function(){return '<div class="cta" style="margin:10px 0"><button class="btn pri" onclick="doPDF(\'cart\')">PDF cartolina garanzia per l\'utente</button></div><div class="tip">i &nbsp;La cartolina (dati, condizioni di garanzia e ricevuta firmata) si genera anche da sola: inviarla all\'utente finale e a service-italia@bosch-hcgroup.com. Il PDF completo del verbale la include in fondo.</div>'},pdf:function(){return""}}},EXT.items||{});
+function runCalc(){try{locAuto()}catch(e){console.error(e)}try{EXT.pre&&EXT.pre()}catch(e){console.error(e)}if(!SPEC.calc.length){try{EXT.post&&EXT.post()}catch(e){console.error(e)}return}let changed=true;
+  for(let pass=0;pass<4&&changed;pass++){changed=false;const fields={};
+    const doc={getField(n){if(!(n in FD)&&!/^v_|cov|calc/.test(n)&&!SPEC.covers.some(c=>c.n===n)&&!(n in S)&&!(n in C)&&!SPEC.hidden0.includes(n))return fields[n]||(fields[n]=mk(n));return fields[n]||(fields[n]=mk(n))}};
+    function mk(n){return{name:n,
+      get value(){if(n in C)return C[n];if(n in CHK)return S[n]&&S[n]!=="Off"?S[n]:"Off";const v=S[n]??"";return DATES.has(n)?iso2it(v):v},
+      get valueAsString(){return String(this.value)},
+      set value(v){v=v==null?"":String(v);if(CALCF.has(n)||/cov/.test(n)){C[n]=v}else{if(DATES.has(n))v=it2iso(v);if((S[n]??"")!==v){S[n]=v;changed=true}}},
+      set textColor(c){COL[n]=c},get textColor(){return COL[n]||["G",0]},set fillColor(c){COL[n+"#bg"]=c},get fillColor(){return COL[n+"#bg"]||["T"]},
+      set borderColor(c){},get borderColor(){return["T"]},set strokeColor(c){},get strokeColor(){return["T"]},
+      get display(){return DISP[n]??0},set display(v){DISP[n]=v},get hidden(){return DISP[n]===1},set hidden(v){DISP[n]=v?1:0},
+      get readonly(){return !!RO[n]},set readonly(v){RO[n]=v},set textSize(v){},get textSize(){return 0},
+      get rect(){const f=FD[n];return f&&f.r?[f.r[0],842-f.r[1],f.r[2],842-f.r[3]]:[0,0,100,20]},get page(){const f=FD[n];return f?f.p:0},
+      get type(){const f=FD[n];return !f?"text":f.t==="sel"||f.t==="combo"?"combobox":f.t==="chk"?"checkbox":f.t==="radio"?"radiobutton":"text"},
+      setItems(a){ITEMS[n]=a},getItemAt(i){return (ITEMS[n]||[])[i]},get numItems(){return (ITEMS[n]||[]).length},checkThisBox(i,on){S[n]=on?(CHK[n]||"Yes"):"Off"},isBoxChecked(){return S[n]&&S[n]!=="Off"}}}
+    SPEC.calc.forEach(c=>{const ev={value:C[c.n]??"",target:doc.getField(c.n)};try{new Function("display","event","color","app",c.js).call(doc,display,ev,color,app)}catch(e){console.error(e)}})}
+  try{EXT.post&&EXT.post()}catch(e){console.error(e)}
+  save()}
+// ---- spazi di rispetto con piu' unita' (web): misure a-e, configurazione, f, g e disegno dall'alto che segue la configurazione
+const SP_CONF=["","Unità singola","Affiancate in fila (cascata / modulare)","Su più file","Sovrapposte (2 in altezza)"];
+const SP_DIRS=["","Uscita aria verso il retro della fila successiva","Retro contro retro","Uscite aria affacciate"];
+function spN(){return Number(S.sp_n||((S.cascata==="SI"||!("cascata" in S))?(S.n_unita||S.n_ue):"")||0)}
+function spKey(){const c=String(S.sp_conf||"").toLowerCase(),n=spN();if(/sovrap/.test(c))return"stack";if(/file/.test(c))return"rows";if(/affianc/.test(c))return"row";if(/singol/.test(c))return"one";return n>1?"row":"one"}
+function spSvg(){const k=spKey(),nn=spN(),n=Math.max(1,Math.min(4,nn||(k==="one"?1:2)));
+  const col=q=>{const c=cls("sp_"+q);return c==="ko"?"#c8102e":c==="ok"?"#1a7f37":"#1f4e79"};
+  const lab=q=>{const v=S["sp_"+q];return q+(v!==undefined&&v!==""?" = "+v:"")};
+  const W=380,y0=56,rows=k==="rows",NN=k==="one"?1:n,gap=NN>3?30:40,uw=Math.min(62,(W-92-(NN-1)*gap)/NN),uh=34,x0=Math.max(46,(W-NN*uw-(NN-1)*gap)/2);
+  let s=`<svg id="spsvg" viewBox="0 0 ${W} ${rows?250:190}" style="width:100%;max-width:520px;display:block;margin:6px auto 10px;font:11px system-ui,Arial"><defs><marker id="spa" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="5" markerHeight="5" orient="auto"><circle cx="4" cy="4" r="3" fill="context-stroke"/></marker></defs>`;
+  s+=`<line x1="20" y1="24" x2="${W-20}" y2="24" stroke="#888" stroke-dasharray="5 3" stroke-width="1.5"/><text x="22" y="18" fill="#777" font-style="italic" font-size="10">parete / ostacolo (retro)</text>`;
+  const dim=(x1,y1,x2,y2,q,dx,dy)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col(q)}" stroke-width="1.6" marker-start="url(#spa)" marker-end="url(#spa)"/><text x="${(x1+x2)/2+(dx||0)}" y="${(y1+y2)/2+(dy||0)}" fill="${col(q)}" font-weight="700">${esc(lab(q))}</text>`;
+  const unit=(x,y,t,dash)=>`<rect x="${x}" y="${y}" width="${uw}" height="${uh}" rx="3" fill="${dash?"none":"#e1e6ee"}" stroke="${dash?"#999":"#4b5563"}" stroke-width="${dash?1:1.4}" ${dash?'stroke-dasharray="4 3"':""}/><text x="${x+uw/2}" y="${y+uh/2+4}" text-anchor="middle" fill="${dash?"#888":"#333"}" font-size="10" font-weight="${dash?400:700}">${t}</text>`;
+  if(k==="stack"){s+=unit(x0,y0,"Unità 2 (sopra)")+unit(x0,y0+uh+6,"Unità 1");s+=`<text x="${x0+uw+14}" y="${y0+uh+8}" fill="#555" font-size="10">max 2 in altezza${nn>2?' — <tspan fill="#c8102e" font-weight="700">'+nn+' unità: non ammesso</tspan>':""}</text>`}
+  else{const N=k==="one"?1:n;for(let i=0;i<N;i++)s+=unit(x0+i*(uw+gap),y0,N===1?"Unità":(i===N-1&&nn>4?"Unità "+nn:"Unità "+(i+1)));
+    if(N>1)s+=dim(x0+uw,y0+uh/2,x0+uw+gap,y0+uh/2,"f",-6,-6);if(nn>4)s+=`<text x="${x0+3*(uw+gap)-gap/2}" y="${y0+uh/2+4}" text-anchor="middle" fill="#555">…</text>`;
+    if(rows){const ry=y0+uh+70;for(let i=0;i<N;i++)s+=unit(x0+i*(uw+gap),ry,"2a fila",1);s+=dim(x0+uw/2,y0+uh,x0+uw/2,ry,"g",6,4);
+      const d=String(S.sp_dir||"");s+=`<text x="${W/2}" y="${ry+uh+22}" text-anchor="middle" fill="#555" font-size="10">${esc(d||"indicare l'orientamento delle file")}</text>`}
+    const xr=x0+(N-1)*(uw+gap)+uw;s+=dim(x0+uw/2,y0,x0+uw/2,24,"a",6,4)+dim(14,y0+uh/2+8,x0,y0+uh/2+8,"b",-4,-5)+dim(xr,y0+uh/2+8,W-14,y0+uh/2+8,"c",-4,-5);
+    s+=dim(xr-uw/2,y0+uh,xr-uw/2,y0+uh+(rows?40:60),"d",6,6);if(!rows)s+=`<text x="${xr-uw/2}" y="${y0+uh+76}" text-anchor="middle" fill="#777" font-style="italic" font-size="10">uscita aria (fronte)</text>`}
+  return s+`</svg>`}
+function spCard(extraTip){const ks=[["a","a - retro / ingresso aria"],["b","b - lato sinistro"],["c","c - lato destro (servizio)"],["d","d - fronte / uscita aria"],["e","e - sopra (spazio libero)"]],k=spKey();
+  const fld=(q,l)=>`<label>${l} <u>(mm) · min ${esc(String(C["sp_"+q+"_min"]||"-").replace(/^>=\s*/,""))}</u><input data-n="sp_${q}" inputmode="decimal" class="${cls("sp_"+q)}" value="${esc(S["sp_"+q]??"")}"></label>`;
+  return grid([F("sp_conf","Installazione",{sel:SP_CONF}),F("sp_n","N° unità",{num:1})].concat(k==="rows"?[F("sp_dir","Orientamento delle file",{sel:SP_DIRS})]:[]))
+   +spSvg()
+   +`<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${ks.map(([q,l])=>fld(q,l)).join("")}${k==="row"||k==="rows"?fld("f","f - tra le unità affiancate"):""}${k==="rows"?fld("g","g - tra le file"):""}</div>`
+   +grid([F("sp_es","Esito spazi di rispetto",{calc:1})])
+   +tip("Misurare le distanze dagli ostacoli; i minimi arrivano dal manuale del modello U.E. Con più unità scegliere come sono installate: affiancate (anche in cascata o modulari), su più file o sovrapposte; il disegno si adatta e le distanze f (tra le unità) e g (tra le file) vengono confrontate con le figure del manuale."+(extraTip||""))}
+
+function spRefresh(){const v=document.getElementById("spsvg");if(v)v.outerHTML=spSvg();["a","b","c","d","e","f","g"].forEach(q=>{const e=document.querySelector(`[data-n="sp_${q}"]`);if(e&&e!==document.activeElement)e.className=cls("sp_"+q)})}
+
+const cls=n=>{const b=COL[n+"#bg"];if(b&&b[0]==="RGB"){if(b[1]>0.95&&b[2]<0.9&&b[3]<0.9)return"ko";if(b[1]>0.95&&b[2]>0.85&&b[3]<0.8)return"warn";if(b[2]>0.9&&b[1]<0.9)return"ok"}
+  const c=COL[n];if(!c||c[0]!=="RGB")return"";if(c[1]>0.6&&c[2]<0.2)return"ko";if(c[1]>0.6&&c[2]>0.3&&c[3]<0.2)return"warn";if(c[2]>0.35&&c[1]<0.2)return"ok";return""};
+const val=n=>C[n]??S[n]??"";
+// ---------- coperture (sezioni non applicabili)
+const PGAREA=595*842;
+function covered(f){if(!f||!f.r)return false;return SPEC.covers.some(c=>c.p===f.p&&DISP[c.n]!==1&&f.r[0]>=c.r[0]-2&&f.r[2]<=c.r[2]+2&&f.r[1]>=c.r[1]-2&&f.r[3]<=c.r[3]+2)}
+function pageCover(pi){return SPEC.covers.find(c=>c.p===pi&&DISP[c.n]!==1&&(c.r[2]-c.r[0])*(c.r[3]-c.r[1])>PGAREA*0.55)}
+const hid=f=>DISP[f.n]===1||covered(f);
+// ---------- costruttori
+const tipH=t=>`<div class="tip">i &nbsp;${esc(t)}</div>`;
+const NUMRX=/\((V|A|°C|°F|m|mm|kg|g|Ohm|mTorr|bar|MPa|kPa|Hz|%|kW|m2|m3|dm2|h|km|l|K|ore|min|rpm|m3\/h|l\/min|kg\/m3|kg\/m)\)|\b(n°|n\.|numero|q\.tà|quantità|lunghezza|carica|vuoto|tensione|corrente|pressione|temperatura|frequenza|potenza|apertura|superficie|altezza|volume|dislivello|portata|resistenza|ore|km|cap|indirizzo (ip|h-link|unità|ui|ue|modbus|bms|bacnet)|iCp|AA|oP|iE|TL|TG|Ti|To|W\d|dichiarate|rilevate|totali|sistemi|moduli)\b/i;
+const isNum=(f,ctx)=>!!f&&(f.t==="tx"||f.t==="combo"&&false)&&!f.date&&!/mail|nome|note|modello|_mod$|_sn$|matricola|ser|cliente|indirizzo_imp|indirizzo\b(?! (ip|h-link|unità|ui|ue))|ind$|via|citta|località|comune|provincia|tecnico|sat|inst|focus|riferimento|diametro/i.test(f.n+" "+(f.l||""))&&(!!f.u||NUMRX.test((f.l||"")+" "+(ctx||"")));
+function inputH(f,bare,ctx){const n=f.n,v=S[n]??"",l=esc(f.l||"")+(f.u?` <u>(${esc(f.u)})</u>`:"");const ro=RO[n]?" disabled":"";
+  let h;
+  if(f.t==="calc")h=String(val(n)).length>40||/\n/.test(val(n))?`<textarea readonly rows="${Math.min(6,Math.max(2,Math.ceil(String(val(n)).length/40)))}" class="calc ${cls(n)}" data-c="${n}" style="min-height:0;resize:none">${esc(val(n))}</textarea>`:`<input readonly class="calc ${cls(n)}" data-c="${n}" value="${esc(val(n))}">`;
+  else if(f.t==="sel"&&(f.o||[]).length<=5&&(f.o||[]).every(x=>["","SI","NO","NV","NA","N.A.","OK","KO"].includes(x))&&!ITEMS[n]){const O=f.o.filter(Boolean);h=`<div class="seg2">${O.map(o=>`<button type="button" class="${v===o?"on"+(o==="NO"||o==="KO"?" no":""):""}" data-sv="${n}" data-v="${o}">${o==="NV"||o==="NA"?"N.A.":o}</button>`).join("")}</div>`;return bare?h:`<div class="tri" style="grid-column:1/-1"><div class="q">${l}</div>${h}</div>`}
+  else if(f.t==="sel"){const o=(ITEMS[n]||f.o||[""]).map(x=>Array.isArray(x)?x[0]:x);h=`<select data-n="${n}"${ro}>${(o.includes(v)?o:o.concat([v])).map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("")}</select>`}
+  else if(f.t==="combo"){const o=(ITEMS[n]||f.o||[]).map(x=>Array.isArray(x)?x[0]:x).filter(Boolean);h=`<input data-n="${n}" list="dl_${n}" autocomplete="off" value="${esc(v)}"${ro}><datalist id="dl_${n}">${o.map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`}
+  else if(f.t==="chk")return `<label class="chkf"${bare?"":' style="grid-column:1/-1"'}><input type="checkbox" data-n="${n}" ${S[n]&&S[n]!=="Off"?"checked":""}${ro}>${bare?"":esc(f.l||"")}</label>`;
+  else if(f.t==="radio"){const F=FD[n];if(f.r&&F.r&&f.r!==F.r&&f.r.join()!==F.r.join())return"";return `<div class="seg2 rad" style="grid-column:1/-1;flex-wrap:wrap">${F.ons.map((o,i)=>`<button type="button" class="${S[n]===o?"on"+(/^(KO|NO)$/.test(o)?" no":""):""}" data-sv="${n}" data-v="${esc(o)}">${esc(F.labs[i]||o)}</button>`).join("")}</div><small style="grid-column:1/-1;color:var(--mut);margin-top:-4px">Tocca di nuovo la scelta per toglierla.</small>`}
+  else if(f.t==="area")h=`<textarea data-n="${n}"${ro}>${esc(v)}</textarea>`;
+  else if(f.t==="sig")return `<div class="sigs" style="grid-column:1/-1"><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px">${esc(f.l||"Firma")}</div><canvas class="sig" data-sig="${n}"></canvas><div class="sigw" style="display:flex;gap:6px;align-items:center;margin-top:6px"><small style="flex:1;color:var(--mut)">Tocca il riquadro per firmare a schermo intero</small><button class="btn sm" onclick="clearSig('${n}')">Cancella</button></div></div>`;
+  else h=`<input data-n="${n}" type="${f.date?"date":/mail/i.test(n)?"email":"text"}" value="${esc(v)}"${ro}${isNum(f,ctx)||/(_ind|^r\d+_ind)$/.test(n)?' inputmode="decimal" enterkeyhint="next"':' inputmode="text" enterkeyhint="next"'}>`;
+  return bare?h:`<label${f.t==="area"||f.t==="calc"&&String(val(n)).length>40?' style="grid-column:1/-1"':""}>${l}${h}</label>`}
+function itemH(it){if(it.ifchk&&S[it.ifchk]!=="Yes")return"";if(it.ifnotchk&&S[it.ifnotchk]==="Yes")return"";if(EXT.items&&EXT.items[it.k])return EXT.items[it.k].html(it);
+  if(it.k==="sec")return null;
+  if(it.k==="txt")return `<div class="txt">${esc(it.t)}</div>`;
+  if(it.k==="spdraw")return spSvg();
+  if(it.k==="tip")return tipH(it.t);
+  if(it.k==="row"){const F=it.f.filter(f=>!hid(f));if(!F.length)return"";if(F.length===1&&F[0].t==="sig")return inputH(F[0]);
+    return `<div class="grid" style="margin:6px 0">${F.map(f=>inputH(f)).join("")}</div>`}
+  if(it.k==="sigb"){if(hid(it.sig))return"";return `<div class="sigbox"><div class="sigt">Firma - ${esc(it.title)}</div><div class="grid">${it.nome?inputH(it.nome):""}${it.data?inputH(it.data):""}</div>${inputH(Object.assign({},it.sig,{l:""}))}</div>`}
+  if(it.k==="uil"){if(it.cp!=null&&pageCover(it.cp))return"";const N=Math.max(1,Math.min(64,parseInt(val(it.cnt))||parseInt(val(it.alt))||1));
+    return `<div class="txt"><b>Unità interne collegate (${N})</b> - il numero di righe segue "U.I. dichiarate". Il modello si sceglie dall'elenco: basta scrivere le prime lettere.</div><datalist id="dl_uim">${UIM.map(x=>`<option value="${x}">`).join("")}</datalist><div class="scroll"><table class="ftab"><tr><th>U.I.</th><th>Modello</th><th>Matricola</th><th>N. indirizzo</th><th>Locale / zona</th></tr>${Array.from({length:N},(_,i)=>{const b=`s${it.s}_ui${i+1}_`;return `<tr><td class="rl">${i+1}</td><td><input data-n="${b}mod" list="dl_uim" autocomplete="off" value="${esc(S[b+"mod"]??"")}" style="min-width:150px"></td><td><input data-n="${b}sn" value="${esc(S[b+"sn"]??"")}" style="min-width:110px"></td><td><input data-n="${b}ind" inputmode="numeric" value="${esc(S[b+"ind"]??"")}" style="min-width:60px;width:70px"></td><td><input data-n="${b}loc" value="${esc(S[b+"loc"]??"")}" style="min-width:110px"></td></tr>`}).join("")}</table></div>`}
+  if(it.k==="tri"){if(it.names.every(n=>DISP[n]===1)||covered(FD[it.names[0]]))return"";const cur=it.names.findIndex(n=>S[n]&&S[n]!=="Off");
+    return `<div class="tri"><div class="q">${esc(it.l).replace(/\s*IMPORTANTE\s*$/,' <span style="display:inline-block;background:#e60027;color:#fff;font-size:10.5px;font-weight:700;border-radius:4px;padding:1px 5px">IMPORTANTE</span>')}</div><div class="seg2">${it.o.map((o,i)=>`<button class="${i===cur?"on"+(o==="NO"||o==="KO"?" no":""):""}" data-tri="${it.names.join(",")}" data-i="${i}">${o==="NV"||o==="NA"?"N.A.":o}</button>`).join("")}</div></div>`}
+  if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>f&&!hid(f)));if(!R.length)return"";
+    const vis=it.cols.map((c,ci)=>R.some(r=>r.f[ci]&&!hid(r.f[ci])));
+    const TH=[];it.cols.forEach((c,ci)=>{if(!vis[ci])return;const L=TH[TH.length-1];if(L&&L.c===c&&c&&L.last===ci-1){L.n++;L.last=ci}else TH.push({c,n:1,last:ci})});
+    return `<div class="scroll" style="margin:8px 0"><table class="ftab"><tr><th></th>${TH.map(h=>`<th${h.n>1?` colspan="${h.n}" style="text-align:center"`:""}>${esc(h.c)}</th>`).join("")}</tr>${R.map(r=>`<tr><td class="rl">${esc(r.l)}</td>${r.f.map((f,ci)=>vis[ci]?`<td>${!f||hid(f)?"":inputH(f,true,it.cols[ci]+" "+r.l)}</td>`:"").join("")}</tr>`).join("")}</table></div>`}
+  return ""}
+function pageH(pg){const pc=pageCover(pg.i);if(pc)return `<div class="covmsg">${esc(pc.msg.trim())}</div>`;
+  let h="",open=false,body="",chg=false;const flush=()=>{if(chg)body+=CHGNOTE;if(open||body.trim())h+=`<section class="card">${open?`<h2>${esc(open)}</h2>`:""}<div class="body">${body}</div></section>`;body="";chg=false};
+  let skip=false;pg.items.forEach(it=>{if(it.k==="sec"){flush();skip=it.cp!=null&&!!pageCover(it.cp);open=skip?false:it.t}else if(!skip&&!locHide(it)){const x=itemH(it);if(x){body+=x+LOCNOTE(it);if(isChg(it))chg=true}}});flush();return h}
+const CHGNOTE=`<div class="tip" style="background:#fff4e0;border-color:#f0b45a;color:#7a3b00">⚠ &nbsp;<b>Calcolo della carica indicativo:</b> i conti sono approssimativi e l'unico riferimento certo è il manuale di installazione dell'unità. In caso di dubbio contattare il Service Hitachi.</div>`;
+const isChg=it=>it.k==="charge"||it.k==="riep033"||(it.k==="row"&&it.f.some(f=>f.t==="calc"&&/carica|refrigerante agg|kg di refr/i.test(f.l||"")))||(it.k==="tab"&&it.rows.some(r=>r.f.some(f=>f&&f.t==="calc"))&&(it.cols.join(" ")+" "+it.rows.map(r=>r.l).join(" ")).match(/carica|W0|W1|W2/i));
+const ACR=new Set("ACS UE UI U.E. U.I. VRF SAT PDC CSNET HP DSW RSW PCB H-LINK BMS LAN IP KNX BACNET GDPR BHC MOD NFC ATW TCIT ODUT IDUT FOCUS CE ISO EN UNI CEI DM DPR PED F-GAS SMS WI-FI APP SO NA NC COP EER PIN ID QR USB R32 R410A R290 R454B A2L A3 A1 DHW TV OK KO MA".split(" "));
+const sc=t=>{let first=true;return String(t).split(/(\s+|[\/(),:;-])/).map(w=>{if(!/[A-Za-zÀ-ÿ]/.test(w))return w;const u=w.toUpperCase().replace(/[.,;:]+$/,"");let r;if(/\d/.test(w)||ACR.has(u)||/^([A-Z]\.){2,}$/.test(w))r=w;else{r=w.toLowerCase();if(first)r=r.charAt(0).toUpperCase()+r.slice(1)}first=false;return r}).join("")};
+const BR=new Set("set free max pro samurai yutaki utopia mini hitachi bosch airh2o aircloud tap home go yutampo".split(" "));
+const pageTitle=pg=>{if(pg.title)return pg.title;const good=x=>x&&x.length>=6&&/[A-Za-zÀ-ÿ]{4}/.test(x)&&!/:\s*$|N\.A\.|\(segue\)|^Hc-|^\d+$/.test(x.trim()),s=pg.items.find(i=>i.k==="sec"&&good(i.t)),f0=pg.items[0];let t;
+  if(f0&&f0.k==="txt"&&f0.t.length<60&&good(f0.t))t=f0.t;else if(s)t=s.t;
+  else{const j=SPEC.pages.indexOf(pg);t=j>0?pageTitle(SPEC.pages[j-1]).replace(/ \(segue\)$/,"").replace(/…$/,"")+" (segue)":"Pagina "+(pg.i+1);return t.length>34?t.slice(0,32)+"…":t}
+  t=sc(t).replace(/\b([a-zà-ÿ0-9]+)\b/gi,(w,x,o)=>BR.has(w.toLowerCase())&&o>0?w.charAt(0).toUpperCase()+w.slice(1).toLowerCase().replace("airh2o","airH2O"):w).replace(/\b(Samurai|Yutaki) ([lmsh])\b/g,(a,b,c)=>b+" "+c.toUpperCase()).replace(/\bAirh2o\b/g,"airH2O").replace(/\bAircloud\b/g,"airCloud");return t.length>34?t.slice(0,32)+"…":t};
+const VP=()=>SPEC.pages.map((pg,i)=>i).filter(i=>!pageCover(SPEC.pages[i].i));
+function renderAll(){runCalc();const V=VP();if(!V.includes(tab))tab=V.filter(i=>i<tab).pop()??V[0];const k=V.indexOf(tab),pv=V[k-1],nx=V[k+1];
+  $("#nav").innerHTML=V.map(i=>`<button class="${i===tab?"on":""}" onclick="go(${i})">${esc(pageTitle(SPEC.pages[i]))}</button>`).join("");
+  $("#main").innerHTML=(tab===0&&IMPORT_HINT?`<div class="imp">${IMPORT_HINT}</div>`:"")+pageH(SPEC.pages[tab])+`<div class="navb">${pv!=null?`<button class="btn" onclick="go(${pv})">← Indietro</button>`:"<span></span>"}${nx!=null?`<button class="btn pri" onclick="go(${nx})">Avanti →</button>`:`<button class="btn pri" onclick="pdfBHC(()=>doPDF())">Genera PDF per Bosch / SAT</button>`}</div>`;
+  initSig()}
+function soft(){runCalc();
+  document.querySelectorAll("[data-n]").forEach(e=>{const n=e.dataset.n;if(e===document.activeElement)return;if(e.type==="checkbox")e.checked=!!(S[n]&&S[n]!=="Off");else if((S[n]??"")!==e.value&&e.tagName!=="SELECT")e.value=S[n]??""});
+  document.querySelectorAll("[data-c]").forEach(e=>{e.value=val(e.dataset.c);e.className=e.className.replace(/\b(ok|warn|ko)\b/g,"").trim()+" "+cls(e.dataset.c)});try{spRefresh()}catch(e){}}
+function go(i){tab=i;renderAll();window.scrollTo(0,0)}
+function rerender(){const y=window.scrollY;setTimeout(()=>{const a=document.activeElement,an=a&&a.dataset&&a.dataset.n;renderAll();window.scrollTo(0,y);if(an){const e=document.querySelector(`[data-n="${an}"]`);if(e)e.focus({preventScroll:true})}},0)}
+const NOUP=e=>e.type==="email"||e.type==="date"||e.type==="time";
+document.addEventListener("input",e=>{const t=e.target;if(!t.dataset.n||t.type==="checkbox"||t.tagName==="SELECT")return;
+  if(!NOUP(t)&&t.value!==t.value.toUpperCase()){const p=t.selectionStart;t.value=t.value.toUpperCase();try{t.setSelectionRange(p,p)}catch(x){}}
+  S[t.dataset.n]=t.value;save();soft()});
+document.addEventListener("change",e=>{const t=e.target;
+  if(t.dataset.r){S[t.dataset.r]=t.value;save();rerender();return}
+  if(!t.dataset.n)return;const n=t.dataset.n;
+  if(t.type==="checkbox")S[n]=t.checked?(CHK[n]||"Yes"):"Off";else S[n]=t.value;save();
+  if(t.tagName==="SELECT"||t.type==="checkbox")rerender();else{soft();rerender()}});
+document.addEventListener("click",e=>{const sv=e.target.closest("[data-sv]");if(sv){const n=sv.dataset.sv;S[n]=S[n]===sv.dataset.v?"":sv.dataset.v;save();rerender();return}
+  const b=e.target.closest("[data-tri]");if(!b)return;const N=b.dataset.tri.split(","),i=+b.dataset.i,was=S[N[i]]&&S[N[i]]!=="Off";
+  N.forEach((n,k)=>S[n]=k===i&&!was?(CHK[n]||"Yes"):"Off");save();rerender()});
+// ---------- firme
+function initSig(){document.querySelectorAll("canvas.sig").forEach(cv=>{const k=cv.dataset.sig,ctx=cv.getContext("2d"),R=2;cv.width=cv.clientWidth*R;cv.height=cv.clientHeight*R;
+  const pen=()=>{ctx.lineWidth=2.6*R;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#0b2a6b"};pen();
+  if(sig[k]){const im=new Image();im.onload=()=>{ctx.drawImage(im,0,0,cv.width,cv.height);pen()};im.src=sig[k]}
+  let dr=false,last=null;const pt=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*R,(e.clientY-r.top)*R]};
+  cv.onpointerdown=e=>{e.preventDefault();dr=true;try{cv.setPointerCapture(e.pointerId)}catch(x){}last=pt(e);ctx.beginPath();ctx.arc(last[0],last[1],ctx.lineWidth/2,0,7);ctx.fillStyle="#0b2a6b";ctx.fill()};
+  cv.onpointermove=e=>{if(!dr)return;e.preventDefault();const p=pt(e);ctx.beginPath();ctx.moveTo(last[0],last[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();last=p};
+  const end=()=>{if(!dr)return;dr=false;sig[k]=cv.toDataURL("image/png");save()};cv.onpointerup=end;cv.onpointercancel=end;cv.onpointerleave=end})}
+function clearSig(k){delete sig[k];save();const cv=document.querySelector(`canvas[data-sig="${k}"]`);if(cv)cv.getContext("2d").clearRect(0,0,cv.width,cv.height)}
+let rsz;window.addEventListener("resize",()=>{clearTimeout(rsz);rsz=setTimeout(initSig,250)});
+// ---------- salvataggio, import / export
+let tm;function save(){clearTimeout(tm);tm=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify({S,sig}));PR.push(S,KEYP)}catch(e){}},300)}
+function load(){try{const t=JSON.parse(localStorage.getItem(KEY)||"null");if(t){S=t.S||{};sig=t.sig||{}}}catch(e){}}
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),2200)}
+const base=()=>SPEC.code.replace(/\W+/g,"_")+"_"+String(S[Object.keys(S).find(k=>/cliente|ute_nome|cli_nome/.test(k))]||"modulo").replace(/[^\w-]+/g,"_");
+function saveJSON(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({modulo:SPEC.code,S,sig})],{type:"application/json"}));a.download=base()+".json";a.click()}
+function importFile(inp){const f=inp.files[0];if(!f)return;inp.value="";
+  if(/\.pdf$/i.test(f.name)||f.type==="application/pdf")return importPDF(f);
+  const r=new FileReader();r.onload=()=>{try{const t=JSON.parse(r.result);S=t.S||{};sig=t.sig||{};save();renderAll();toast("Dati importati")}catch(e){alert("File non valido")}};r.readAsText(f)}
+// legge un PDF compilato (es. check list ricevuta dall'installatore) e ne copia i valori nel modulo
+function loadPdfLib(){return window.PDFLib?Promise.resolve():new Promise((ok,ko)=>{const s=document.createElement("script");s.src="lib/pdf-lib.min.js";s.onload=ok;s.onerror=ko;document.head.appendChild(s)})}
+async function importPDF(file){try{await loadPdfLib();const pdf=await PDFLib.PDFDocument.load(await file.arrayBuffer(),{ignoreEncryption:true});const form=pdf.getForm();let n=0;
+  form.getFields().forEach(fl=>{const name=fl.getName(),L=PDFLib;let v;
+    try{if(fl instanceof L.PDFTextField)v=fl.getText()||"";else if(fl instanceof L.PDFDropdown||fl instanceof L.PDFOptionList)v=(fl.getSelected()||[])[0]||"";else if(fl instanceof L.PDFCheckBox)v=fl.isChecked()?(CHK[name]||"Yes"):"Off";else if(fl instanceof L.PDFRadioGroup)v=fl.getSelected()||"";else return}catch(e){return}
+    if(!(name in FD)&&!(name in CHK))return;if(CALCF.has(name))return;if(DATES.has(name))v=it2iso(v);if(v&&FD[name]&&FD[name].t!=="chk"&&FD[name].t!=="sig")v=v.toUpperCase();
+    if(FD[name]&&FD[name].t==="sig")return;if(v!==""&&v!=="Off"||S[name]){S[name]=v;n++}});
+  save();renderAll();toast(n+" campi importati dal PDF: controllare e completare in cantiere")}catch(e){console.error(e);alert("Impossibile leggere il PDF: "+e.message)}}
+// ---------- PDF
+const TPLKEY="063";
+function doPDF(only){if(EXT.pdf){if(only!=="cart"&&window.FOTO&&FOTO.check&&!FOTO.check())return Promise.resolve();const FO=window.FOTO;if(only==="cart")window.FOTO=null;return EXT.pdf(only).finally(()=>{window.FOTO=FO})}if(TPLKEY&&window.PDFFILL){runCalc();const cc=only==="cart";return PDFFILL.share({key:TPLKEY,values:Object.assign({},C,S),sig:sig,mode:cc?"cart":"full",title:SPEC.title,code:SPEC.code,cliente:S.cliente||S.v_cliente||S.ragione_sociale||"",name:base()+(cc?"_cartolina":"")})}runCalc();let h=`<h1>${esc(only==="cart"?"Cartolina garanzia":SPEC.title)}</h1>`;
+  const fv=f=>{if(f.t==="chk")return S[f.n]&&S[f.n]!=="Off"?"SI":"";if(f.t==="sig")return"";const v=String(val(f.n)??"");return DATES.has(f.n)?iso2it(v):v};
+  SPEC.pages.forEach(pg=>{if(pageCover(pg.i))return;if(only==="cart"&&!pg.cart)return;let sec="",rows=[],pend=[],skipS=false;
+    const out=()=>{if(!rows.length&&!pend.length)return;h+=`<h2>${esc(sec||SPEC.title)}</h2>`;if(rows.length){let t="<table>";for(let i=0;i<rows.length;i+=2)t+=`<tr><td>${esc(rows[i][0])}</td><td>${esc(rows[i][1])}</td><td>${esc(rows[i+1]?rows[i+1][0]:"")}</td><td>${esc(rows[i+1]?rows[i+1][1]:"")}</td></tr>`;h+=t+"</table>"}h+=pend.join("");rows=[];pend=[]};
+    pg.items.forEach(it=>{if(EXT.items&&EXT.items[it.k]){const x=EXT.items[it.k].pdf?EXT.items[it.k].pdf(it):"";if(x){out();pend.push(x)}return}if(it.k==="txt"&&it.pdf){pend.push(`<p>${esc(it.t)}</p>`);return}if(it.k==="sec"){out();sec=it.t;skipS=it.cp!=null&&!!pageCover(it.cp);return}if(skipS)return;
+      if(it.k==="row")it.f.forEach(f=>{if(hid(f))return;if(f.t==="sig"){if(sig[f.n])pend.push(`<table><tr><th>${esc(f.l||"Firma")}</th></tr><tr><td><img src="${sig[f.n]}"></td></tr></table>`);return}const v=fv(f);if(v)rows.push([(f.l||f.n)+(f.u?" ("+f.u+")":""),v])});
+      if(it.k==="sigb"){if(hid(it.sig))return;const nm=it.nome?val(it.nome.n):"",dt=it.data?iso2it(String(val(it.data.n)||"")):"";if(!nm&&!sig[it.sig.n])return;out();if(!sec)sec="Firme";pend.push(`<table><tr><th>Firma - ${esc(it.title)}${nm?": "+esc(nm):""}${dt?" - "+esc(dt):""}</th></tr><tr><td>${sig[it.sig.n]?`<img src="${sig[it.sig.n]}">`:""}</td></tr></table>`);out();return}
+      if(it.k==="uil"){if(it.cp!=null&&pageCover(it.cp))return;const N=Math.max(1,Math.min(64,parseInt(val(it.cnt))||parseInt(val(it.alt))||1)),b=i=>`s${it.s}_ui${i}_`,R2=[];for(let i=1;i<=N;i++)if(["mod","sn","ind","loc"].some(x=>S[b(i)+x]))R2.push([i].concat(["mod","sn","ind","loc"].map(x=>S[b(i)+x]||"")));if(R2.length){out();pend.push(`<table><tr><th>U.I.</th><th>Modello</th><th>Matricola</th><th>N. indirizzo</th><th>Locale / zona</th></tr>${R2.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>`)}return}
+      if(it.k==="tri"){const i=it.names.findIndex(n=>S[n]&&S[n]!=="Off");if(i>=0)rows.push([it.l,it.o[i]==="NV"||it.o[i]==="NA"?"N.A.":it.o[i]])}
+      if(it.k==="tab"){const R=it.rows.filter(r=>r.f.some(f=>f&&!hid(f)&&fv(f)));if(R.length){out();pend.push(`<table><tr><th></th>${it.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${R.map(r=>`<tr><td>${esc(r.l)}</td>${r.f.map(f=>`<td>${esc(!f||hid(f)?"":fv(f))}</td>`).join("")}</tr>`).join("")}</table>`)}}});
+    out()});
+  let box=$("#pdfsrc");if(!box){box=document.createElement("div");box.id="pdfsrc";box.style.display="none";document.body.appendChild(box)}box.innerHTML=h;
+  const FO=window.FOTO;if(only==="cart")window.FOTO=null;try{PDFK.share(box,{title:only==="cart"?"Cartolina garanzia":SPEC.title,code:only==="cart"&&SPEC.cartCode?SPEC.cartCode:SPEC.code,name:base()+(only==="cart"?"_cartolina":"")})}finally{window.FOTO=FO}}
+load();PR.pull(S,KEYP);renderAll();
+// ---------- check list: invio al tecnico e caricamento dalla pagina iniziale
+let CLBYTES=null;
+function nextSteps(){const c=window.TRASF&&TRASF.CL[KEYP];if(!c)return;const b=$("#nextbox");b.style.display="block";
+  b.innerHTML=`<b>✓ Check list caricata.</b> I dati comuni (cliente, indirizzo, installatore, modelli e matricole) sono nella pratica corrente. Controllare i dati qui sotto, poi:<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${c.verb?`<a class="btn pri" href="${c.verb}" style="text-decoration:none">Apri ${esc(c.vt.split(" - ")[0])} precompilato</a>`:""}<button class="btn" onclick="toTech()">✉ Invia al tecnico</button></div>`}
+async function toTech(){save();await new Promise(r=>setTimeout(r,350));let b=CLBYTES;if(!b&&window.PDFFILL){try{runCalc();b=await PDFFILL.make({key:TPLKEY,values:Object.assign({},C,S),sig:sig,mode:"full",title:SPEC.title,code:SPEC.code,cliente:S.cliente||""})}catch(e){b=null}}TRASF.sendTech(KEYP,b)}
+if(window.TRASF&&TRASF.CL[KEYP])$("#btnTech").style.display="";
+if(/[?&]import=1/.test(location.search)){try{const r=JSON.parse(sessionStorage.getItem("cl_import")||"null");sessionStorage.removeItem("cl_import");history.replaceState(null,"",location.pathname);
+  if(r&&r.k===KEYP){const u=Uint8Array.from(atob(r.b),c=>c.charCodeAt(0));CLBYTES=u;S={};sig={};importPDF(new File([u],r.n||"checklist.pdf",{type:"application/pdf"})).then(nextSteps)}}catch(e){console.error(e)}}
+if(/[?&]ricevuta=1/.test(location.search)){history.replaceState(null,"",location.pathname);nextSteps()}
+</script>
+<script src="firma.js"></script><script src="foto.js"></script><script src="avvisi.js"></script><script src="mobile.js"></script>
+<script src="pdfview.js"></script>
+</body>
+</html>

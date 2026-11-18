@@ -9,7 +9,7 @@ function b64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;
 var PT=function(s){return window.PDFK?PDFK.PT(s):String(s)};
 var iso=function(v){return /^\d{4}-\d\d-\d\d$/.test(v)?v.split("-").reverse().join("/"):v};
 function jsText(L,o){try{if(!o)return"";if(o instanceof L.PDFString||o instanceof L.PDFHexString)return o.decodeText();if(o instanceof L.PDFRawStream)return new TextDecoder("latin1").decode(L.decodePDFRawStream(o).decode())}catch(e){}return""}
-async function make(o){
+async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
   var meta=await ensure(o.key),L=PDFLib,N=L.PDFName.of;
   var pdf=await L.PDFDocument.load(b64(meta.b64),{updateMetadata:false}),ctx=pdf.context,form=pdf.getForm(),pages=pdf.getPages();
   var S=o.values||{},sig=o.sig||{};
@@ -50,6 +50,7 @@ async function make(o){
   try{FN=new Function(PAR.join(","),docJS+"\nreturn ["+order.map(function(n){return "function(event){"+F[n].calc+"\n}"}).join(",")+"]").call(doc,disp,color,app,util,doc.getField)}
   catch(e){console.warn("calc",e);FN=order.map(function(n){try{return new Function(PAR.join(","),"return function(event){"+F[n].calc+"\n}").call(doc,disp,color,app,util,doc.getField)}catch(x){return null}})}
   for(var pass=0;pass<3;pass++)order.forEach(function(n,i){if(!FN[i])return;var ev={value:V[n]==null?"":V[n],target:fo(n),name:"Calculate",source:null};try{FN[i].call(doc,ev);V[n]=ev.value==null?"":String(ev.value)}catch(e){if(pass===2)console.warn("calc",n,e)}});
+  if(window.PDFFILL_BHC&&meta.bhc&&meta.bhc.set)Object.keys(meta.bhc.set).forEach(function(n){V[n]=meta.bhc.set[n]});
   if(o.override)Object.keys(o.override).forEach(function(n){if(o.override[n]!=null)V[n]=String(o.override[n])});
   // --- coperture: pagine intere non usate e campi coperti
   var covers=Object.keys(F).filter(function(n){return /^cov_|(^|_)cov\d*$/.test(n)&&DISP[n]!==1});
@@ -73,22 +74,47 @@ async function make(o){
   var helv=await pdf.embedFont(L.StandardFonts.Helvetica),hb=await pdf.embedFont(L.StandardFonts.HelveticaBold);
   try{form.updateFieldAppearances(helv)}catch(e){console.warn(e)}
   form.flatten();
+  // via i riferimenti ai campi eliminati rimasti nelle pagine
+  pdf.getPages().forEach(function(pg){var an=pg.node.lookup(N("Annots"));if(!(an instanceof L.PDFArray))return;var keep=[];
+    for(var i=0;i<an.size();i++){var r=an.get(i);if(r instanceof L.PDFRef){if(pdf.context.lookup(r))keep.push(r)}else keep.push(r)}
+    if(keep.length)pg.node.set(N("Annots"),pdf.context.obj(keep));else pg.node.delete(N("Annots"))});
   try{pdf.catalog.delete(N("OpenAction"));var nm2=pdf.catalog.lookup(N("Names"));if(nm2)nm2.delete(N("JavaScript"))}catch(e){}
+  // --- foto nei riquadri del modulo (MOD 06.3)
+  var FPL={};if(meta.fotobox&&window.FOTO&&FOTO.list&&o.mode!=="cart"){var FL=FOTO.list();
+    for(var q=0;q<meta.fotobox.length;q++){var fb=meta.fotobox[q],ph=FL.filter(function(f){return f.cat===fb[0]&&!FPL[f.id]})[0];if(!ph)continue;
+      try{var im=await pdf.embedJpg(b64(ph.data.split(",")[1])),P0=pages[fb[1]],Hh=P0.getSize().height,r=fb[2],bw=r[2]-r[0]-4,bh=r[3]-r[1]-4,sc=Math.min(bw/ph.w,bh/ph.h),iw=ph.w*sc,ih=ph.h*sc;
+        P0.drawRectangle({x:r[0]+0.5,y:Hh-r[3]+0.5,width:r[2]-r[0]-1,height:r[3]-r[1]-1,color:L.rgb(1,1,1)});
+        P0.drawImage(im,{x:r[0]+(r[2]-r[0]-iw)/2,y:Hh-r[3]+(r[3]-r[1]-ih)/2,width:iw,height:ih});FPL[ph.id]=1}catch(e){console.warn("foto",e)}}}
+  if(o.mode==="bhc"&&meta.bhc&&meta.bhc.cover){meta.bhc.cover.forEach(function(c){var P0=pages[c[0]],Hh=P0.getSize().height,r=c[1];
+    P0.drawRectangle({x:r[0],y:Hh-r[3],width:r[2]-r[0],height:r[3]-r[1],color:L.rgb(1,1,1)});
+    if(c[2])P0.drawText(c[2],{x:r[0]+6,y:Hh-r[1]-10,size:7,font:helv,color:L.rgb(0.4,0.43,0.48)})})}
   // --- pagine da includere
   var NP=pdf.getPageCount(),cart=meta.cart==null?NP:meta.cart,ver=[],car=[];
   for(var p=0;p<NP;p++){if(dropPage[p])continue;if(p<cart)ver.push(p);else car.push(p)}
   if(o.mode==="cli"&&meta.sat){ver=ver.filter(function(p){return meta.sat.indexOf(p)<0})}
   if(o.mode==="cli"&&meta.cli){var keep={};meta.cli.forEach(function(r){for(var x=r[0];x<=r[1];x++)keep[x]=1});ver=ver.filter(function(p){return keep[p]});car=car.filter(function(p){return keep[p]})}
   if(o.mode==="cart"){ver=[]}
-  var out=await L.PDFDocument.create(),cp;
-  if(ver.length){cp=await out.copyPages(pdf,ver);cp.forEach(function(pg,i){out.addPage(pg);var ft=meta.foot&&meta.foot[ver[i]];
+  // copia per Bosch / SAT: senza le informative, restano consensi e firme
+  var BH=o.mode==="bhc"&&meta.bhc?meta.bhc:null;
+  if(BH){ver=ver.filter(function(p){return (BH.drop||[]).indexOf(p)<0})}
+  var out=await L.PDFDocument.create(),cp;helv=await out.embedFont(L.StandardFonts.Helvetica);hb=await out.embedFont(L.StandardFonts.HelveticaBold);
+  if(ver.length){cp=await out.copyPages(pdf,ver);for(var i=0;i<cp.length;i++){var pg=cp[i];
+    if(BH&&BH.inst&&ver[i]===BH.inst.src){var sp=pdf.getPage(ver[i]),sz=sp.getSize(),W=sz.width,H=sz.height,c=BH.inst.clip;pg=out.addPage([W,H]);
+      var e1=await out.embedPage(sp,{left:0,right:W,top:H,bottom:H-BH.inst.hdr}),e2=await out.embedPage(sp,{left:0,right:W,top:H-c[0],bottom:H-c[1]});
+      pg.drawPage(e1,{x:0,y:H-BH.inst.hdr});pg.drawPage(e2,{x:0,y:H-96-(c[1]-c[0])});
+      pg.drawRectangle({x:330,y:H-54,width:238,height:34,color:L.rgb(1,1,1)});
+      var nv=L.rgb(0.122,0.169,0.271),t1="Dichiarazioni e consensi",t2="Reg. UE 2016/679 (GDPR)";
+      pg.drawText(t1,{x:559.6-hb.widthOfTextAtSize(t1,10),y:H-37,size:10,font:hb,color:nv});pg.drawText(t2,{x:559.6-helv.widthOfTextAtSize(t2,7),y:H-48,size:7,font:helv,color:L.rgb(0.4,0.43,0.48)});
+      var y0=H-96-(c[1]-c[0])-22;["Copia per Bosch / SAT: le informative privacy complete (cliente finale e ditta installatrice) sono nel modulo","inviato alla ditta installatrice e nei MOD 09.1 / 09.2. Qui restano le dichiarazioni, i consensi e le firme."].forEach(function(t,k){pg.drawText(t,{x:42,y:y0-k*10,size:7.6,font:helv,color:nv})});
+      continue}
+    out.addPage(pg);var ft=meta.foot&&meta.foot[ver[i]];
     if(ft&&ver.length!==cart){var tx="Pagina "+(i+1)+" di "+ver.length,fnt=ft[4]?hb:helv,tw=fnt.widthOfTextAtSize(tx,ft[3]);
-      pg.drawRectangle({x:ft[0]-ft[5]-4,y:ft[1]-2,width:ft[5]+8,height:ft[3]+4,color:L.rgb(1,1,1)});pg.drawText(tx,{x:ft[0]-tw,y:ft[2],size:ft[3],font:fnt,color:L.rgb(ft[6][0],ft[6][1],ft[6][2])})}})}
+      pg.drawRectangle({x:ft[0]-ft[5]-4,y:ft[1]-2,width:ft[5]+8,height:ft[3]+4,color:L.rgb(1,1,1)});pg.drawText(tx,{x:ft[0]-tw,y:ft[2],size:ft[3],font:fnt,color:L.rgb(ft[6][0],ft[6][1],ft[6][2])})}}}
   // allegati (pagine extra) e foto, prima della cartolina
   if(o.mode!=="cart"){var FO=window.FOTO;
     if(o.extraHTML&&window.PDFK){var box=document.createElement("div");box.style.display="none";box.innerHTML=o.extraHTML;document.body.appendChild(box);window.FOTO=null;
       try{var jd=PDFK.make(box,{title:o.title,code:o.code,cliente:o.cliente,noEnc:true});var ex=await L.PDFDocument.load(jd.output("arraybuffer"));(await out.copyPages(ex,ex.getPageIndices())).forEach(function(pg){out.addPage(pg)})}finally{window.FOTO=FO;box.remove()}}
-    if(FO&&FO.count()&&window.jspdf){var jp=new window.jspdf.jsPDF({unit:"mm",format:"a4",compress:true});FO.addPages(jp);jp.deletePage(1);var ph=await L.PDFDocument.load(jp.output("arraybuffer"));(await out.copyPages(ph,ph.getPageIndices())).forEach(function(pg){out.addPage(pg)})}}
+    if(FO&&FO.count()>Object.keys(FPL).length&&window.jspdf){var jp=new window.jspdf.jsPDF({unit:"mm",format:"a4",compress:true});FO.addPages(jp,FPL);jp.deletePage(1);var ph=await L.PDFDocument.load(jp.output("arraybuffer"));(await out.copyPages(ph,ph.getPageIndices())).forEach(function(pg){out.addPage(pg)})}}
   if(car.length){(await out.copyPages(pdf,car)).forEach(function(pg){out.addPage(pg)})}
   out.setTitle((o.mode==="cart"?"Cartolina garanzia - ":"")+o.code+" - "+o.title+(o.cliente?" - "+o.cliente:""));out.setAuthor("Bosch Home Comfort Cooling and Heating SAS");out.setCreator("Hitachi Cooling & Heating - app Moduli Service");
   return out.save()}
@@ -105,5 +131,6 @@ async function prefill(key,values){var meta=await ensure(key),L=PDFLib;var pdf=a
 async function readFields(bytes){await ensure0();var L=PDFLib,pdf=await L.PDFDocument.load(bytes,{ignoreEncryption:true}),out={};
   pdf.getForm().getFields().forEach(function(fl){var n=fl.getName(),v;try{if(fl instanceof L.PDFTextField)v=fl.getText()||"";else if(fl instanceof L.PDFDropdown||fl instanceof L.PDFOptionList)v=(fl.getSelected()||[])[0]||"";else if(fl instanceof L.PDFCheckBox)v=fl.isChecked()?"Yes":"Off";else if(fl instanceof L.PDFRadioGroup)v=fl.getSelected()||"";else return}catch(e){return}out[n]=v});return out}
 async function ensure0(){if(!window.PDFLib)await loadScript("lib/pdf-lib.min.js","libreria PDF mancante (lib/pdf-lib.min.js)")}
+window.pdfBHC=function(f){window.PDFFILL_BHC=1;var r;try{r=f()}catch(e){window.PDFFILL_BHC=0;throw e}return Promise.resolve(r).finally(function(){window.PDFFILL_BHC=0})};
 window.PDFFILL={make:make,share:share,tpl:ensure,b64:b64,prefill:prefill,readFields:readFields};
 })();
