@@ -27,7 +27,7 @@ function make(root,o){var jsPDF=window.jspdf.jsPDF,rnd=Array.from(crypto.getRand
       didDrawPage:function(){head()}});y=d.lastAutoTable.finalY+4}
   function walk(el){Array.from(el.children).forEach(function(c){var tg=c.tagName,cl=c.className||"";
     if(cl.indexOf("pband")>=0)return;
-    if(tg==="IMG"){if(c.src===LG)return;need(30);try{d.addImage(c.src,"PNG",MG,y,60,24)}catch(e){}y+=26;return}
+    if(tg==="IMG"){if(c.src===LG)return;var iw=+c.getAttribute("data-w")||60,ih=+c.getAttribute("data-h")||24;if(iw>CW){ih=ih*CW/iw;iw=CW}need(ih+4);try{d.addImage(c.src,"PNG",MG,y,iw,ih)}catch(e){}y+=ih+2;return}
     if(cl.indexOf("pb")>=0&&!c.textContent.trim()){newPage();return}
     if(tg==="H1"){d.setFont("helvetica","bold");d.setFontSize(18);d.setTextColor.apply(d,NAVY);d.text(PT(c.textContent),MG,y+6);y+=9;return}
     if(tg==="H2"||tg==="H3"){sec(c.textContent);return}
