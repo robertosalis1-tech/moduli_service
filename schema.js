@@ -168,6 +168,7 @@ async function extra(title){const c=CFG&&CFG();if(!c)return "";const T=(h,r)=>`<
   const p1=(c.lines||[]).length?await png(powSvg(c.lines,c.powHead),1600):null,bs=busSvg(c.bus||{}),p2=bs?await png(bs,1600):null;
   if(p1)h+=`<h2>Schema dei collegamenti di alimentazione</h2><img src="${p1.src}" data-w="182" data-h="${Math.round(182*p1.ar)}">`;
   if(p2)h+=`<h2>Schema del bus di comunicazione (entra / esce)</h2><img src="${p2.src}" data-w="182" data-h="${Math.round(Math.min(240,182*p2.ar))}">`;
+  if(c.refSvg){const p3=await png(c.refSvg,1600);if(p3)h+=`<h2>Schema frigorifero semplificato</h2><img src="${p3.src}" data-w="182" data-h="${Math.round(Math.min(240,182*p3.ar))}">`}
   (c.tips||[]).forEach(t=>{h+=`<p>${esc(String(t).replace(/<[^>]+>/g,""))}</p>`});if(!c.noCable)h+=`<p><b>Cavi e interruttori:</b> ${esc(CABLE_NOTE)}</p>`;
   if(A.length)h+=`<h2>Riepilogo unità e indirizzi</h2>`+A.map(a=>(a.title?`<p><b>${esc(a.title)}</b></p>`:"")+T(a.head,a.rows)).join("");return h}
 window.SCHEMA={CABLE_NOTE,AVV_NOTE,lookup,phaseOf,uiOf,ueRow,ueLine,TL,nf,clean,UIC,SAMM,powSvg,busSvg,card:cardHTML,refresh,mount,extra,plant:plantHTML,png,get cfg(){return CFG}};

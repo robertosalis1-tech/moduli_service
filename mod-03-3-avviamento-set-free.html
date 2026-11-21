@@ -369,8 +369,35 @@ const schK=id=>String(id).replace(/[^0-9A-Za-z]/g,"_");
 function schUiForm(ids,sys){const inp=(n,ph,w)=>`<input data-n="${n}" value="${esc(S[n]||"")}" placeholder="${esc(ph)}" style="width:${w||"100%"}">`;
   let h=`<h3 style="font-size:13px;margin:10px 0 4px">Elenco unità (per il riepilogo e la cartolina garanzia)</h3>`;
   if(sys&&sys.length)h+=`<div style="display:flex;flex-wrap:wrap;gap:10px;margin:2px 0 6px">${sys.map(i=>`<label style="font-size:12.5px">Ciclo frigo sistema ${i} ${inp("sch_cyc_"+i,String(i-1),"60px")}</label>`).join("")}</div>`;
-  h+=`<div class="scroll"><table class="schT"><tr><th>U.I.</th><th>Modello</th><th>Matricola</th><th>Indirizzo (RSW)</th><th>Locale / zona</th></tr>${ids.map(id=>{const k=schK(id);return `<tr><td>${esc(id)}</td><td>${inp("sch_ui_"+k+"_mod","modello")}</td><td>${inp("sch_ui_"+k+"_sn","matricola")}</td><td>${inp("sch_ui_"+k+"_ad","ind.","70px")}</td><td>${inp("sch_ui_"+k+"_loc","locale")}</td></tr>`}).join("")}</table></div>`;
+  h+=`<div class="scroll"><table class="schT"><tr><th>U.I.</th><th>Modello</th><th>Matricola</th><th>Indirizzo (RSW)</th><th>Locale / zona</th></tr>${ids.map(id=>{const k=schK(id);return `<tr><td>${esc(id)}</td><td><input data-n="sch_ui_${k}_mod" list="schUIL" value="${esc(S["sch_ui_"+k+"_mod"]||"")}" placeholder="modello" style="width:100%"></td><td>${inp("sch_ui_"+k+"_sn","matricola")}</td><td>${inp("sch_ui_"+k+"_ad","ind.","70px")}</td><td>${inp("sch_ui_"+k+"_loc","locale")}</td></tr>`}).join("")}</table></div>`;
+  h+=`<datalist id="schUIL">${SCH_UIF.map(x=>`<option value="${x}">`).join("")}</datalist>`;
   return h}
+const SCH_UIF=["RCI-","RCIM-","RCD-","RPC-","RPI-","RPIM-","RPK-","RPF-","RPFI-","RPI-…FSN4E (canalizzabile)","RCI-…FSN4 (cassetta 4 vie)","RCIM-…FSN4 (cassetta 60x60)","RPK-…FSNH4M (parete)","RPC-…FSN4 (soffitto)","KPI- (recuperatore)","AHU / kit DX"];
+// ---- elenco unità in prima pagina (check list VRF / Utopia / Mini Set Free): report, lista U.I. e schema frigo semplificato
+function schUnitsHTML(P){const c=SCHEMA.cfg&&SCHEMA.cfg(),hasDoc=S[P+"_all_skeleton"]==="Yes"||S[P+"_all_progetto"]==="Yes";let h=`<p class="note" style="margin:0 0 6px">Indicare per ogni sistema il modello dell'unità esterna (menu nella tabella sopra), le matricole se note e il numero di unità interne; qui sotto l'elenco delle unità interne. Senza skeleton si compila a mano.</p>`+schImpBtn();
+  if(S.sch_imp)h+=`<div class="tip" style="background:#fff7ed;border-color:#fdba74;color:#7c2d12">⚠ &nbsp;Modelli, unità interne e accessori letti dal report del software di selezione: sono il progetto e <b>vanno verificati durante l'avviamento</b> (l'impianto realizzato può essere diverso).</div>`;
+  if(!c||!c.ids||!c.ids.length)return h+`<p class="note">Compilare la tabella delle unità esterne (modello e N° U.I. collegate) per avere l'elenco delle unità interne.</p>`;
+  h+=schUiForm(c.ids,c.sys.map(r=>r.i));
+  const rs=schRefSvg(c.sys);if(rs)h+=`<h3 style="font-size:14px;margin:12px 0 4px">Schema frigorifero semplificato${hasDoc||S.sch_imp?" (indicativo: vale lo skeleton / progetto allegato)":""}</h3>`+rs;
+  return h}
+function schRefSvg(sys){if(!sys||!sys.length)return "";const PER=8,BW=118,GX=132,LIQ="#7c3aed",GAS="#a21caf";let y=14,s="";const T=(x,yy,t,o)=>`<text x="${x}" y="${yy}" font-size="${(o&&o.fs)||10}"${o&&o.a?` text-anchor="${o.a}"`:""}${o&&o.b?' font-weight="bold"':""} fill="${(o&&o.c)||"#1f2937"}">${esc(t)}</text>`;
+  sys.forEach(r=>{const mods=String(r.m||"").split(/\s*\+\s*/).filter(Boolean),n=Math.max(1,r.n||1),ml=sys.length>1,rows=Math.ceil(n/PER),ut=/^RAS-\d+H/i.test(r.m)&&n<=4;
+    s+=T(14,y+10,"Sistema "+r.i+(r.z?" - "+r.z:"")+" · "+n+" U.I."+(ut?" · distributore":""),{b:1,fs:11.5});y+=18;
+    mods.forEach((m,k)=>{s+=`<rect x="${14+k*64}" y="${y}" width="60" height="56" rx="5" fill="#f1f5f9" stroke="#334155"/><circle cx="${44+k*64}" cy="${y+32}" r="14" fill="none" stroke="#64748b"/>`+T(44+k*64,y+12,m.replace(/^RAS-/,""),{fs:8.5,a:"middle",b:1})});
+    const ux=14+mods.length*64,gy=y+20,ly=y+34,hx=ux+40;if(mods.length>1)s+=T(14,y+68,"moduli collegati con kit di collegamento U.E.",{fs:8.5,c:"#475569"});
+    s+=`<line x1="${ux}" y1="${gy}" x2="${hx}" y2="${gy}" stroke="${GAS}" stroke-width="3"/><line x1="${ux}" y1="${ly}" x2="${hx}" y2="${ly}" stroke="${LIQ}" stroke-width="1.8"/>`;
+    const ids=Array.from({length:n},(_,k)=>(ml?r.i+".":"")+(k+1));
+    for(let rw=0;rw<rows;rw++){const yy=y+rw*118,yb=yy+66,cnt=Math.min(PER,n-rw*PER),x0=hx+20,x1=x0+(cnt-1)*GX+BW/2;
+      if(rw>0)s+=`<path d="M${hx} ${gy+(rw-1)*118}V${gy+rw*118}" stroke="${GAS}" stroke-width="3" fill="none"/><path d="M${hx-8} ${ly+(rw-1)*118}V${ly+rw*118}" stroke="${LIQ}" stroke-width="1.8" fill="none"/>`;
+      s+=`<line x1="${hx}" y1="${yy+20}" x2="${x1}" y2="${yy+20}" stroke="${GAS}" stroke-width="3"/><line x1="${hx-8}" y1="${yy+34}" x2="${x1}" y2="${yy+34}" stroke="${LIQ}" stroke-width="1.8"/>`;
+      for(let k=0;k<cnt;k++){const id=ids[rw*PER+k],bx=x0+k*GX,cx=bx+BW/2,kk=schK(id),m=S["sch_ui_"+kk+"_mod"]||"",ad=S["sch_ui_"+kk+"_ad"]||"",lo=S["sch_ui_"+kk+"_loc"]||"";
+        const last=rw===rows-1&&k===cnt-1;s+=`<line x1="${cx-4}" y1="${yy+20}" x2="${cx-4}" y2="${yb}" stroke="${GAS}" stroke-width="2.2"/><line x1="${cx+4}" y1="${yy+34}" x2="${cx+4}" y2="${yb}" stroke="${LIQ}" stroke-width="1.5"/>`;
+        if(!last||ut)s+=`<path d="M${cx-12} ${yy+12}l8 8l-8 8" fill="none" stroke="#111" stroke-width="1.3"/>`;
+        s+=`<rect x="${bx}" y="${yb}" width="${BW}" height="44" rx="5" fill="#eef2ff" stroke="#334155"/>`+T(cx,yb+13,"U.I. "+id+(ad!==""?" · ind. "+ad:""),{fs:9.5,a:"middle",b:1})+T(cx,yb+26,m||"modello ?",{fs:9,a:"middle",c:m?"#1f2937":"#b91c1c"})+(lo?T(cx,yb+38,lo.slice(0,22),{fs:8.5,a:"middle",c:"#475569"}):"")}}
+    y+=rows*118+26});
+  const W=Math.max(700,...sys.map(r=>14+String(r.m||"").split("+").length*64+60+Math.min(PER,Math.max(1,r.n||1))*GX)),H=y+30;
+  s+=`<line x1="14" y1="${H-22}" x2="40" y2="${H-22}" stroke="${GAS}" stroke-width="3"/>`+T(44,H-18,"linea gas",{fs:9.5})+`<line x1="110" y1="${H-22}" x2="136" y2="${H-22}" stroke="${LIQ}" stroke-width="1.8"/>`+T(140,H-18,"linea liquido",{fs:9.5})+`<path d="M220 ${H-30}l8 8l-8 8" fill="none" stroke="#111"/>`+T(234,H-18,"kit di diramazione (refnet) / distributore",{fs:9.5})+T(14,H-4,"Schema semplificato: diametri, lunghezze, dislivelli, posizione e modello dei kit di diramazione sono quelli dello skeleton / del progetto e del manuale. Non costituisce né sostituisce il progetto.",{fs:9,c:"#7c2d12"});
+  return `<svg viewBox="0 0 ${W} ${H}" font-family="Arial, Helvetica, sans-serif" style="width:100%;max-width:${W}px;display:block;margin:6px auto;font-family:Arial,Helvetica,sans-serif;background:#fff">${s}</svg>`}
 function schPlant(ue,ids,ctl,sysOfId){const cyc=i=>S["sch_cyc_"+i]!=null&&S["sch_cyc_"+i]!==""?S["sch_cyc_"+i]:String(i-1);
   return {ue:ue.map(u=>[u.lab,u.m||"-",u.sn||"-",u.cyc!=null?u.cyc:(u.sys?cyc(u.sys):"-")]),
     ui:ids.map(id=>{const k=schK(id),sy=sysOfId?sysOfId(id):null;return ["U.I. "+id,S["sch_ui_"+k+"_mod"]||"-",S["sch_ui_"+k+"_sn"]||"-",S["sch_ui_"+k+"_ad"]||"-",sy?cyc(sy):"-",S["sch_ui_"+k+"_loc"]||""]}),
@@ -413,7 +440,7 @@ function schCfg(){const ns=Math.max(1,+S.v_nsis||1),rows=[],UEn=[],UIn=[];let to
   window.SCH_IMP=R=>{S.v_nsis=String(Math.min(8,R.sys.length));R.sys.slice(0,8).forEach((x,j)=>{const s=j+1;S["s"+s+"_nmod"]=String(Math.max(1,x.ue.length));x.ue.forEach((m,k)=>S["s"+s+"_m"+(k+1)+"_mod"]=m);S["s"+s+"_ui_dich"]=String(x.ui.length)})};
   return {form:schImpBtn()+(UEn.length?schCtlForm(ids)+schUiForm(ids,sysL):""),ctl,plant,addr:ctl.addr,intro:"Schema indicativo ricavato dai moduli e dalle U.I. inseriti: lo schema definitivo è quello del manuale di installazione.",table,lines,bus:{head:SCH_HEAD,groups},tips:["Air365 Max Pro: tra parentesi la corrente massima con modalità di riscaldamento alta. Cavi di potenza e di trasmissione in canaline separate (almeno 5 cm)."]}}
 
-EXT.items.schema={html:function(){return window.SCHEMA?'<section class="card"><h2>Schema elettrico di alimentazione e bus</h2><div class="body">'+SCHEMA.card()+'</div></section>':""},pdf:function(){return ""}};if(window.SCHEMA)SCHEMA.mount(schCfg);
+EXT.items.schema={html:function(){return window.SCHEMA?'<section class="card"><h2>Schema elettrico di alimentazione e bus</h2><div class="body">'+SCHEMA.card()+'</div></section>':""},pdf:function(){return ""}};EXT.items.schunits={html:function(it){return window.SCHEMA?schUnitsHTML(it.P):""},pdf:function(){return ""}};if(window.SCHEMA)SCHEMA.mount(schCfg);
 
 function runCalc(){try{locAuto()}catch(e){console.error(e)}try{EXT.pre&&EXT.pre()}catch(e){console.error(e)}if(!SPEC.calc.length){try{EXT.post&&EXT.post()}catch(e){console.error(e)}return}let changed=true;
   for(let pass=0;pass<4&&changed;pass++){changed=false;const fields={};
