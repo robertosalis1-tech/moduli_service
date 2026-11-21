@@ -525,7 +525,7 @@ function nextSteps(){const c=window.TRASF&&TRASF.CL[KEYP];if(!c)return;const b=$
 async function toTech(){save();await new Promise(r=>setTimeout(r,350));let b=CLBYTES;if(!b&&window.PDFFILL){try{runCalc();b=await PDFFILL.make({key:TPLKEY,values:Object.assign({},C,S),sig:sig,mode:"full",title:SPEC.title,code:SPEC.code,cliente:S.cliente||""})}catch(e){b=null}}TRASF.sendTech(KEYP,b)}
 if(window.TRASF&&TRASF.CL[KEYP])$("#btnTech").style.display="";
 if(/[?&]import=1/.test(location.search)){try{const r=JSON.parse(sessionStorage.getItem("cl_import")||"null");sessionStorage.removeItem("cl_import");history.replaceState(null,"",location.pathname);
-  if(r&&r.k===KEYP){const u=Uint8Array.from(atob(r.b),c=>c.charCodeAt(0));CLBYTES=u;S={};sig={};importPDF(new File([u],r.n||"checklist.pdf",{type:"application/pdf"})).then(nextSteps)}}catch(e){console.error(e)}}
+  if(r&&r.k===KEYP){const u=Uint8Array.from(atob(r.b),c=>c.charCodeAt(0));CLBYTES=u;S={};sig={};if(r.s){S=r.s;save();PR.push(S,KEYP);renderAll();nextSteps()}else importPDF(new File([u],r.n||"checklist.pdf",{type:"application/pdf"})).then(nextSteps)}}catch(e){console.error(e)}}
 if(/[?&]ricevuta=1/.test(location.search)){history.replaceState(null,"",location.pathname);nextSteps()}
 </script>
 <script src="firma.js"></script><script src="foto.js"></script><script src="avvisi.js"></script><script src="mobile.js"></script>

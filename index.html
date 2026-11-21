@@ -135,7 +135,7 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
 <body>
 <header>
   <div class="band"><b>Bosch Home Comfort Cooling and Heating SAS</b> &nbsp;|&nbsp; Hitachi Cooling &amp; Heating &nbsp;|&nbsp; Rev. 10/2026</div>
-  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.21-1600</small></h1></div>
+  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.21-1900</small></h1></div>
 </header>
 <main>
 <div id="imp"></div>
@@ -159,12 +159,12 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
 <h3>Check list con l'installatore</h3>
 <section class="card"><div class="body">
   <div class="cl2">
-    <button class="big" onclick="openSend()"><span>✉</span><b>Invia check list all'installatore</b><small>Si apre la posta con il PDF da compilare, già intestato al cliente</small></button>
+    <button class="big" onclick="openSend()"><span>✉</span><b>Invia check list o prenotazione all'installatore</b><small>Si apre la posta con il PDF da compilare, già intestato al cliente. La prenotazione avviamento (Utopia / Set Free) è facoltativa</small></button>
     <button class="big" onclick="pasteCL()" style="background:linear-gradient(135deg,#003e69,#007bc0)"><span>📋</span><b>Incolla pratica ricevuta</b><small>Il link mandato dall'ufficio o dal collega: nella mail tienilo premuto → Copia, poi tocca qui</small></button>
     <label class="big"><span>⬆</span><b>Carica check list compilata</b><small>Il PDF tornato dall'installatore: i dati passano nel verbale da inviare al tecnico</small><input type="file" accept=".pdf,application/pdf" style="display:none" onchange="loadCL(this)"></label>
   </div>
   <div id="sendp" class="sendp" style="display:none">
-    <label>Check list da inviare<select id="s_k"></select></label>
+    <label>Documento da inviare<select id="s_k"></select></label>
     <label>Email installatore<input id="s_mail" type="email" placeholder="facoltativa"></label>
     <label class="chk"><input type="checkbox" id="s_pre" checked> Precompila con i dati della pratica corrente (cliente, indirizzo, modelli…)</label>
     <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn pri" onclick="sendCL()">Invia</button><button class="btn" onclick="$('#sendp').style.display='none'">Annulla</button></div>
@@ -198,8 +198,8 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
 <h3>Check list ricevute dall'installatore</h3>
 <div class="tiles">
   <a class="tile" href="cl-01-1-yutaki.html"><div class="ic">01.1</div><div><b>Check list Yutaki airH2O</b><small>Importa il PDF compilato</small></div></a>
-  <a class="tile" href="cl-02-1-utopia.html"><div class="ic">02.1</div><div><b>Prenotazione Utopia / Mini Set Free</b><small>Importa il PDF compilato</small></div></a>
-  <a class="tile" href="cl-03-1-set-free.html"><div class="ic">03.1</div><div><b>Prenotazione Set Free</b><small>Importa il PDF compilato</small></div></a>
+  <a class="tile" href="cl-02-1-utopia.html"><div class="ic">02.1</div><div><b>Check list Utopia / Mini Set Free</b><small>Importa il PDF compilato</small></div></a>
+  <a class="tile" href="cl-03-1-set-free.html"><div class="ic">03.1</div><div><b>Check list VRF Set Free</b><small>Importa il PDF compilato</small></div></a>
   <a class="tile" href="cl-04-1-csnet.html"><div class="ic">04.1</div><div><b>Pre-avviamento CSNET</b><small>Controllo centralizzato: importa il PDF compilato</small></div></a>
   <a class="tile" href="cl-05-1-samurai.html"><div class="ic">05.1</div><div><b>Check list chiller Samurai</b><small>Importa il PDF compilato</small></div></a>
 </div>
@@ -217,9 +217,11 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
 <section class="card"><div class="body pdfs"><a href="pdf/MOD-01-1-Check-list-pre-avviamento-Yutaki-airH2O.pdf" target="_blank" rel="noopener">MOD 01.1 - Check list pre-avviamento Yutaki airH2O<span>892 KB</span></a>
 <a href="pdf/MOD-01-3-Cartolina-garanzia-Heating-Solution-airH2O.pdf" target="_blank" rel="noopener">MOD 01.3 - Cartolina garanzia Heating Solution airH2O<span>297 KB</span></a>
 <a href="pdf/MOD-01-4-Cartolina-garanzia-Yutampo-e-Triple-C.pdf" target="_blank" rel="noopener">MOD 01.4 - Cartolina garanzia Yutampo e Triple C<span>234 KB</span></a>
-<a href="pdf/MOD-02-1-Prenotazione-avviamento-Utopia-Mini-Set-Free.pdf" target="_blank" rel="noopener">MOD 02.1 - Prenotazione avviamento Utopia Mini Set Free<span>331 KB</span></a>
+<a href="pdf/MOD-02-1-Check-list-pre-avviamento-Utopia-Mini-Set-Free.pdf" target="_blank" rel="noopener">MOD 02.1 - Check list pre-avviamento Utopia Mini Set Free<span>462 KB</span></a>
+<a href="pdf/MOD-02-1-Prenotazione-avviamento-Utopia-Mini-Set-Free.pdf" target="_blank" rel="noopener">MOD 02.1 - Prenotazione avviamento Utopia Mini Set Free (facoltativa)<span>462 KB</span></a>
 <a href="pdf/MOD-02-4-Cartolina-garanzia-Utopia-e-IVX.pdf" target="_blank" rel="noopener">MOD 02.4 - Cartolina garanzia Utopia e IVX<span>276 KB</span></a>
-<a href="pdf/MOD-03-1-Prenotazione-avviamento-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.1 - Prenotazione avviamento Set Free<span>330 KB</span></a>
+<a href="pdf/MOD-03-1-Check-list-pre-avviamento-VRF-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.1 - Check list pre-avviamento VRF Set Free<span>462 KB</span></a>
+<a href="pdf/MOD-03-1-Prenotazione-avviamento-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.1 - Prenotazione avviamento Set Free (facoltativa)<span>462 KB</span></a>
 <a href="pdf/MOD-03-4-Cartolina-garanzia-VRF-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.4 - Cartolina garanzia VRF Set Free<span>311 KB</span></a>
 <a href="pdf/MOD-04-1-Pre-avviamento-CSNET.pdf" target="_blank" rel="noopener">MOD 04.1 - Pre-avviamento CSNET<span>883 KB</span></a>
 <a href="pdf/MOD-04-2-Modulo-assistenza-airCloud-Home.pdf" target="_blank" rel="noopener">MOD 04.2 - Modulo assistenza airCloud Home<span>86 KB</span></a>
@@ -264,7 +266,9 @@ async function nuova(){const has=Object.keys(localStorage).some(AKEYS);
     if(sv){if(!(await archSave(true)))return}else if(!confirm("Svuotare la pratica corrente SENZA salvarla? Dati, firme e foto non salvati andranno persi."))return}
   Object.keys(localStorage).filter(AKEYS).forEach(k=>localStorage.removeItem(k));try{await fotoSet([])}catch(e){}draw();drawArch();toast("Nuova pratica pronta")}
 const $=q=>document.querySelector(q),CLSIG={"011": ["caldaia_logica", "cli_cognome", "contatore", "contatore_altro", "gas", "gas_add", "gas_d", "gas_m", "gas_tot", "liq_d", "liq_m", "p104"], "021": ["pu_all_data", "pu_all_elettrico", "pu_all_progetto", "pu_all_skeleton", "pu_cliente", "pu_data", "pu_data_collaudo", "pu_focus", "pu_indirizzo", "pu_installatore", "pu_q10_NA", "pu_q10_NO"], "031": ["pr_all_data", "pr_all_elettrico", "pr_all_progetto", "pr_all_skeleton", "pr_cliente", "pr_data", "pr_data_collaudo", "pr_focus", "pr_indirizzo", "pr_installatore", "pr_q10_NA", "pr_q10_NO"], "041": ["aree_r10_1", "aree_r1_1", "aree_r2_1", "aree_r3_1", "aree_r4_1", "aree_r5_1", "aree_r6_1", "aree_r7_1", "aree_r8_1", "aree_r9_1", "bms1_KO", "bms1_OK"], "051": ["appl", "cli_ref", "ctrl", "glic_esito", "glic_pct", "glic_tipo", "m1_carica", "m1_circ", "m1_co2", "m1_fgas", "m1_imax", "m1_kit"]};
-document.getElementById("s_k").innerHTML=Object.entries(TRASF.CL).map(([k,c])=>`<option value="${k}">${c.code} - ${c.t}</option>`).join("");
+// prenotazione avviamento Utopia / Set Free: facoltativa, a discrezione del SAT prima di fissare l'appuntamento (stessi campi della check list)
+const PREN={p021:{base:"021",code:"MOD 02.1",t:"Prenotazione avviamento Utopia / Mini Set Free",pren:1},p031:{base:"031",code:"MOD 03.1",t:"Prenotazione avviamento Set Free",pren:1}};
+document.getElementById("s_k").innerHTML=`<optgroup label="Check list pre-avviamento">${Object.entries(TRASF.CL).map(([k,c])=>`<option value="${k}">${c.code} - ${c.t}</option>`).join("")}</optgroup><optgroup label="Prenotazione avviamento (facoltativa)">${Object.entries(PREN).map(([k,c])=>`<option value="${k}">${c.code} - ${c.t}</option>`).join("")}</optgroup>`;
 // ---- cartolina garanzia e informative privacy da inviare
 const DOCS={c013:{code:"MOD 01.3",t:"Cartolina garanzia Heating Solution airH2O",cart:1},c014:{code:"MOD 01.4",t:"Cartolina garanzia Yutampo e Triple C",cart:1},c024:{code:"MOD 02.4",t:"Cartolina garanzia Utopia e IVX",cart:1},c034:{code:"MOD 03.4",t:"Cartolina garanzia VRF Set Free",cart:1},c053:{code:"MOD 05.3",t:"Cartolina garanzia Samurai",cart:1},
  "091":{code:"MOD 09.1",t:"Informativa privacy per l'utente finale"},"092":{code:"MOD 09.2",t:"Informativa privacy per l'installatore",inst:1},"063":{code:"MOD 06.3",t:"Segnalazione danno da trasporto",inst:1,dt:1}};
@@ -296,19 +300,20 @@ async function sendDoc(){const k=$("#d_k").value,d=DOCS[k],p=PR.get(),mail=$("#d
   const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
   setTimeout(()=>{location.href="mailto:"+encodeURIComponent(mail)+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(txt+"\n\n(allegare il PDF appena scaricato: "+name+")")},800);$("#docp").style.display="none"}
 function openSend(){const p=PR.get();$("#s_mail").value=p.email_inst||"";$("#sendp").style.display="grid";$("#sendp").scrollIntoView({behavior:"smooth",block:"center"})}
-async function sendCL(){const k=$("#s_k").value,c=TRASF.CL[k],p=PR.get(),mail=$("#s_mail").value.trim();if(mail){p.email_inst=mail;PR.set(p)}
-  const S={};if($("#s_pre").checked)PR.pull(S,k);let bytes;
+async function sendCL(){const k=$("#s_k").value,c=TRASF.CL[k]||PREN[k],p=PR.get(),mail=$("#s_mail").value.trim();if(mail){p.email_inst=mail;PR.set(p)}
+  const S={};if($("#s_pre").checked)PR.pull(S,c.pren?c.base:k);let bytes;
   try{bytes=await PDFFILL.prefill(k,S)}catch(e){alert("Errore nella preparazione del PDF: "+e.message);return}
   const name=(c.code+" "+c.t+(p.cliente?" - "+p.cliente:"")).replace(/[^\w-]+/g,"_")+".pdf",file=new File([bytes],name,{type:"application/pdf"});
-  const sub=c.code+" "+c.t+(p.cliente?" - "+p.cliente:""),txt="Buongiorno,\nin allegato la "+c.t+" ("+c.code+")"+(p.cliente?" per l'impianto "+p.cliente+(p.citta?" - "+p.citta:""):"")+".\nVa compilata con Acrobat Reader (anche da telefono) e rimandata a questo indirizzo prima della data di avviamento.\n\nGrazie";
+  const sub=c.code+" "+c.t+(p.cliente?" - "+p.cliente:""),txt="Buongiorno,\nin allegato la "+c.t+" ("+c.code+")"+(p.cliente?" per l'impianto "+p.cliente+(p.citta?" - "+p.citta:""):"")+".\n"+(c.pren?"Per fissare l'appuntamento del primo avviamento La preghiamo di compilarla con Acrobat Reader (anche da telefono), indicando la data richiesta e il referente di cantiere, e di rimandarla a questo indirizzo.":"Va compilata con Acrobat Reader (anche da telefono) e rimandata a questo indirizzo prima della data di avviamento.")+"\n\nGrazie";
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:sub,text:txt});$("#sendp").style.display="none";return}}catch(e){if(e.name==="AbortError")return}
   const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
   setTimeout(()=>{location.href="mailto:"+encodeURIComponent(mail)+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(txt+"\n\n(allegare il PDF appena scaricato: "+name+")")},800);$("#sendp").style.display="none"}
 async function loadCL(inp){const f=inp.files[0];inp.value="";if(!f)return;try{const u=new Uint8Array(await f.arrayBuffer()),F=await PDFFILL.readFields(u),names=Object.keys(F);
   let best=null,bs=0;for(const k in CLSIG){const sc=CLSIG[k].filter(n=>n in F).length;if(sc>bs){bs=sc;best=k}}
-  if(!best||bs<2){alert("Il PDF non sembra una check list Hitachi compilabile (01.1, 02.1, 03.1, 04.1, 05.1). Usare il PDF originale inviato all'installatore.");return}
+  let dat=null;if(!best||bs<2){dat=await PDFFILL.readData(u);if(dat){best=Object.keys(TRASF.CL).find(k=>TRASF.CL[k].code===dat.code)||null}}
+  if(!best||(bs<2&&!dat)){alert("Il PDF non sembra una check list Hitachi (01.1, 02.1, 03.1, 04.1, 05.1): usare il PDF compilabile inviato all'installatore oppure il PDF generato dalla check list nell'app.");return}
   let b="";for(let i=0;i<u.length;i+=8192)b+=String.fromCharCode.apply(null,u.subarray(i,i+8192));
-  try{sessionStorage.setItem("cl_import",JSON.stringify({k:best,n:f.name,b:btoa(b)}))}catch(e){alert("PDF troppo grande da passare al modulo: aprirlo dalla check list "+TRASF.CL[best].code+" con Importa.");location.href=TRASF.CL[best].page;return}
+  try{sessionStorage.setItem("cl_import",JSON.stringify({k:best,n:f.name,b:btoa(b),s:dat&&dat.s||null}))}catch(e){alert("PDF troppo grande da passare al modulo: aprirlo dalla check list "+TRASF.CL[best].code+" con Importa.");location.href=TRASF.CL[best].page;return}
   location.href=TRASF.CL[best].page+"?import=1"}catch(e){console.error(e);alert("Impossibile leggere il PDF: "+e.message)}}
 // pratica ricevuta dal collega: dal link (#d=...) oppure incollando il link nell'app
 async function importPayload(code,fromLink){let o;try{o=await TRASF.unpack(code)}catch(e){alert("Link della pratica non valido o incompleto: copiare tutto il link dalla mail.");return}

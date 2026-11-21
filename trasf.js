@@ -3,8 +3,8 @@
 // su GitHub non arriva nulla.
 (function(){
 var CL={"011":{code:"MOD 01.1",t:"Check list pre-avviamento Yutaki airH2O",page:"cl-01-1-yutaki.html",verb:"mod-01-2-yutaki.html",vt:"MOD 01.2 - Primo avviamento Yutaki"},
- "021":{code:"MOD 02.1",t:"Prenotazione avviamento Utopia / Mini Set Free",page:"cl-02-1-utopia.html",verb:"mod-02-ut.html?modulo=ut",vt:"MOD 02.2 / 02.3 - Avviamento Utopia / Mini Set Free"},
- "031":{code:"MOD 03.1",t:"Prenotazione avviamento Set Free",page:"cl-03-1-set-free.html",verb:"mod-03-3-avviamento-set-free.html",vt:"MOD 03.3 - Avviamento VRF Set Free"},
+ "021":{code:"MOD 02.1",t:"Check list pre-avviamento Utopia / Mini Set Free",page:"cl-02-1-utopia.html",verb:"mod-02-ut.html?modulo=ut",vt:"MOD 02.2 / 02.3 - Avviamento Utopia / Mini Set Free"},
+ "031":{code:"MOD 03.1",t:"Check list pre-avviamento VRF Set Free",page:"cl-03-1-set-free.html",verb:"mod-03-3-avviamento-set-free.html",vt:"MOD 03.3 - Avviamento VRF Set Free"},
  "041":{code:"MOD 04.1",t:"Pre-avviamento CSNET",page:"cl-04-1-csnet.html",verb:"",vt:""},
  "051":{code:"MOD 05.1",t:"Check list pre-avviamento chiller Samurai",page:"cl-05-1-samurai.html",verb:"mod-05-2-avviamento-samurai.html",vt:"MOD 05.2 - Avviamento chiller Samurai"}};
 function fkey(k){return "form_"+CL[k].code.replace(/\W/g,"")+"_v1"}

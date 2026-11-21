@@ -138,6 +138,7 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
       try{var jd=PDFK.make(box,{title:o.title,code:o.code,cliente:o.cliente,noEnc:true});var ex=await L.PDFDocument.load(jd.output("arraybuffer"));(await out.copyPages(ex,ex.getPageIndices())).forEach(function(pg){out.addPage(pg)})}finally{window.FOTO=FO;box.remove()}}
     if(o.mode!=="cart"&&!o.noPhoto&&FO&&FO.count()>Object.keys(FPL).length&&window.jspdf){var jp=new window.jspdf.jsPDF({unit:"mm",format:"a4",compress:true});FO.addPages(jp,FPL);jp.deletePage(1);var ph=await L.PDFDocument.load(jp.output("arraybuffer"));(await out.copyPages(ph,ph.getPageIndices())).forEach(function(pg){out.addPage(pg)})}}
   if(car.length){(await out.copyPages(pdf,car)).forEach(function(pg){out.addPage(pg)})}
+  if(o.mode!=="cart"&&/^MOD 0[1-5]\.1$/.test(o.code||"")&&o.values){try{var dv={};Object.keys(o.values).forEach(function(k){var v=o.values[k];if(v!==""&&v!=null&&typeof v!=="function")dv[k]=v});out.getInfoDict().set(N("BHCData"),L.PDFHexString.fromText(JSON.stringify({v:1,code:o.code,s:dv})))}catch(e){console.warn(e)}}
   out.setTitle((o.mode==="cart"?"Cartolina garanzia - ":"")+o.code+" - "+o.title+(o.cliente?" - "+o.cliente:""));out.setAuthor("Bosch Home Comfort Cooling and Heating SAS");out.setCreator("Hitachi Cooling & Heating - app Moduli Service");
   return out.save()}
 async function share(o){if(o.mode!=="cart"&&window.FOTO&&FOTO.check&&!FOTO.check())return;var bytes;try{bytes=await make(o)}catch(e){console.error(e);alert("Errore nella generazione del PDF: "+e.message);return}
@@ -154,6 +155,8 @@ async function prefill(key,values){var meta=await ensure(key),L=PDFLib;var pdf=a
     try{if(f instanceof L.PDFTextField)f.setText(PT(iso(String(v))));else if(f instanceof L.PDFCheckBox){if(v&&v!=="Off")f.check()}else if(f instanceof L.PDFDropdown){v=PT(String(v));if(f.getOptions().indexOf(v)<0)f.addOptions([v]);f.select(v)}}catch(e){}});
   return pdf.save({updateFieldAppearances:true})}
 // lettura dei campi di un PDF compilato
+// dati della check list compilata nell'app (salvati nel PDF generato): {code, s}
+async function readData(bytes){await ensure0();try{var L=PDFLib,pdf=await L.PDFDocument.load(bytes,{ignoreEncryption:true,updateMetadata:false}),v=pdf.getInfoDict().lookup(L.PDFName.of("BHCData"));if(!v)return null;var o=JSON.parse(v.decodeText());return o&&o.s?o:null}catch(e){console.warn(e);return null}}
 async function readFields(bytes){await ensure0();var L=PDFLib,pdf=await L.PDFDocument.load(bytes,{ignoreEncryption:true}),out={};
   pdf.getForm().getFields().forEach(function(fl){var n=fl.getName(),v;try{if(fl instanceof L.PDFTextField)v=fl.getText()||"";else if(fl instanceof L.PDFDropdown||fl instanceof L.PDFOptionList)v=(fl.getSelected()||[])[0]||"";else if(fl instanceof L.PDFCheckBox)v=fl.isChecked()?"Yes":"Off";else if(fl instanceof L.PDFRadioGroup)v=fl.getSelected()||"";else return}catch(e){return}out[n]=v});return out}
 async function ensure0(){if(!window.PDFLib)await loadScript("lib/pdf-lib.min.js","libreria PDF mancante (lib/pdf-lib.min.js)")}
@@ -161,5 +164,5 @@ window.pdfCli=function(f){window.PDFFILL_COPY="cli";var r;try{r=f()}catch(e){win
 window.pdfInst=function(f){window.PDFFILL_COPY="inst";var r;try{r=f()}catch(e){window.PDFFILL_COPY="";throw e}return Promise.resolve(r).finally(function(){window.PDFFILL_COPY=""})};
 window.PDFFILL_COPYR=COPYR;window.PDFFILL_COPYK=COPYK;
 window.pdfBHC=function(f){window.PDFFILL_BHC=1;var r;try{r=f()}catch(e){window.PDFFILL_BHC=0;throw e}return Promise.resolve(r).finally(function(){window.PDFFILL_BHC=0})};
-window.PDFFILL={make:make,share:share,shareBytes:shareBytes,merge:merge,tpl:ensure,b64:b64,prefill:prefill,readFields:readFields};
+window.PDFFILL={make:make,share:share,shareBytes:shareBytes,merge:merge,tpl:ensure,b64:b64,prefill:prefill,readFields:readFields,readData:readData};
 })();

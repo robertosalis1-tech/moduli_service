@@ -19,11 +19,15 @@ var MAP={
  "062":{cmp_sat:"sat",cmp_tecnico:"tecnico",cmp_tel:"sat_tel",cmp_email:"sat_email",cmp_mod_ue:"mod_ue",cmp_ser_ue:"ser_ue",cmp_ser_comp:"ser_comp",cmp_codice_ricambio:"comp_cod",cmp_codice_errore:"comp_err",cmp_n_intervento:"n_intervento"}};
 function get(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}}}
 function set(p){try{localStorage.setItem(KEY,JSON.stringify(p))}catch(e){}}
+var IOK={Input_1:1,Input_2:1,Input_3:1,Input_4:1,Input_5:1,Input_6:1,Input_7:1,Output_1:1,Output_2:1,Output_3:1,Output_4:1,Output_9:1};
 var REFR=["R32","R410A","R290","R407C","R134a"];
 window.PR={get:get,set:set,
  // all'apertura: riempie i campi vuoti del modulo con i dati della pratica
- pull:function(S,m){var p=get(),M=MAP[m];if(!M)return;for(var k in M){var v=p[M[k]];if(v&&!S[k]){if(M[k]==="refrigerante"&&REFR.indexOf(v)<0)continue;S[k]=v}}},
+ pull:function(S,m){var p=get(),M=MAP[m];if(!M)return;
+  if((m==="011"||m==="yu")&&p.imp){for(var a in p.imp){var t=a;if(m==="yu"&&/^imp_io_/.test(a)){t=a.slice(7);if(S[t]&&S[t]!=="Disabilitato")continue;S[t]=p.imp[a];continue}if(m==="yu"&&/^imp_io_/.test(a))continue;if(S[t]===undefined||S[t]==="")S[t]=p.imp[a]}}for(var k in M){var v=p[M[k]];if(v&&!S[k]){if(M[k]==="refrigerante"&&REFR.indexOf(v)<0)continue;S[k]=v}}},
  // a ogni salvataggio: aggiorna la pratica con i campi compilati
- push:function(S,m){var p=get(),M=MAP[m],ch=false;if(!M)return;if(m==="011"&&S.cli_nome){var cc=(S.cli_nome+" "+(S.cli_cognome||"")).trim();if(p.cliente!==cc){p.cliente=cc;ch=true}}for(var k in M){var v=S[k];if(v&&typeof v==="string"&&p[M[k]]!==v){p[M[k]]=v;ch=true}}if(ch){p._agg=new Date().toISOString();p._da=m;set(p)}}};
+ push:function(S,m){var p=get(),M=MAP[m],ch=false;if(!M)return;
+  // configurazione impianto Yutaki (check list 01.1 / verbale 01.2): passa al verbale del tecnico
+  if(m==="011"||m==="yu"){var im={},n=0;for(var a in S){if(/^imp_/.test(a)&&typeof S[a]==="string"&&S[a]){im[a]=S[a];n++}}if(m==="yu")for(var b in IOK)if(S[b]&&S[b]!=="Disabilitato"){im["imp_io_"+b]=S[b];n++}if(n&&JSON.stringify(im)!==JSON.stringify(p.imp||{})){p.imp=im;ch=true}}if(m==="011"&&S.cli_nome){var cc=(S.cli_nome+" "+(S.cli_cognome||"")).trim();if(p.cliente!==cc){p.cliente=cc;ch=true}}for(var k in M){var v=S[k];if(v&&typeof v==="string"&&p[M[k]]!==v){p[M[k]]=v;ch=true}}if(ch){p._agg=new Date().toISOString();p._da=m;set(p)}}};
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(function(){});
 })();
