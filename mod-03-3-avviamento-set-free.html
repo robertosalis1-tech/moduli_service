@@ -81,6 +81,7 @@ td.na input{background:var(--na);border-color:var(--na)}
 .esito{padding:12px 14px;border-radius:10px;font-weight:700;font-size:16px}
 .esito.ok{background:var(--okbg);color:var(--ok)}.esito.warn{background:var(--warnbg);color:var(--warn)}.esito.ko{background:var(--kobg);color:var(--ko)}.esito.none{background:var(--na);color:var(--mut)}
 .esito ul{margin:6px 0 0;padding-left:18px;font-weight:500;font-size:14px}
+.ubar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;background:#fff4c2;border:2px solid #e0a800;border-radius:10px;padding:8px 12px;margin:0 0 12px;font-size:15px;color:#5a3d00}
 .pill{display:inline-block;border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;background:var(--na);color:var(--mut)}
 .pill.ok{background:var(--okbg);color:var(--ok)}.pill.warn{background:var(--warnbg);color:var(--warn)}.pill.ko{background:var(--kobg);color:var(--ko)}
 .sig{border:1px dashed #9aa6b8;border-radius:10px;background:#fff;touch-action:none;width:100%;height:140px;display:block}
@@ -257,8 +258,8 @@ async function officialPDF(only){var s;
   var pdf=await L.PDFDocument.load(tpl);var form=pdf.getForm();
   // riepilogo del PDF: una riga per modulo con il suo indirizzo
   C.v_uitot=S.v_ui_dich_tot||"";
-  var PT=PDFK.PT,DT=new Set(SPEC.dates),rm=[];
-  form.getFields().forEach(function(fl){var n=fl.getName(),v=C[n]!=null&&C[n]!==""?C[n]:S[n];
+  var PT=PDFK.PT,DT=new Set(SPEC.dates),rm=[],CPK=window.PDFFILL_BHC||only==="cart"?"":(window.PDFFILL_COPY||"cli"),CPR=CPK&&window.PDFFILL_COPYR?PDFFILL_COPYR["033"][CPK]:null;
+  form.getFields().forEach(function(fl){var n=fl.getName(),v=C[n]!=null&&C[n]!==""?C[n]:S[n];if(CPR&&CPR.re.test(n)&&!PDFFILL_COPYK.test(n))v="";
     try{if(DISP[n]===1){rm.push(fl);return}
       if(fl instanceof L.PDFTextField){if(sig[n]!==undefined||/firma$/i.test(n)&&!/(nome|data)$/i.test(n))return;if(v!=null&&v!==""){v=String(v);if(DT.has(n)||/^\d{4}-\d\d-\d\d$/.test(v))v=iso2it(v);fl.setText(PT(v))}}
       else if(fl instanceof L.PDFCheckBox){if(v&&v!=="Off")fl.check();else fl.uncheck()}
@@ -274,10 +275,15 @@ async function officialPDF(only){var s;
   pdf.getPages().forEach(function(pg){var N=L.PDFName.of,an=pg.node.lookup(N("Annots"));if(!(an instanceof L.PDFArray))return;var keep=[];for(var i=0;i<an.size();i++){var r=an.get(i);if(!(r instanceof L.PDFRef)||pdf.context.lookup(r))keep.push(r)}if(keep.length)pg.node.set(N("Annots"),pdf.context.obj(keep));else pg.node.delete(N("Annots"))});
   try{pdf.catalog.delete(L.PDFName.of("OpenAction"));var nm=pdf.catalog.lookup(L.PDFName.of("Names"));if(nm)nm.delete(L.PDFName.of("JavaScript"))}catch(e){}
   var N=pdf.getPageCount(),CART=22,hb=await pdf.embedFont(L.StandardFonts.HelveticaBold);
-  if(only==="cart"){var out=await L.PDFDocument.create(),cp=await out.copyPages(pdf,Array.from({length:N-CART},function(_,i){return CART+i}));cp.forEach(function(p){out.addPage(p)});return finish(out,base()+"_cartolina")}
+  if(only==="cart"){var out=await L.PDFDocument.create(),cp=await out.copyPages(pdf,Array.from({length:N-CART},function(_,i){return CART+i}));cp.forEach(function(p){out.addPage(p)});
+    var ph=window.SCHEMA&&SCHEMA.plant?SCHEMA.plant():"";if(ph){var bx=document.createElement("div");bx.style.display="none";bx.innerHTML=ph;document.body.appendChild(bx);var jx=PDFK.make(bx,{title:"Cartolina garanzia - impianto",code:"MOD 03.4",cliente:S.v_cliente,noEnc:true});bx.remove();var exx=await L.PDFDocument.load(jx.output("arraybuffer"),{ignoreEncryption:true});(await out.copyPages(exx,exx.getPageIndices())).forEach(function(p){out.addPage(p)})}
+    return finish(out,base()+"_cartolina")}
   // copia per Bosch / SAT: senza l'informativa cliente (consensi e firme restano nella pagina Esito e firme)
   if(window.PDFFILL_BHC){pdf.removePage(18);CART-=1}
   // pagine dei sistemi non presenti tolte
+  var NS=0;for(s=1;s<=8;s++)if(present(s))NS++;
+  if(NS>1){var PG0=pdf.getPages();for(s=1;s<=8;s++){if(!present(s))continue;var ub="VERBALE SISTEMA "+s+" DI "+NS+(S["s"+s+"_nome"]?"  ·  "+S["s"+s+"_nome"]:"")+(S.v_cliente?"  ·  "+S.v_cliente:"");
+    [2+2*(s-1),3+2*(s-1)].forEach(function(pi){var pg=PG0[pi],w=pg.getSize().width,h=pg.getSize().height,tw=hb.widthOfTextAtSize(ub,8.5);pg.drawRectangle({x:0,y:h-14,width:w,height:14,color:L.rgb(1,0.957,0.761)});pg.drawRectangle({x:0,y:h-14.6,width:w,height:0.8,color:L.rgb(0.878,0.659,0)});pg.drawText(ub,{x:(w-tw)/2,y:h-10.2,size:8.5,font:hb,color:L.rgb(0.35,0.24,0)})})}}
   for(s=8;s>=1;s--)if(!present(s)){pdf.removePage(3+2*(s-1));pdf.removePage(2+2*(s-1));CART-=2}
   // allegato unità / indirizzi e foto (prima della cartolina)
   var box=document.createElement("div");box.style.display="none";box.innerHTML=extraHTML()+(window.SCHEMA&&SCHEMA.cfg?await SCHEMA.extra("Schema elettrico di alimentazione e bus"):"");document.body.appendChild(box);
@@ -285,7 +291,9 @@ async function officialPDF(only){var s;
   var ex=await L.PDFDocument.load(jd.output("arraybuffer"),{ignoreEncryption:true}),ep=await pdf.copyPages(ex,ex.getPageIndices());
   ep.forEach(function(p,i){pdf.insertPage(CART+i,p)});
   // numerazione delle pagine del verbale dopo aver tolto i sistemi non presenti
-  var PGS=pdf.getPages();for(var pi=0;pi<CART;pi++){var pg=PGS[pi],tx="Pagina "+(pi+1)+" di "+CART,tw=hb.widthOfTextAtSize(tx,7.5);pg.drawRectangle({x:480,y:23,width:84,height:13,color:L.rgb(1,1,1)});pg.drawText(tx,{x:559.6-tw,y:27.2,size:7.5,font:hb,color:L.rgb(0x1f/255,0x2b/255,0x45/255)})}
+  var PGS=pdf.getPages(),STX=CPK==="inst"?"COPIA PER L'INSTALLATORE - parametri di configurazione e del Service Tool riservati ai SAT autorizzati BHC, disponibili tramite il Servizio Assistenza":"COPIA PER IL CLIENTE - non contiene impostazioni tecniche riservate: parametri registrati dal SAT autorizzato BHC e disponibili su richiesta tramite il Servizio Assistenza";
+  if(CPR)PGS.forEach(function(pg){var w=pg.getSize().width;pg.drawRectangle({x:20,y:1.5,width:w-40,height:9,color:L.rgb(1,1,1)});pg.drawText(STX,{x:(w-hb.widthOfTextAtSize(STX,6.3))/2,y:3.6,size:6.3,font:hb,color:L.rgb(0.75,0.1,0.1)})});
+  for(var pi=0;pi<CART;pi++){var pg=PGS[pi],tx="Pagina "+(pi+1)+" di "+CART,tw=hb.widthOfTextAtSize(tx,7.5);pg.drawRectangle({x:480,y:23,width:84,height:13,color:L.rgb(1,1,1)});pg.drawText(tx,{x:559.6-tw,y:27.2,size:7.5,font:hb,color:L.rgb(0x1f/255,0x2b/255,0x45/255)})}
   return finish(pdf,base())}
 async function finish(doc,name){doc.setTitle("MOD 03.3 - Verbale avviamento Set Free"+(S.v_cliente?" - "+S.v_cliente:""));doc.setAuthor("Bosch Home Comfort Cooling and Heating SAS");
   var bytes=await doc.save(),fn=name.replace(/[^\w-]+/g,"_")+".pdf",blob=new Blob([bytes],{type:"application/pdf"}),file=new File([blob],fn,{type:"application/pdf"});
@@ -328,12 +336,82 @@ EXT.items=Object.assign({cartbtn:{html:function(){return '<div class="cta" style
 const SCH_HEAD="H-LINK: doppino ritorto schermato 2 x 0,75 mm² a 2 poli, non polarizzato, 5 V CC · collegamento in serie (entra / esce sugli stessi morsetti), non a stella · schermo a terra da un solo lato";
 const SCH_UI_LINE=(n,note)=>({src:"~ 230 V 50 Hz",dst:"Unità interne"+(n>1?" ("+n+", ciascuna o per gruppi)":""),mod:"vedere manuale U.I.",tl:["L","N","⏚"],note:note||"Alimentazione delle U.I. separata da quella dell'unità esterna, con ELB / CB propri (valori dal manuale dell'unità interna).",elb:"2 poli"});
 function schGroup(rows,mk){const g={};rows.forEach(r=>{if(!r.m)return;const k=SCHEMA.clean(r.m);(g[k]=g[k]||{m:r.m,lab:[]}).lab.push(r.lab)});return Object.values(g).map(x=>mk(x.m,x.lab))}
-function schCfg(){const ns=Math.max(1,+S.v_nsis||1),rows=[],groups=[];let tot=0;
+// linea H-LINK unica entra / esce: prima tutte le U.E., poi tutte le U.I., poi eventuali controlli / interfacce
+function schChain(title,ue,ui,tail,note){const tot=ui.reduce((a,x)=>a+x.length,0),cap=tot>21&&!ui.some(a=>a.some(n=>n.ctl||n.grp)),uin=[];
+  ui.forEach((arr,i)=>{if(cap&&arr.length>3)uin.push(arr[0],arr[1],{t:"… + "+(arr.length-2)+" U.I.",s:ui.length>1?"sistema "+(i+1):"",tb:"",dots:1});else arr.forEach(x=>uin.push(x))});
+  return {title,chain:1,nodes:ue.concat(uin,tail||[]),note:note||""}}
+// ---- comandi a filo (A-B) e controlli centralizzati (VRF / Utopia / Mini Set Free)
+const SCH_RCM=["","PC-ARFG-E","PC-ARFP1E","PC-ARH1E","PC-ARFH3E","PC-AWR (senza fili)","Altro"];
+const SCH_CCT=["","CSNET Manager 2","CSNET Lite","HC-A64NET","HC-A32NET","PSC-A64GT","PSC-A32MN","PSC-A64S","PSC-A16RS","HC-A8MB (Modbus)","HC-A64MB (Modbus)","HC-A16KNX","KNX001","BAC001 / BAC002 (BACnet)","PSC-5HR (relè H-LINK)","Altro"];
+function schIds(txt,known){const K=known.map(x=>String(x).toUpperCase()),out=[];String(txt||"").toUpperCase().replace(/U\.?\s*I\.?/g,"").split(/[,;\s]+/).filter(Boolean).forEach(tok=>{const m=/^(.*?)-(.*)$/.exec(tok);if(m&&K.includes(m[1])&&K.includes(m[2])){const a=K.indexOf(m[1]),b=K.indexOf(m[2]);for(let i=Math.min(a,b);i<=Math.max(a,b);i++)out.push(K[i])}else if(K.includes(tok))out.push(tok)});return out.filter((x,i)=>out.indexOf(x)===i)}
+function schCtl(ui,opt){opt=opt||{};const mode=S.sch_rc_mode||"",mod=S.sch_rc_mod||"PC-ARFG-E",all=[].concat(...ui),ids=all.map(n=>String(n.id||"").toUpperCase()),G=[],used={};
+  if(/gruppi|misto/i.test(mode)){const ng=Math.max(0,+S.sch_rc_ng||0);for(let g=1;g<=ng;g++){const m=schIds(S["sch_rc_g"+g+"_u"],ids).filter(id=>!used[id]);m.forEach(id=>used[id]=g);if(m.length)G.push({g,ids:m,mod:S["sch_rc_g"+g+"_mod"]||mod,slave:S["sch_rc_g"+g+"_sl"]==="SI"})}}
+  const ind=/ogni|misto/i.test(mode),byId={};all.forEach(n=>byId[String(n.id||"").toUpperCase()]=n);let nInd=0;
+  G.forEach(gr=>{gr.ids.forEach((id,k)=>{const n=byId[id];n.grp=gr.g;n.badge=(n.badge?n.badge+" · ":"")+"gruppo "+gr.g;if(!k){n.ctl=gr.mod+(gr.slave?" + slave":"");n.ctlTb="A-B"}})});
+  if(ind)all.forEach(n=>{if(!n.grp&&!n.dots){n.ctl=mod;n.ctlTb="A-B";nInd++}});
+  // le unità dello stesso gruppo vengono disegnate vicine
+  const ord=[];G.forEach(gr=>gr.ids.forEach(id=>ord.push(byId[id])));all.forEach(n=>{if(!n.grp)ord.push(n)});
+  const tail=[],acc=[];const nc=Math.max(0,+S.sch_cc_n||0);
+  if(opt.cc!==false)for(let r=1;r<=nc;r++){const t=S["sch_cc"+r+"_t"];if(!t)continue;const q=Math.max(1,+S["sch_cc"+r+"_q"]||1),u=S["sch_cc"+r+"_u"]||"",ip=S["sch_cc"+r+"_ip"]||"";acc.push([t,String(q),u||"-",ip||"__________ (da compilare)"]);
+    for(let k=1;k<=Math.min(q,6);k++)tail.push({t:t.replace(/\s*\(.*\)/,"").slice(0,16),s:u?("U.I. "+u).slice(0,20):"",tb:"H-LINK 1-2",c:1,badge:ip?"IP "+ip:(/CSNET|NET|GT|MN|MB|KNX|BAC/i.test(t)?"IP: ____":"")})}
+  const sum=mode?[[mode,mod,String(G.length),String(nInd),String(G.length+nInd)]]:[];
+  return {ui:ord.length===all.length?[ord]:ui,tail,groups:G,acc,addr:[].concat(mode?[{title:"Comandi locali (collegamento A-B)",head:["Gruppo","Unità interne","Comando"],rows:G.map(g=>[String(g.g),g.ids.join(", "),g.mod+(g.slave?" + slave":"")]).concat(nInd?[["singoli",nInd+" U.I. con comando proprio",mod]]:[])}]:[],acc.length?[{title:"Controlli centralizzati e accessori",head:["Dispositivo","Q.tà","Unità servite","Indirizzo IP"],rows:acc}]:[])}}
+function schCtlForm(ids,opt){opt=opt||{};const sel=(n,opts,v,st)=>`<select data-n="${n}"${st?` style="${st}"`:""}>${opts.map(o=>`<option${o===(v||"")?" selected":""}>${esc(o)}</option>`).join("")}</select>`,inp=(n,ph,st)=>`<input data-n="${n}" value="${esc(S[n]||"")}" placeholder="${esc(ph)}"${st?` style="${st}"`:""}>`;
+  const mode=S.sch_rc_mode||"",ng=Math.max(0,+S.sch_rc_ng||0),nc=Math.max(0,+S.sch_cc_n||0);
+  let h=`<h3 style="font-size:13px;margin:6px 0 4px">Comandi locali</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px"><label style="font-size:13px">Collegamento comandi${sel("sch_rc_mode",["","Un comando per ogni U.I.","A gruppi","Misto (gruppi e comandi singoli)","Nessun comando locale"],mode)}</label><label style="font-size:13px">Modello comando${sel("sch_rc_mod",SCH_RCM,S.sch_rc_mod)}</label>${/gruppi|misto/i.test(mode)?`<label style="font-size:13px">N° gruppi${sel("sch_rc_ng",Array.from({length:17},(_,k)=>k?String(k):""),S.sch_rc_ng)}</label>`:""}</div>`;
+  if(/gruppi|misto/i.test(mode)&&ng){h+=`<p class="note" style="font-size:12px;margin:6px 0 2px">Per ogni gruppo scrivere le unità interne separate da virgola, anche a intervalli (es. ${esc(ids.slice(0,2).join(", ")||"1.1, 1.2")}${ids.length>3?", "+esc(ids[2])+"-"+esc(ids[ids.length-1]):""}). Un comando gestisce fino a 16 U.I.; i gruppi possono avere un numero diverso di unità. Unità disponibili: ${esc(ids.join(" "))}</p>`;
+    for(let g=1;g<=ng;g++){const n=schIds(S["sch_rc_g"+g+"_u"],ids).length;h+=`<div style="display:grid;grid-template-columns:70px 1fr 150px 110px;gap:6px;align-items:center;margin:3px 0"><b style="font-size:12.5px">Gruppo ${g}</b>${inp("sch_rc_g"+g+"_u","U.I. del gruppo")}${sel("sch_rc_g"+g+"_mod",SCH_RCM,S["sch_rc_g"+g+"_mod"])}<span style="font-size:12px;color:${n>16?"#b91c1c":"#374151"}">${n} U.I.${n>16?" (max 16)":""} · slave ${sel("sch_rc_g"+g+"_sl",["","NO","SI"],S["sch_rc_g"+g+"_sl"],"width:56px")}</span></div>`}}
+  if(opt.cc!==false){h+=`<h3 style="font-size:13px;margin:10px 0 4px">Controlli centralizzati, interfacce e gateway (H-LINK)</h3><label style="font-size:13px;display:inline-block;min-width:200px">N° righe${sel("sch_cc_n",["","0","1","2","3","4","5","6"],S.sch_cc_n)}</label>`;
+    for(let r=1;r<=nc;r++)h+=`<div style="display:grid;grid-template-columns:1.3fr 60px 1.4fr 1fr;gap:6px;margin:4px 0">${sel("sch_cc"+r+"_t",SCH_CCT,S["sch_cc"+r+"_t"])}${inp("sch_cc"+r+"_q","q.tà")}${inp("sch_cc"+r+"_u","unità servite (es. 1.1-2.5 o tutte)")}${inp("sch_cc"+r+"_ip","indirizzo IP (se noto)")}</div>`}
+  return h}
+// ---- elenco unità interne (modello, matricola, indirizzo, locale) e ciclo frigo dei sistemi: per riepilogo e cartolina
+const schK=id=>String(id).replace(/[^0-9A-Za-z]/g,"_");
+function schUiForm(ids,sys){const inp=(n,ph,w)=>`<input data-n="${n}" value="${esc(S[n]||"")}" placeholder="${esc(ph)}" style="width:${w||"100%"}">`;
+  let h=`<h3 style="font-size:13px;margin:10px 0 4px">Elenco unità (per il riepilogo e la cartolina garanzia)</h3>`;
+  if(sys&&sys.length)h+=`<div style="display:flex;flex-wrap:wrap;gap:10px;margin:2px 0 6px">${sys.map(i=>`<label style="font-size:12.5px">Ciclo frigo sistema ${i} ${inp("sch_cyc_"+i,String(i-1),"60px")}</label>`).join("")}</div>`;
+  h+=`<div class="scroll"><table class="schT"><tr><th>U.I.</th><th>Modello</th><th>Matricola</th><th>Indirizzo (RSW)</th><th>Locale / zona</th></tr>${ids.map(id=>{const k=schK(id);return `<tr><td>${esc(id)}</td><td>${inp("sch_ui_"+k+"_mod","modello")}</td><td>${inp("sch_ui_"+k+"_sn","matricola")}</td><td>${inp("sch_ui_"+k+"_ad","ind.","70px")}</td><td>${inp("sch_ui_"+k+"_loc","locale")}</td></tr>`}).join("")}</table></div>`;
+  return h}
+function schPlant(ue,ids,ctl,sysOfId){const cyc=i=>S["sch_cyc_"+i]!=null&&S["sch_cyc_"+i]!==""?S["sch_cyc_"+i]:String(i-1);
+  return {ue:ue.map(u=>[u.lab,u.m||"-",u.sn||"-",u.cyc!=null?u.cyc:(u.sys?cyc(u.sys):"-")]),
+    ui:ids.map(id=>{const k=schK(id),sy=sysOfId?sysOfId(id):null;return ["U.I. "+id,S["sch_ui_"+k+"_mod"]||"-",S["sch_ui_"+k+"_sn"]||"-",S["sch_ui_"+k+"_ad"]||"-",sy?cyc(sy):"-",S["sch_ui_"+k+"_loc"]||""]}),
+    acc:(ctl&&ctl.acc)||[]}}
+// ---- importazione del report del software di selezione VRF Hitachi (PDF con testo): proposta da confermare
+function schRepParse(t){const T=String(t).replace(/[ \t]+/g," "),R={proj:((/Nome progetto\s*:\s*([^\n]+)/.exec(T)||[])[1]||"").trim(),sys:[]};
+  const st=[...T.matchAll(/SYS(\d+)\s*\n?\s*Condizioni di lavoro/g)];
+  st.forEach((m,k)=>{let end=k+1<st.length?st[k+1].index:T.length;const pt=T.indexOf("PROGETTO DELLE TUBAZIONI",m.index);if(pt>0&&pt<end)end=pt;const seg=T.slice(m.index,end),n=+m[1];
+    const a=seg.indexOf("Unità esterna (SYS"),b=seg.indexOf("Totale",a),ue=a>=0?[...seg.slice(a,b>a?b:a+600).matchAll(/\b(RAS[A-Z]*-[0-9.]+[A-Z0-9]*)/g)].map(x=>x[1]):[];
+    const u=seg.indexOf("Unità interne del sistema"),ui=u>=0?[...seg.slice(u).matchAll(/\b([A-Z]{2,6}-[0-9.]+[A-Z0-9]*(?:\s*\([^)]*\))?)\s+(Ind\d+)/g)].map(x=>({model:x[1].replace(/\s*\(.*\)/,""),ind:x[2]})):[];
+    const rr=new RegExp("SYS"+n+"\\s+Regole del cir\\w+ frigorifero([\\s\\S]*?)(?:Raccomandazione|SYS\\d+\\s)").exec(T),rs=rr?rr[1]:"";
+    R.sys.push({n,ue,ui,refr:((/Tipo di refrigerante:\s*(R\w+)/.exec(rs)||[])[1]||""),w0:((/Carica iniziale[^\n]*?([\d.]+)\s*\n/.exec(rs)||[])[1]||""),add:((/Carica aggiuntiva[^\n]*?([\d.]+)\s*\n/.exec(rs)||[])[1]||""),tot:((/Totale\s*([\d.]+)/.exec(rs)||[])[1]||""),len:((/Lunghezza totale\s*([\d.]+)/.exec(rs)||[])[1]||"")})});
+  // comandi locali dalla tabella di selezione (colonna Controlli)
+  const s0=T.search(/No Room|Unità interna\s+Capacità nominale/),s1=st.length?st[0].index:T.length,sel=s0>=0?T.slice(s0,s1):"",rc={};
+  [...sel.matchAll(/(Ind\d+)([\s\S]*?)(?=Ind\d+|$)/g)].forEach(x=>{const p=/\b(PC-[A-Z0-9]+(?:-[A-Z0-9]+)*)/.exec(x[2]);if(p)rc[x[1]]=p[1]});
+  R.sys.forEach(s=>s.ui.forEach(u=>u.rc=rc[u.ind]||""));R.central=+((/Numero di sistemi di controllo centrali:\s*(\d+)/.exec(T)||[])[1]||0);return R}
+function schLoadPdfjs(){return window.pdfjsLib?Promise.resolve(window.pdfjsLib):new Promise((ok,ko)=>{const s=document.createElement("script");s.src="lib/pdf.min.js";s.onload=()=>{try{pdfjsLib.GlobalWorkerOptions.workerSrc="lib/pdf.worker.min.js"}catch(e){}ok(window.pdfjsLib)};s.onerror=()=>ko(new Error("libreria PDF non disponibile"));document.head.appendChild(s)})}
+async function schImport(inp){const f=inp.files&&inp.files[0];inp.value="";if(!f)return;let txt="";
+  try{const L=await schLoadPdfjs(),doc=await L.getDocument({data:await f.arrayBuffer()}).promise;for(let i=1;i<=doc.numPages;i++){const c=await (await doc.getPage(i)).getTextContent();txt+=c.items.map(it=>it.str+(it.hasEOL?"\n":" ")).join("")+"\n"}}catch(e){alert("Impossibile leggere il PDF: "+e.message);return}
+  const R=schRepParse(txt);if(!R.sys.length){alert("Nel PDF non ho trovato i dati del software di selezione (sistemi SYS, unità esterne e interne). Sono leggibili solo i report con testo; gli skeleton disegnati vanno inseriti a mano.");return}
+  const rcs=[...new Set([].concat(...R.sys.map(s=>s.ui.map(u=>u.rc))).filter(Boolean))],ov=document.createElement("div");
+  ov.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px";
+  ov.innerHTML=`<div style="background:#fff;max-width:760px;width:100%;max-height:90vh;overflow:auto;border-radius:10px;padding:16px;font-size:13.5px"><h3 style="margin:0 0 6px">Dati letti dal report${R.proj?" - "+esc(R.proj):""}</h3><p style="margin:0 0 8px;color:#b45309"><b>Da confermare dal tecnico:</b> il report è il progetto, l'impianto installato può essere diverso. Matricole, indirizzi e cicli vanno inseriti sul posto.</p>`
+   +R.sys.map(s=>`<p style="margin:8px 0 2px"><b>Sistema ${s.n}</b>: ${esc(s.ue.join(" + ")||"U.E. ?")} · ${s.ui.length} U.I.${s.refr?" · "+esc(s.refr):""}${s.add?" · carica aggiuntiva "+esc(s.add)+" kg":""}${s.tot?" (totale "+esc(s.tot)+" kg)":""}${s.len?" · tubazioni "+esc(s.len)+" m":""}</p><p style="margin:0;color:#374151">${s.ui.map(u=>esc(u.ind+" "+u.model)).join(" · ")}</p>`).join("")
+   +`<p style="margin:8px 0">Comandi: ${rcs.length?esc(rcs.join(", "))+" (uno per U.I.)":"non indicati"} · Controlli centralizzati: ${R.central}</p><div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn" data-x="no">Annulla</button><button type="button" class="btn pri" data-x="ok">Applica al modulo</button></div></div>`;
+  document.body.appendChild(ov);ov.addEventListener("click",e=>{const b=e.target.closest("[data-x]");if(!b)return;ov.remove();if(b.dataset.x!=="ok")return;
+    try{if(window.SCH_IMP)window.SCH_IMP(R);const ml=R.sys.length>1;R.sys.forEach((s,j)=>s.ui.forEach((u,k)=>{const id=(ml?(j+1)+".":"")+(k+1);S["sch_ui_"+schK(id)+"_mod"]=u.model}));
+      if(rcs.length===1&&R.sys.every(s=>s.ui.every(u=>u.rc))){S.sch_rc_mode="Un comando per ogni U.I.";S.sch_rc_mod=SCH_RCM.includes(rcs[0])?rcs[0]:"Altro"}
+      S.sch_imp=(R.proj||"report")+" - importato il "+new Date().toLocaleDateString("it-IT")+" (da confermare)";if(typeof save==="function")save();if(typeof rerender==="function")rerender();else if(typeof renderAll==="function")renderAll()}catch(e){alert("Errore: "+e.message)}})}
+function schImpBtn(){return `<div style="margin:0 0 8px"><label class="btn" style="display:inline-block;cursor:pointer">Carica report del software di selezione (PDF)<input type="file" accept="application/pdf,.pdf" style="display:none" onchange="schImport(this)"></label>${S.sch_imp?`<span style="font-size:12px;color:#b45309;margin-left:8px">${esc(S.sch_imp)}</span>`:""}</div>`}
+function schCfg(){const ns=Math.max(1,+S.v_nsis||1),rows=[],UEn=[],UIn=[];let tot=0,multi=0;
   for(let s=1;s<=ns;s++){const nm=Math.max(1,+S["s"+s+"_nmod"]||1),mods=[];for(let j=1;j<=nm;j++){const m=S["s"+s+"_m"+j+"_mod"];if(m)mods.push({lab:"S"+s+" od0"+j,m})}
     const n=Math.max(0,parseInt(S["s"+s+"_ui_dich"])||0);tot+=n;mods.forEach(x=>rows.push(x));
-    if(mods.length)groups.push({title:"Sistema "+s,nodes:mods.map((x,j)=>({t:"od0"+(j+1),s:x.m,tb:"TB2 1-2"+(mods.length>1?" · 3-4":""),ue:1})).concat(Array.from({length:Math.max(1,n)},(_,k)=>({t:"U.I. "+(k+1),s:S["s"+s+"_ui"+(k+1)+"_mod"]||"",tb:"TB 1-2"}))),note:mods.length>1?"Moduli dello stesso ciclo collegati tra loro su TB2 3-4; verso le U.I. su TB2 1-2":""})}
+    if(mods.length){if(mods.length>1)multi=1;mods.forEach((x,j)=>UEn.push({t:(ns>1?"S"+s+" ":"")+"od0"+(j+1),s:x.m,tb:"TB2 1-2"+(mods.length>1?" · 3-4":""),ue:1}));UIn.push(Array.from({length:Math.max(1,n)},(_,k)=>({t:"U.I. "+(ns>1?s+".":"")+(k+1),id:(ns>1?s+".":"")+(k+1),s:S["s"+s+"_ui"+(k+1)+"_mod"]||"",tb:"TB 1-2"})))}}
+  const ids=[].concat(...UIn).map(n=>n.id),ctl=schCtl(UIn);
+  const groups=UEn.length?[schChain("Linea H-LINK entra / esce",UEn,ctl.ui,ctl.tail,"Prima tutte le unità esterne, poi tutte le unità interne"+(multi?" · moduli dello stesso ciclo collegati tra loro su TB2 3-4, verso le U.I. su TB2 1-2":""))]:[];
   const table=rows.map(r=>SCHEMA.ueRow(r.lab,r.m)),lines=schGroup(rows,(m,lab)=>SCHEMA.ueLine(m,lab.length>1?lab.join(", ")+" (ciascuno)":lab[0],{note:"Ogni modulo ha la propria linea con ELB / CB"}));if(rows.length)lines.push(SCH_UI_LINE(tot));
-  return {intro:"Schema indicativo ricavato dai moduli e dalle U.I. inseriti: lo schema definitivo è quello del manuale di installazione.",table,lines,bus:{head:SCH_HEAD,groups},tips:["Air365 Max Pro: tra parentesi la corrente massima con modalità di riscaldamento alta. Cavi di potenza e di trasmissione in canaline separate (almeno 5 cm)."]}}
+  const sysL=[];for(let s=1;s<=ns;s++)if(S["s"+s+"_m1_mod"])sysL.push(s);const ueP=[];sysL.forEach(s=>{const nm=Math.max(1,+S["s"+s+"_nmod"]||1);for(let j=1;j<=nm;j++)if(S["s"+s+"_m"+j+"_mod"])ueP.push({lab:(ns>1?"S"+s+" ":"")+"od0"+j,m:S["s"+s+"_m"+j+"_mod"],sn:S["s"+s+"_m"+j+"_sn"]||"",sys:s})});
+  const plant=schPlant(ueP,ids,ctl,id=>ns>1?parseInt(id):1);
+  window.SCH_IMP=R=>{S.v_nsis=String(Math.min(8,R.sys.length));R.sys.slice(0,8).forEach((x,j)=>{const s=j+1;S["s"+s+"_nmod"]=String(Math.max(1,x.ue.length));x.ue.forEach((m,k)=>S["s"+s+"_m"+(k+1)+"_mod"]=m);S["s"+s+"_ui_dich"]=String(x.ui.length)})};
+  return {form:schImpBtn()+(UEn.length?schCtlForm(ids)+schUiForm(ids,sysL):""),ctl,plant,addr:ctl.addr,intro:"Schema indicativo ricavato dai moduli e dalle U.I. inseriti: lo schema definitivo è quello del manuale di installazione.",table,lines,bus:{head:SCH_HEAD,groups},tips:["Air365 Max Pro: tra parentesi la corrente massima con modalità di riscaldamento alta. Cavi di potenza e di trasmissione in canaline separate (almeno 5 cm)."]}}
 
 EXT.items.schema={html:function(){return window.SCHEMA?'<section class="card"><h2>Schema elettrico di alimentazione e bus</h2><div class="body">'+SCHEMA.card()+'</div></section>':""},pdf:function(){return ""}};if(window.SCHEMA)SCHEMA.mount(schCfg);
 
@@ -426,7 +504,7 @@ function itemH(it){if(it.ifchk&&S[it.ifchk]!=="Yes")return"";if(it.ifnotchk&&S[i
     const TH=[];it.cols.forEach((c,ci)=>{if(!vis[ci])return;const L=TH[TH.length-1];if(L&&L.c===c&&c&&L.last===ci-1){L.n++;L.last=ci}else TH.push({c,n:1,last:ci})});
     return `<div class="scroll" style="margin:8px 0"><table class="ftab"><tr><th></th>${TH.map(h=>`<th${h.n>1?` colspan="${h.n}" style="text-align:center"`:""}>${esc(h.c)}</th>`).join("")}</tr>${R.map(r=>`<tr><td class="rl">${esc(r.l)}</td>${r.f.map((f,ci)=>vis[ci]?`<td>${!f||hid(f)?"":inputH(f,true,it.cols[ci]+" "+r.l)}</td>`:"").join("")}</tr>`).join("")}</table></div>`}
   return ""}
-function pageH(pg){const pc=pageCover(pg.i);if(pc)return `<div class="covmsg">${esc(pc.msg.trim())}</div>`;
+function pageH(pg){const pc=pageCover(pg.i);if(pc)return `<div class="covmsg">${esc(pc.msg.trim())}</div>`;const sysN=+S.v_nsis||1,sysK=pg.i>=2&&pg.i<=17?Math.floor((pg.i-2)/2)+1:0;if(sysK&&sysN>1&&!pg._ub){pg._ub=1;try{return `<div class="ubar"><b>Verbale sistema ${sysK} di ${sysN}</b><span>${esc(S["s"+sysK+"_nome"]||"")}${(pg.i-2)%2?" · parte 2":""}</span></div>`+pageH(pg)}finally{pg._ub=0}}
   let h="",open=false,body="",chg=false;const flush=()=>{if(chg)body+=CHGNOTE;if(open||body.trim())h+=`<section class="card">${open?`<h2>${esc(open)}</h2>`:""}<div class="body">${body}</div></section>`;body="";chg=false};
   let skip=false;pg.items.forEach(it=>{if(it.k==="sec"){flush();skip=it.cp!=null&&!!pageCover(it.cp);open=skip?false:it.t}else if(!skip&&!locHide(it)){const x=itemH(it);if(x){body+=x+LOCNOTE(it);if(isChg(it))chg=true}}});flush();return h}
 const CHGNOTE=`<div class="tip" style="background:#fff4e0;border-color:#f0b45a;color:#7a3b00">⚠ &nbsp;<b>Calcolo della carica indicativo:</b> i conti sono approssimativi e l'unico riferimento certo è il manuale di installazione dell'unità. In caso di dubbio contattare il Service Hitachi.</div>`;
@@ -441,7 +519,7 @@ const pageTitle=pg=>{if(pg.title)return pg.title;const good=x=>x&&x.length>=6&&/
 const VP=()=>SPEC.pages.map((pg,i)=>i).filter(i=>!pageCover(SPEC.pages[i].i));
 function renderAll(){runCalc();const V=VP();if(!V.includes(tab))tab=V.filter(i=>i<tab).pop()??V[0];const k=V.indexOf(tab),pv=V[k-1],nx=V[k+1];
   $("#nav").innerHTML=V.map(i=>`<button class="${i===tab?"on":""}" onclick="go(${i})">${esc(pageTitle(SPEC.pages[i]))}</button>`).join("");
-  $("#main").innerHTML=(tab===0&&IMPORT_HINT?`<div class="imp">${IMPORT_HINT}</div>`:"")+pageH(SPEC.pages[tab])+`<div class="navb">${pv!=null?`<button class="btn" onclick="go(${pv})">← Indietro</button>`:"<span></span>"}${nx!=null?`<button class="btn pri" onclick="go(${nx})">Avanti →</button>`:`<span style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" onclick="doPDF()">PDF per il cliente</button><button class="btn pri" onclick="pdfBHC(()=>doPDF())">PDF per Bosch / SAT</button></span>`}</div>`;
+  $("#main").innerHTML=(tab===0&&IMPORT_HINT?`<div class="imp">${IMPORT_HINT}</div>`:"")+pageH(SPEC.pages[tab])+`<div class="navb">${pv!=null?`<button class="btn" onclick="go(${pv})">← Indietro</button>`:"<span></span>"}${nx!=null?`<button class="btn pri" onclick="go(${nx})">Avanti →</button>`:`<span style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" onclick="pdfCli(()=>doPDF())">PDF per il cliente</button><button class="btn" onclick="pdfInst(()=>doPDF())">PDF per l'installatore</button><button class="btn pri" onclick="pdfBHC(()=>doPDF())">PDF per Bosch / SAT</button></span>`}</div>`;
   initSig()}
 function soft(){runCalc();
   document.querySelectorAll("[data-n]").forEach(e=>{const n=e.dataset.n;if(e===document.activeElement)return;if(e.type==="checkbox")e.checked=!!(S[n]&&S[n]!=="Off");else if((S[n]??"")!==e.value&&e.tagName!=="SELECT")e.value=S[n]??""});
@@ -489,7 +567,7 @@ async function importPDF(file){try{await loadPdfLib();const pdf=await PDFLib.PDF
   save();renderAll();toast(n+" campi importati dal PDF: controllare e completare in cantiere")}catch(e){console.error(e);alert("Impossibile leggere il PDF: "+e.message)}}
 // ---------- PDF
 const TPLKEY="033";
-function doPDF(only){if(EXT.pdf){if(only!=="cart"&&window.FOTO&&FOTO.check&&!FOTO.check())return Promise.resolve();const FO=window.FOTO;if(only==="cart")window.FOTO=null;return EXT.pdf(only).finally(()=>{window.FOTO=FO})}if(TPLKEY&&window.PDFFILL){runCalc();const cc=only==="cart";return (window.SCHEMA&&SCHEMA.cfg&&!cc?SCHEMA.extra("Allegato - schema elettrico di alimentazione e bus"):Promise.resolve("")).then(xh=>PDFFILL.share({key:TPLKEY,values:Object.assign({},C,S),sig:sig,mode:cc?"cart":"full",title:SPEC.title,code:SPEC.code,cliente:S.cliente||S.v_cliente||S.ragione_sociale||"",name:base()+(cc?"_cartolina":""),extraHTML:xh||undefined}))}runCalc();let h=`<h1>${esc(only==="cart"?"Cartolina garanzia":SPEC.title)}</h1>`;
+function doPDF(only){if(EXT.pdf){if(only!=="cart"&&window.FOTO&&FOTO.check&&!FOTO.check())return Promise.resolve();const FO=window.FOTO;if(only==="cart")window.FOTO=null;return EXT.pdf(only).finally(()=>{window.FOTO=FO})}if(TPLKEY&&window.PDFFILL){runCalc();const cc=only==="cart";return (window.SCHEMA&&SCHEMA.cfg?(cc?Promise.resolve(SCHEMA.plant()):SCHEMA.extra("Allegato - schema elettrico di alimentazione e bus")):Promise.resolve("")).then(xh=>PDFFILL.share({key:TPLKEY,values:Object.assign({},C,S),sig:sig,mode:cc?"cart":"full",title:SPEC.title,code:SPEC.code,cliente:S.cliente||S.v_cliente||S.ragione_sociale||"",name:base()+(cc?"_cartolina":""),extraHTML:xh||undefined}))}runCalc();let h=`<h1>${esc(only==="cart"?"Cartolina garanzia":SPEC.title)}</h1>`;
   const fv=f=>{if(f.t==="chk")return S[f.n]&&S[f.n]!=="Off"?"SI":"";if(f.t==="sig")return"";const v=String(val(f.n)??"");return DATES.has(f.n)?iso2it(v):v};
   SPEC.pages.forEach(pg=>{if(pageCover(pg.i))return;if(only==="cart"&&!pg.cart)return;let sec="",rows=[],pend=[],skipS=false;
     const out=()=>{if(!rows.length&&!pend.length)return;h+=`<h2>${esc(sec||SPEC.title)}</h2>`;if(rows.length){let t="<table>";for(let i=0;i<rows.length;i+=2)t+=`<tr><td>${esc(rows[i][0])}</td><td>${esc(rows[i][1])}</td><td>${esc(rows[i+1]?rows[i+1][0]:"")}</td><td>${esc(rows[i+1]?rows[i+1][1]:"")}</td></tr>`;h+=t+"</table>"}h+=pend.join("");rows=[];pend=[]};

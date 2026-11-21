@@ -9,6 +9,17 @@ function b64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;
 var PT=function(s){return window.PDFK?PDFK.PT(s):String(s)};
 var iso=function(v){return /^\d{4}-\d\d-\d\d$/.test(v)?v.split("-").reverse().join("/"):v};
 function jsText(L,o){try{if(!o)return"";if(o instanceof L.PDFString||o instanceof L.PDFHexString)return o.decodeText();if(o instanceof L.PDFRawStream)return new TextDecoder("latin1").decode(L.decodePDFRawStream(o).decode())}catch(e){}return""}
+// copie ridotte: campi da non riportare (re) e pagine da togliere (drop, indici del modello) per cliente / installatore
+var COPYR={
+ yu:{cli:{re:/^(press_|p_d[ce]|p_sc|p_tsat|t_liq_prova|t_est_prova|g[HL]_|hlink_|corr_l|cosfi|tens_|pot_el|carica_|refr_|gm_agg|vuoto_|lung_precar|casc_dsw|casc_rsw|casc_ycc|RSW|ue\d?_dsw|ui_dsw|ui_ssw|dip_sum|antilegionella|fc_bivalenza|diff_on_pdc|tempo_|attesa_re|impost_pdc|controllo_pdc|setpoint_max|pcb_|seg_|ctl_|uspec|versione_sw|Input_|Output_|sonda_|mt_|sg_off|smart_|r290_c_|yt_w|tc_w|tc_gm|tc_cc|tc_agg)/,drop:[6,7,8,9]},
+     inst:{re:/^(press_|p_d[ce]|p_sc|p_tsat|t_liq_prova|t_est_prova|g[HL]_|pcb_|seg_|ctl_|uspec|antilegionella|fc_bivalenza|diff_on_pdc|attesa_re|impost_pdc)/,drop:[8,9]}},
+ ut:{cli:{re:/^(p_|t_asp|t_rip|t_td|t_mand_ui|t_est_prova|t_liq_prova|g[HL]_|corr_l|tens_|carica_|refr_|gm_agg|vuoto_|hls_|preall|man_mode|lung_precar|his_|set_rsw|set_term|set_funz|hlink_|seg_|sui_|da_desc)/,drop:[7,8,9,10]},
+     inst:{re:/^(p_|t_asp|t_rip|t_td|t_mand_ui|g[HL]_|his_|seg_|sui_|da_desc|preall|man_mode)/,drop:[7,8,9,10]}},
+ "033":{cli:{re:/^(s\d+_(od\d+_|oc\d|v\d|vsq|ie$|ti$|tl$|tgi$|toi$|dt$|hlink|vuoto|mc\d)|LOC_(?!\d))/},inst:{re:/^s\d+_(od\d+_|oc\d|ti$|tl$|tgi$|toi$|dt$)/}},
+ "052":{cli:{re:/^(par\d+_|c\d+_|mis_|[hk]\d+_(dp|dpc|dt|kw|qc|ql|tin|tout)$|i\d+_(l\d|sq)$|v_\d|v_(ln|med|sq)$|vl_|m\d+_(carica|imax|qcond|range)$|carica_tot)/},inst:{re:/^(par\d+_|c\d+_|mis_)/}}};
+COPYR.ms=COPYR.ut;
+// gli esiti dei controlli restano anche nelle copie ridotte (si tolgono solo i valori)
+var COPYK=/_(es|esito)(_u\d+)?$/;
 async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
   var meta=await ensure(o.key),L=PDFLib,N=L.PDFName.of;
   var pdf=await L.PDFDocument.load(b64(meta.b64),{updateMetadata:false}),ctx=pdf.context,form=pdf.getForm(),pages=pdf.getPages();
@@ -52,6 +63,10 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
   for(var pass=0;pass<3;pass++)order.forEach(function(n,i){if(!FN[i])return;var ev={value:V[n]==null?"":V[n],target:fo(n),name:"Calculate",source:null};try{FN[i].call(doc,ev);V[n]=ev.value==null?"":String(ev.value)}catch(e){if(pass===2)console.warn("calc",n,e)}});
   if(window.PDFFILL_BHC&&meta.bhc&&meta.bhc.set)Object.keys(meta.bhc.set).forEach(function(n){V[n]=meta.bhc.set[n]});
   if(o.override)Object.keys(o.override).forEach(function(n){if(o.override[n]!=null)V[n]=String(o.override[n])});
+  // --- copie per cliente e installatore: senza impostazioni tecniche riservate ai SAT autorizzati BHC
+  var CP=window.PDFFILL_BHC||o.mode==="bhc"?"bhc":(o.mode==="cart"?"":(window.PDFFILL_COPY||"cli")),RULE=COPYR[o.key]&&COPYR[o.key][CP];
+  if(RULE)Object.keys(V).forEach(function(n){if(RULE.re.test(n)&&!COPYK.test(n))V[n]=""});
+  var STX=CP==="inst"?"COPIA PER L'INSTALLATORE - parametri di configurazione e del Service Tool riservati ai SAT autorizzati BHC, disponibili tramite il Servizio Assistenza":"COPIA PER IL CLIENTE - non contiene impostazioni tecniche riservate: parametri registrati dal SAT autorizzato BHC e disponibili su richiesta tramite il Servizio Assistenza";
   // --- coperture: pagine intere non usate e campi coperti
   var covers=Object.keys(F).filter(function(n){return /^cov_|(^|_)cov\d*$/.test(n)&&DISP[n]!==1});
   var dropPage={},rm=[];
@@ -94,6 +109,11 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
   if(o.mode==="cli"&&meta.sat){ver=ver.filter(function(p){return meta.sat.indexOf(p)<0})}
   if(o.mode==="cli"&&meta.cli){var keep={};meta.cli.forEach(function(r){for(var x=r[0];x<=r[1];x++)keep[x]=1});ver=ver.filter(function(p){return keep[p]});car=car.filter(function(p){return keep[p]})}
   if(o.mode==="cart"){ver=[]}
+  if(RULE&&RULE.drop){ver=ver.filter(function(p){return RULE.drop.indexOf(p)<0})}
+  if(o.pages){ver=ver.filter(function(p){return o.pages.indexOf(p)>=0})}
+  if(o.noCart)car=[];
+  // ordine delle pagine (es. Utopia: per ogni unità prima il circuito e poi i parametri del display)
+  if(o.order){var rk=function(p){var i=o.order.indexOf(p);return i<0?1000+p:i};ver.sort(function(a,b){return rk(a)-rk(b)})}
   // copia per Bosch / SAT: senza le informative, restano consensi e firme
   var BH=o.mode==="bhc"&&meta.bhc?meta.bhc:null;
   if(BH){ver=ver.filter(function(p){return (BH.drop||[]).indexOf(p)<0})}
@@ -107,19 +127,25 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
       pg.drawText(t1,{x:559.6-hb.widthOfTextAtSize(t1,10),y:H-37,size:10,font:hb,color:nv});pg.drawText(t2,{x:559.6-helv.widthOfTextAtSize(t2,7),y:H-48,size:7,font:helv,color:L.rgb(0.4,0.43,0.48)});
       var y0=H-96-(c[1]-c[0])-22;["Copia per Bosch / SAT: le informative privacy complete (cliente finale e ditta installatrice) sono nel modulo","inviato alla ditta installatrice e nei MOD 09.1 / 09.2. Qui restano le dichiarazioni, i consensi e le firme."].forEach(function(t,k){pg.drawText(t,{x:42,y:y0-k*10,size:7.6,font:helv,color:nv})});
       continue}
-    out.addPage(pg);var ft=meta.foot&&meta.foot[ver[i]];
+    out.addPage(pg);if(RULE&&STX){try{var psz=pg.getSize();pg.drawRectangle({x:20,y:1.5,width:psz.width-40,height:9,color:L.rgb(1,1,1)});pg.drawText(STX,{x:(psz.width-hb.widthOfTextAtSize(STX,6.3))/2,y:3.6,size:6.3,font:hb,color:L.rgb(0.75,0.1,0.1)})}catch(e){}}
+    var UT=o.unit||(o.bands&&o.bands[ver[i]]);if(UT){try{var usz=pg.getSize(),ut=String(UT),uw=hb.widthOfTextAtSize(ut,8.5);pg.drawRectangle({x:0,y:usz.height-14,width:usz.width,height:14,color:L.rgb(1,0.957,0.761)});pg.drawRectangle({x:0,y:usz.height-14.6,width:usz.width,height:0.8,color:L.rgb(0.878,0.659,0)});pg.drawText(ut,{x:(usz.width-uw)/2,y:usz.height-10.2,size:8.5,font:hb,color:L.rgb(0.35,0.24,0)})}catch(e){}}
+    var ft=meta.foot&&meta.foot[ver[i]];
     if(ft&&ver.length!==cart){var tx="Pagina "+(i+1)+" di "+ver.length,fnt=ft[4]?hb:helv,tw=fnt.widthOfTextAtSize(tx,ft[3]);
       pg.drawRectangle({x:ft[0]-ft[5]-4,y:ft[1]-2,width:ft[5]+8,height:ft[3]+4,color:L.rgb(1,1,1)});pg.drawText(tx,{x:ft[0]-tw,y:ft[2],size:ft[3],font:fnt,color:L.rgb(ft[6][0],ft[6][1],ft[6][2])})}}}
   // allegati (pagine extra) e foto, prima della cartolina
-  if(o.mode!=="cart"){var FO=window.FOTO;
+  {var FO=window.FOTO;
     if(o.extraHTML&&window.PDFK){var box=document.createElement("div");box.style.display="none";box.innerHTML=o.extraHTML;document.body.appendChild(box);window.FOTO=null;
       try{var jd=PDFK.make(box,{title:o.title,code:o.code,cliente:o.cliente,noEnc:true});var ex=await L.PDFDocument.load(jd.output("arraybuffer"));(await out.copyPages(ex,ex.getPageIndices())).forEach(function(pg){out.addPage(pg)})}finally{window.FOTO=FO;box.remove()}}
-    if(FO&&FO.count()>Object.keys(FPL).length&&window.jspdf){var jp=new window.jspdf.jsPDF({unit:"mm",format:"a4",compress:true});FO.addPages(jp,FPL);jp.deletePage(1);var ph=await L.PDFDocument.load(jp.output("arraybuffer"));(await out.copyPages(ph,ph.getPageIndices())).forEach(function(pg){out.addPage(pg)})}}
+    if(o.mode!=="cart"&&!o.noPhoto&&FO&&FO.count()>Object.keys(FPL).length&&window.jspdf){var jp=new window.jspdf.jsPDF({unit:"mm",format:"a4",compress:true});FO.addPages(jp,FPL);jp.deletePage(1);var ph=await L.PDFDocument.load(jp.output("arraybuffer"));(await out.copyPages(ph,ph.getPageIndices())).forEach(function(pg){out.addPage(pg)})}}
   if(car.length){(await out.copyPages(pdf,car)).forEach(function(pg){out.addPage(pg)})}
   out.setTitle((o.mode==="cart"?"Cartolina garanzia - ":"")+o.code+" - "+o.title+(o.cliente?" - "+o.cliente:""));out.setAuthor("Bosch Home Comfort Cooling and Heating SAS");out.setCreator("Hitachi Cooling & Heating - app Moduli Service");
   return out.save()}
 async function share(o){if(o.mode!=="cart"&&window.FOTO&&FOTO.check&&!FOTO.check())return;var bytes;try{bytes=await make(o)}catch(e){console.error(e);alert("Errore nella generazione del PDF: "+e.message);return}
-  var fn=String(o.name||"modulo").replace(/[^\w-]+/g,"_")+".pdf",blob=new Blob([bytes],{type:"application/pdf"}),file=new File([blob],fn,{type:"application/pdf"});
+  return shareBytes(bytes,o.name)}
+// unisce più PDF generati (es. verbali delle unità in cascata) in un unico file
+async function merge(list,title){var L=PDFLib,out=await L.PDFDocument.create();for(var i=0;i<list.length;i++){var d=await L.PDFDocument.load(list[i]);(await out.copyPages(d,d.getPageIndices())).forEach(function(p){out.addPage(p)})}if(title)out.setTitle(title);out.setAuthor("Bosch Home Comfort Cooling and Heating SAS");return out.save()}
+async function shareBytes(bytes,name){
+  var fn=String(name||"modulo").replace(/[^\w-]+/g,"_")+".pdf",blob=new Blob([bytes],{type:"application/pdf"}),file=new File([blob],fn,{type:"application/pdf"});
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:fn});return}}catch(e){if(e.name==="AbortError")return}
   var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000)}
 // modulo compilabile (non bloccato) con alcuni campi già scritti: per inviarlo all'installatore
@@ -131,6 +157,9 @@ async function prefill(key,values){var meta=await ensure(key),L=PDFLib;var pdf=a
 async function readFields(bytes){await ensure0();var L=PDFLib,pdf=await L.PDFDocument.load(bytes,{ignoreEncryption:true}),out={};
   pdf.getForm().getFields().forEach(function(fl){var n=fl.getName(),v;try{if(fl instanceof L.PDFTextField)v=fl.getText()||"";else if(fl instanceof L.PDFDropdown||fl instanceof L.PDFOptionList)v=(fl.getSelected()||[])[0]||"";else if(fl instanceof L.PDFCheckBox)v=fl.isChecked()?"Yes":"Off";else if(fl instanceof L.PDFRadioGroup)v=fl.getSelected()||"";else return}catch(e){return}out[n]=v});return out}
 async function ensure0(){if(!window.PDFLib)await loadScript("lib/pdf-lib.min.js","libreria PDF mancante (lib/pdf-lib.min.js)")}
+window.pdfCli=function(f){window.PDFFILL_COPY="cli";var r;try{r=f()}catch(e){window.PDFFILL_COPY="";throw e}return Promise.resolve(r).finally(function(){window.PDFFILL_COPY=""})};
+window.pdfInst=function(f){window.PDFFILL_COPY="inst";var r;try{r=f()}catch(e){window.PDFFILL_COPY="";throw e}return Promise.resolve(r).finally(function(){window.PDFFILL_COPY=""})};
+window.PDFFILL_COPYR=COPYR;window.PDFFILL_COPYK=COPYK;
 window.pdfBHC=function(f){window.PDFFILL_BHC=1;var r;try{r=f()}catch(e){window.PDFFILL_BHC=0;throw e}return Promise.resolve(r).finally(function(){window.PDFFILL_BHC=0})};
-window.PDFFILL={make:make,share:share,tpl:ensure,b64:b64,prefill:prefill,readFields:readFields};
+window.PDFFILL={make:make,share:share,shareBytes:shareBytes,merge:merge,tpl:ensure,b64:b64,prefill:prefill,readFields:readFields};
 })();
