@@ -1,9 +1,9 @@
 // SYSCOL - colore per sistema nelle liste di U.E. / U.I. (check list 03.1, verbali 03.2 / 03.3):
-// sistema 1 rosso, 2 arancio, 3 verde, 4 blu, 5 viola, 6 azzurro, 7 rosa, 8 marrone. Solo a video, non nel PDF.
+// sistema 1 rosso, 2 blu, 3 verde, 4 viola, 5 arancio, 6 verde acqua, 7 rosa, 8 marrone. Solo a video, non nel PDF.
 (function(){
 "use strict";
-const COL=["#dc2626","#ea580c","#16a34a","#2563eb","#7c3aed","#0891b2","#db2777","#92400e"];
-const TINT=["#fef2f2","#fff7ed","#f0fdf4","#eff6ff","#f5f3ff","#ecfeff","#fdf2f8","#fefce8"];
+const COL=["#dc2626","#2563eb","#16a34a","#9333ea","#d97706","#0d9488","#db2777","#78350f"];
+const TINT=["#fef2f2","#eff6ff","#f0fdf4","#faf5ff","#fffbeb","#f0fdfa","#fdf2f8","#f5efe6"];
 const SS=()=>{try{return S}catch(e){return window.S||{}}};
 function nsys(){const s=SS();let n=0;for(let i=1;i<=8;i++)if(s["pr_ue"+i+"_mod"]||s["pu_ue"+i+"_mod"]||s["vi_ue"+i+"_mod"]||s["s"+i+"_m1_mod"])n=i;return Math.max(n,parseInt(s.pr_nue)||0,parseInt(s.pu_nue)||0,parseInt(s.v_nsis)||0)}
 // numero di sistema dal nome del campo

@@ -193,11 +193,23 @@ function hydroSvg(c){
   if(c.aqs)s+=SY.sensor(TX+20,SYy-14,"")+txt(TX+30,SYy-18,"",{});
   }
   // ---- elettrico: quadro, linee di potenza e bus
-  const qx=20,qy=20;s+=box(qx,qy,120,46,"Quadro elettrico","linee protette ELB + CB","#fef2f2");
-  const pw=[[75,gy]];if(!c.ytc&&!c.mono)pw.push([260,gy]);pw.forEach(p=>{s+=path(`M${p[0]} ${qy+46}V${p[1]}`,PW,1.6,"6 4")});
-  if(!c.mono&&!c.ytc)s+=path(`M140 ${qy+30}H260V${gy}`,PW,1.6,"6 4");
-  const cx0=c.mono?75:260;let bus=`M75 ${gy+uh-10}V${gy+uh+4}H${cx0}V${gy+uh-10}`;if(!c.ytc&&!c.mono)s+=path(bus,BUS,1.8,"3 3");
-  if(c.casc){s+=box(400,qy,120,46,"Controller cascata",V("sch_casc_mod")||"ATW-YCC","#f0fdf4")+path(`M400 ${qy+40}H${cx0+40}V${gy}`,BUS,1.8,"3 3")+txt(530,qy+20,"sonda ACS, 3WV ACS, WP3 e Two3 collegate al controller",{fs:9,col:BUS})}
+  const qx=20,qy=20;s+=box(qx,qy,120,46,"Quadro elettrico",c.casc?"ELB + CB per ogni unità":"linee protette ELB + CB","#fef2f2");
+  if(c.casc){// cascata: linea di alimentazione separata per ogni unità esterna e ogni unità interna
+    for(let k=0;k<n;k++){const y=gy+k*(uh+14),ye=y+uh-22,xe=144+7*k,xi=164+7*k;
+      s+=path(`M${128-10*k} ${qy+46}V${gy-8-4*k}H${xe}V${ye}H130`,PW,1.6,"6 4")+`<circle cx="130" cy="${ye}" r="2.4" fill="${PW}"/>`;
+      if(!c.mono)s+=path(`M140 ${qy+14+7*k}H${xi}V${ye+4}H200`,PW,1.6,"6 4")+`<circle cx="200" cy="${ye+4}" r="2.4" fill="${PW}"/>`}
+    s+=txt(146,qy+8,"alimentazioni separate",{fs:8.5,col:PW,b:1})}
+  else{const pw=[[75,gy]];if(!c.ytc&&!c.mono)pw.push([260,gy]);pw.forEach(p=>{s+=path(`M${p[0]} ${qy+46}V${p[1]}`,PW,1.6,"6 4")});
+  if(!c.mono&&!c.ytc)s+=path(`M140 ${qy+30}H260V${gy}`,PW,1.6,"6 4")}
+  const cx0=c.mono?75:260;let bus=`M75 ${gy+uh-10}V${gy+uh+4}H${cx0}V${gy+uh-10}`;if(!c.ytc&&!c.mono&&!c.casc)s+=path(bus,BUS,1.8,"3 3");
+  if(c.casc){s+=box(400,qy,120,46,"Controller cascata",V("sch_casc_mod")||"ATW-YCC","#f0fdf4")+txt(530,qy+20,"sonda ACS, 3WV ACS, WP3 e Two3 collegate al controller",{fs:9,col:BUS});
+    // H-LINK entra / esce: prima le unità esterne, poi le unità interne, infine il controller di cascata
+    const uw2=c.combi?150:120,yk=k=>gy+k*(uh+14),cy=k=>{let v="";try{v=(typeof C!=="undefined"&&C["casc_cyc_"+(k+1)])||""}catch(e){}const m=/Ciclo (\d+)/.exec(v);return m?m[1]:String(k)},
+      lab=k=>k===2&&c.N>3?"cicli 2…"+(c.N-1):"ciclo "+cy(k),xL=10,xM=186,xR=200+uw2+8,yT=gy-16,yB=yk(n-1)+uh+2,st=(x1,x2,y)=>path(`M${x1} ${y}H${x2}`,BUS,1.8)+`<circle cx="${x2}" cy="${y}" r="2.6" fill="${BUS}"/>`;
+    const yC=qy+58,hp=`M${xL} ${yk(0)+20}V${yB}H${xM}V${yC}H460V${qy+46}`;
+    for(let k=0;k<n;k++){s+=st(xL,20,yk(k)+20)+st(xM,200,yk(k)+20)+txt(25,yk(k)+uh-14,"H-LINK "+lab(k),{fs:8,col:BUS,b:1})+txt(205,yk(k)+uh-14,"H-LINK "+lab(k),{fs:8,col:BUS,b:1})}
+    s+=path(hp,BUS,1.8,"3 3")+`<circle cx="460" cy="${qy+46}" r="2.6" fill="${BUS}"/>`;
+    s+=txt(xL+6,yB+13,"H-LINK entra / esce: prima le U.E., poi le U.I., infine il controller di cascata (indirizzo = n. ciclo)",{fs:8.5,col:BUS,b:1});H=Math.max(H,yB+30)}
   else if(!c.ytc){s+=box(400,qy,110,40,"Comando","PC-ARFH3E (3-4)","#f0fdf4")+path(`M455 ${qy+40}V${qy+64}H${(c.mono?75:260)+30}V${gy}`,BUS,1.8,"3 3")}
   // fotovoltaico / smart grid: solo contatto verso la scheda
   if(c.fv||c.sg){const px=560,py=qy;s+=(c.fv?SY.pv(px,py):`<rect x="${px+6}" y="${py}" width="44" height="28" rx="3" fill="#eff6ff" stroke="#1e3a8a"/><text x="${px+28}" y="${py+18}" font-size="10" text-anchor="middle" font-weight="bold">SG</text>`)+txt(px+64,py+10,c.fv?"Fotovoltaico":"Smart Grid",{b:1})+txt(px+64,py+24,"solo contatto pulito "+(c.fvNC?"NC":"NA")+" → Input 5 (16-19)",{fs:9})+SY.contact(px+64,py+36,c.fvNC)+path(`M${px+98} ${py+36}H${px+120}V${gy-14}H${(c.mono?75:260)+60}V${gy}`,"#111",1.2,"2 3")}

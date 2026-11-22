@@ -75,6 +75,9 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
   covers.forEach(function(c){var f=F[c],r=f.r,pi=f.pg[0],P=pages[pi];if(pi<0||!P)return;var sz=P.getSize();
     if(r.width*r.height>sz.width*sz.height*0.5){dropPage[pi]=1;return}
     Object.keys(F).forEach(function(n){if(n===c)return;var g=F[n];g.ws.forEach(function(w,k){if(g.pg[k]!==pi)return;var q=w.getRectangle();if(q.x>=r.x-1&&q.y>=r.y-1&&q.x+q.width<=r.x+r.width+1&&q.y+q.height<=r.y+r.height+1)rm.push(n)})})});
+  // --- cartolina garanzia VRF Set Free: spunta la serie installata dal modello dell'unità esterna del verbale
+  if(F.cg_ser_max||F.cg_ser_pro||F.cg_ser_mini){var mm=Object.keys(V).filter(function(n){return !/^cg_ser_/.test(n)}).map(function(n){return String(V[n]==null?"":V[n])}).join(" ").toUpperCase();
+    V.cg_ser_max=/FSXNS2E/.test(mm)?"Yes":"Off";V.cg_ser_pro=/FSXNP2E/.test(mm)?"Yes":"Off";V.cg_ser_mini=/RAS-\d+FS[VX]?NME/.test(mm)?"Yes":"Off"}
   // --- scrittura dei valori
   Object.keys(F).forEach(function(n){var f=F[n],v=V[n];if(f.t==="button"){rm.push(n);return}if(DISP[n]===1){rm.push(n);return}
     try{if(f.t==="text"){if(sig[n]){return}if(v!=null&&v!==""){f.fl.setText(PT(String(v)))}else f.fl.setText("")}
