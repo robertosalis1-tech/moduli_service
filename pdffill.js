@@ -18,6 +18,8 @@ var COPYR={
  "033":{cli:{re:/^(s\d+_(od\d+_|oc\d|v\d|vsq|ie$|ti$|tl$|tgi$|toi$|dt$|hlink|vuoto|mc\d)|LOC_(?!\d))/},inst:{re:/^s\d+_(od\d+_|oc\d|ti$|tl$|tgi$|toi$|dt$)/}},
  "052":{cli:{re:/^(par\d+_|c\d+_|mis_|[hk]\d+_(dp|dpc|dt|kw|qc|ql|tin|tout)$|i\d+_(l\d|sq)$|v_\d|v_(ln|med|sq)$|vl_|m\d+_(carica|imax|qcond|range)$|carica_tot)/},inst:{re:/^(par\d+_|c\d+_|mis_)/}}};
 COPYR.ms=COPYR.ut;
+// verbale CSNET: al cliente non vanno misure, note riservate al SAT e informativa per l'installatore
+COPYR["041"]={cli:{re:/^(v\d+_val|bms\d_val|sat_)/,drop:[9]},inst:{re:/^sat_/}};
 // gli esiti dei controlli restano anche nelle copie ridotte (si tolgono solo i valori)
 var COPYK=/_(es|esito)(_u\d+)?$/;
 async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";

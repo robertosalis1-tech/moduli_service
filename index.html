@@ -135,7 +135,7 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
 <body>
 <header>
   <div class="band"><b>Bosch Home Comfort Cooling and Heating SAS</b> &nbsp;|&nbsp; Hitachi Cooling &amp; Heating &nbsp;|&nbsp; Rev. 10/2026</div>
-  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.22-0930</small></h1></div>
+  <div class="hd"><img src="logo.png" alt="Bosch"><h1>Moduli Service<small>Avviamenti, interventi e garanzia · versione 2026.11.22-1200</small></h1></div>
 </header>
 <main>
 <div id="imp"></div>
@@ -148,6 +148,7 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
   <a class="tile" href="mod-02-ut.html?modulo=ms"><div class="ic">02.3</div><div><b>Avviamento Mini Set Free</b><small>Verbale, parametri, cartolina</small></div></a>
   <a class="tile" href="mod-03-2-verifica-set-free.html"><div class="ic">03.2</div><div><b>Verifica impianto Set Free</b><small>Sopralluogo prima del collaudo</small></div></a>
   <a class="tile" href="mod-03-3-avviamento-set-free.html"><div class="ic">03.3</div><div><b>Avviamento VRF Set Free</b><small>Fino a 8 sistemi per verbale</small></div></a>
+  <a class="tile" href="mod-04-1-avviamento-csnet.html"><div class="ic">04.1</div><div><b>Avviamento CSNET</b><small>Verbale controllo centralizzato</small></div></a>
   <a class="tile" href="mod-05-2-avviamento-samurai.html"><div class="ic">05.2</div><div><b>Avviamento chiller Samurai</b><small>Verbale primo avviamento</small></div></a>
   <a class="tile" href="mod-06-1-intervento.html"><div class="ic">06.1</div><div><b>Modulo di intervento</b><small>Garanzia, diagnosi, misure, firme</small></div></a>
   <a class="tile" href="mod-06-3-danno-trasporto.html"><div class="ic">06.3</div><div><b>Danno da trasporto</b><small>Constatazione alla consegna con foto</small></div></a>
@@ -200,7 +201,6 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
   <a class="tile" href="cl-01-1-yutaki.html"><div class="ic">01.1</div><div><b>Check list Yutaki airH2O</b><small>Importa il PDF compilato</small></div></a>
   <a class="tile" href="cl-02-1-utopia.html"><div class="ic">02.1</div><div><b>Check list Utopia / Mini Set Free</b><small>Importa il PDF compilato</small></div></a>
   <a class="tile" href="cl-03-1-set-free.html"><div class="ic">03.1</div><div><b>Check list VRF Set Free</b><small>Importa il PDF compilato</small></div></a>
-  <a class="tile" href="cl-04-1-csnet.html"><div class="ic">04.1</div><div><b>Pre-avviamento CSNET</b><small>Controllo centralizzato: importa il PDF compilato</small></div></a>
   <a class="tile" href="cl-05-1-samurai.html"><div class="ic">05.1</div><div><b>Check list chiller Samurai</b><small>Importa il PDF compilato</small></div></a>
 </div>
 <h3>Pratica corrente</h3>
@@ -223,7 +223,6 @@ details.pf summary{cursor:pointer;font-weight:700;color:var(--blue);margin-top:1
 <a href="pdf/MOD-03-1-Check-list-pre-avviamento-VRF-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.1 - Check list pre-avviamento VRF Set Free<span>462 KB</span></a>
 <a href="pdf/MOD-03-1-Prenotazione-avviamento-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.1 - Prenotazione avviamento Set Free (facoltativa)<span>462 KB</span></a>
 <a href="pdf/MOD-03-4-Cartolina-garanzia-VRF-Set-Free.pdf" target="_blank" rel="noopener">MOD 03.4 - Cartolina garanzia VRF Set Free<span>311 KB</span></a>
-<a href="pdf/MOD-04-1-Pre-avviamento-CSNET.pdf" target="_blank" rel="noopener">MOD 04.1 - Pre-avviamento CSNET<span>883 KB</span></a>
 <a href="pdf/MOD-04-2-Modulo-assistenza-airCloud-Home.pdf" target="_blank" rel="noopener">MOD 04.2 - Modulo assistenza airCloud Home<span>86 KB</span></a>
 <a href="pdf/MOD-05-1-Check-list-pre-avviamento-chiller-Samurai.pdf" target="_blank" rel="noopener">MOD 05.1 - Check list pre-avviamento chiller Samurai<span>515 KB</span></a>
 <a href="pdf/MOD-05-3-Cartolina-garanzia-Samurai.pdf" target="_blank" rel="noopener">MOD 05.3 - Cartolina garanzia Samurai<span>299 KB</span></a>
@@ -268,7 +267,7 @@ async function nuova(){const has=Object.keys(localStorage).some(AKEYS);
 const $=q=>document.querySelector(q),CLSIG={"011": ["caldaia_logica", "cli_cognome", "contatore", "contatore_altro", "gas", "gas_add", "gas_d", "gas_m", "gas_tot", "liq_d", "liq_m", "p104"], "021": ["pu_all_data", "pu_all_elettrico", "pu_all_progetto", "pu_all_skeleton", "pu_cliente", "pu_data", "pu_data_collaudo", "pu_focus", "pu_indirizzo", "pu_installatore", "pu_q10_NA", "pu_q10_NO"], "031": ["pr_all_data", "pr_all_elettrico", "pr_all_progetto", "pr_all_skeleton", "pr_cliente", "pr_data", "pr_data_collaudo", "pr_focus", "pr_indirizzo", "pr_installatore", "pr_q10_NA", "pr_q10_NO"], "041": ["aree_r10_1", "aree_r1_1", "aree_r2_1", "aree_r3_1", "aree_r4_1", "aree_r5_1", "aree_r6_1", "aree_r7_1", "aree_r8_1", "aree_r9_1", "bms1_KO", "bms1_OK"], "051": ["appl", "cli_ref", "ctrl", "glic_esito", "glic_pct", "glic_tipo", "m1_carica", "m1_circ", "m1_co2", "m1_fgas", "m1_imax", "m1_kit"]};
 // prenotazione avviamento Utopia / Set Free: facoltativa, a discrezione del SAT prima di fissare l'appuntamento (stessi campi della check list)
 const PREN={p021:{base:"021",code:"MOD 02.1",t:"Prenotazione avviamento Utopia / Mini Set Free",pren:1},p031:{base:"031",code:"MOD 03.1",t:"Prenotazione avviamento Set Free",pren:1}};
-document.getElementById("s_k").innerHTML=`<optgroup label="Check list pre-avviamento">${Object.entries(TRASF.CL).map(([k,c])=>`<option value="${k}">${c.code} - ${c.t}</option>`).join("")}</optgroup><optgroup label="Prenotazione avviamento (facoltativa)">${Object.entries(PREN).map(([k,c])=>`<option value="${k}">${c.code} - ${c.t}</option>`).join("")}</optgroup>`;
+document.getElementById("s_k").innerHTML=`<optgroup label="Check list pre-avviamento">${Object.entries(TRASF.CL).filter(([k,c])=>!c.verbale).map(([k,c])=>`<option value="${k}">${c.code} - ${c.t}</option>`).join("")}</optgroup><optgroup label="Prenotazione avviamento (facoltativa)">${Object.entries(PREN).map(([k,c])=>`<option value="${k}">${c.code} - ${c.t}</option>`).join("")}</optgroup>`;
 // ---- cartolina garanzia e informative privacy da inviare
 const DOCS={c013:{code:"MOD 01.3",t:"Cartolina garanzia Heating Solution airH2O",cart:1},c014:{code:"MOD 01.4",t:"Cartolina garanzia Yutampo e Triple C",cart:1},c024:{code:"MOD 02.4",t:"Cartolina garanzia Utopia e IVX",cart:1},c034:{code:"MOD 03.4",t:"Cartolina garanzia VRF Set Free",cart:1},c053:{code:"MOD 05.3",t:"Cartolina garanzia Samurai",cart:1},
  "091":{code:"MOD 09.1",t:"Informativa privacy per l'utente finale"},"092":{code:"MOD 09.2",t:"Informativa privacy per l'installatore",inst:1},"063":{code:"MOD 06.3",t:"Segnalazione danno da trasporto",inst:1,dt:1}};
@@ -311,16 +310,22 @@ async function sendCL(){const k=$("#s_k").value,c=TRASF.CL[k]||PREN[k],p=PR.get(
 async function loadCL(inp){const f=inp.files[0];inp.value="";if(!f)return;try{const u=new Uint8Array(await f.arrayBuffer()),F=await PDFFILL.readFields(u),names=Object.keys(F);
   let best=null,bs=0;for(const k in CLSIG){const sc=CLSIG[k].filter(n=>n in F).length;if(sc>bs){bs=sc;best=k}}
   let dat=null;if(!best||bs<2){dat=await PDFFILL.readData(u);if(dat){best=Object.keys(TRASF.CL).find(k=>TRASF.CL[k].code===dat.code)||null}}
-  if(!best||(bs<2&&!dat)){alert("Il PDF non sembra una check list Hitachi (01.1, 02.1, 03.1, 04.1, 05.1): usare il PDF compilabile inviato all'installatore oppure il PDF generato dalla check list nell'app.");return}
+  if(!best||(bs<2&&!dat)){alert("Il PDF non sembra una check list Hitachi (01.1, 02.1, 03.1, 05.1): usare il PDF compilabile inviato all'installatore oppure il PDF generato dalla check list nell'app.");return}
   let b="";for(let i=0;i<u.length;i+=8192)b+=String.fromCharCode.apply(null,u.subarray(i,i+8192));
   try{sessionStorage.setItem("cl_import",JSON.stringify({k:best,n:f.name,b:btoa(b),s:dat&&dat.s||null}))}catch(e){alert("PDF troppo grande da passare al modulo: aprirlo dalla check list "+TRASF.CL[best].code+" con Importa.");location.href=TRASF.CL[best].page;return}
   location.href=TRASF.CL[best].page+"?import=1"}catch(e){console.error(e);alert("Impossibile leggere il PDF: "+e.message)}}
 // pratica ricevuta dal collega: dal link (#d=...) oppure incollando il link nell'app
 async function importPayload(code,fromLink){let o;try{o=await TRASF.unpack(code)}catch(e){alert("Link della pratica non valido o incompleto: copiare tutto il link dalla mail.");return}
-  const c=TRASF.CL[o.k]||{},p=o.p||{};if(!confirm("Caricare la pratica ricevuta?\n\n"+(p.cliente||"(cliente non indicato)")+(p.citta?" - "+p.citta:"")+"\n"+(c.code||"")+" "+(c.t||"")+"\n\nLa pratica corrente su questo telefono verrà sostituita."))return;
-  PR.set(Object.assign({},p,{_agg:new Date().toISOString()}));if(c.code)localStorage.setItem(TRASF.fkey(o.k),JSON.stringify({S:o.s||{},sig:{}}));
-  draw();const inapp=fromLink&&!standalone,b=$("#imp");b.style.display="block";
-  b.innerHTML=`<b>✓ Pratica ${esc(p.cliente||"")} caricata.</b> Dati cliente, installatore, modelli e matricole sono già nei moduli.<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${c.verb?`<a class="btn pri" style="text-decoration:none" href="${c.verb}">Apri ${esc(c.vt)}</a>`:""}${c.page?`<a class="btn" style="text-decoration:none" href="${c.page}?ricevuta=1">Vedi la check list ${esc(c.code)}</a>`:""}</div>`+
+  const p=o.p||{},ss=o.ss||(o.k?{[o.k]:o.s||{}}:{}),ks=Object.keys(ss).filter(k=>TRASF.CL[k]),cur=PR.get(),norm=x=>String(x||"").trim().toLowerCase(),same=cur.cliente&&norm(cur.cliente)===norm(p.cliente);
+  const desc=ks.map(k=>TRASF.CL[k].code+" "+TRASF.CL[k].t).join("\n");
+  if(!confirm("Caricare la pratica ricevuta?\n\n"+(p.cliente||"(cliente non indicato)")+(p.citta?" - "+p.citta:"")+"\n"+desc+"\n\n"+(same?"Stesso cliente della pratica corrente: i dati vengono aggiunti (le altre check list restano).":"La pratica corrente su questo telefono verrà sostituita.")))return;
+  if(same){const m=Object.assign({},cur,p);if(cur.pf||p.pf){m.pf=Object.assign({},cur.pf||{});Object.keys(p.pf||{}).forEach(f=>m.pf[f]=Object.assign({},m.pf[f]||{},p.pf[f]))}PR.set(Object.assign(m,{_agg:new Date().toISOString()}))}
+  else PR.set(Object.assign({},p,{_agg:new Date().toISOString()}));
+  if(!same)Object.keys(TRASF.CL).forEach(k=>{if(!TRASF.CL[k].verbale&&!ks.includes(k))localStorage.removeItem(TRASF.fkey(k))});
+  ks.forEach(k=>localStorage.setItem(TRASF.fkey(k),JSON.stringify({S:ss[k]||{},sig:{}})));
+  draw();const inapp=fromLink&&!standalone,b=$("#imp"),P=PR.get();b.style.display="block";
+  const btn=ks.map(k=>{const c=TRASF.CL[k];return (c.verb?`<a class="btn pri" style="text-decoration:none" href="${c.verb}">Apri ${esc(c.vt)}</a>`:"")+(c.page&&!c.verbale?`<a class="btn" style="text-decoration:none" href="${c.page}?ricevuta=1">Check list ${esc(c.code)}</a>`:"")}).join("")+(P.csnet?`<a class="btn pri" style="text-decoration:none" href="mod-04-1-avviamento-csnet.html">Apri MOD 04.1 - Avviamento CSNET</a>`:"");
+  b.innerHTML=`<b>✓ Pratica ${esc(p.cliente||"")} caricata${ks.length>1?" ("+ks.length+" check list)":""}.</b> Dati cliente, installatore, modelli e matricole sono già nei verbali.<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${btn}</div>`+
    (inapp?`<div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:#fff4e0;border:1px solid #f0b45a;color:#7a3b00"><b>Attenzione:</b> se il link si è aperto dentro la mail (pagina con la <b>X</b> in alto a sinistra) i dati restano solo in questa finestra. Per lavorare con l'app installata: nella mail <b>tieni premuto il link → Copia</b>, apri l'app <b>Moduli Service</b> dalla schermata Home e tocca <b>Incolla pratica ricevuta</b>.</div>`:"");b.scrollIntoView({behavior:"smooth"})}
 async function pasteCL(){let t="";try{t=await navigator.clipboard.readText()}catch(e){}
   if(!/#d=|^[zj][A-Za-z0-9_-]{20,}$/.test((t||"").trim()))t=prompt("Incolla qui il link della pratica ricevuto per email (tieni premuto nel campo → Incolla):")||"";
