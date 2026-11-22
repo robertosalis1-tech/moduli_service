@@ -61,9 +61,10 @@ function svg(c){if(!c.rows.length)return "";const PW="#dc2626",BUS="#2563eb",AUX
   const trunkX=72;let trunkEnd=y+56,busYs=[];const yTop=y;y+=78;
   if(c.rlv){s+=box(150,yTop+4,170,48,"#fff7ed","#c2410c")+T(235,yTop+19,"Rilevatore fughe R32",{a:"middle",b:1,fs:9.5,col:"#9a3412"})+T(235,yTop+32,"allarme + ventilazione"+(/valvole/.test(c.rlv)?" + valvole":""),{a:"middle",fs:8})+T(235,yTop+44,"contatto → ingresso U.I. / quadro",{a:"middle",fs:8,col:AUX})}
   c.rows.forEach((r,ri)=>{const y0=y,by=y0+30,bh=58,ue=(window.HDIP?HDIP.mods(r.m):r.m.split(/\s*\+\s*/)).filter(Boolean),U=shown(r);
-    s+=T(150,y0+8,"Sistema "+r.i+(r.z?" - "+r.z:"")+" · "+r.n+" U.I.",{b:1,fs:11.5});
+    s+=T(150,y0+8,"Sistema "+r.i+(r.z?" - "+r.z:"")+" · "+r.n+" U.I.",{b:1,fs:11.5,col:c.rows.length>1&&typeof schSC==="function"?schSC(r.i,true).c:undefined});
     // U.E.
-    s+=box(150,by,130,bh,"#f1f5f9")+T(215,by+15,"U.E.",{a:"middle",b:1})+ue.slice(0,3).map((m,k)=>T(215,by+28+k*11,m,{a:"middle",fs:8.5})).join("")+(ue.length>3?T(215,by+52,"+ "+(ue.length-3)+" moduli",{a:"middle",fs:8}):"");
+    const SK=c.rows.length>1&&typeof schSC==="function"?schSC(r.i,true):null;if(SK)s+=`<rect x="140" y="${by-4}" width="5" height="${bh+8}" rx="2" fill="${SK.c}"/>`;
+    s+=box(150,by,130,bh,SK?SK.t:"#f1f5f9",SK?SK.c:undefined)+T(215,by+15,"U.E.",{a:"middle",b:1})+ue.slice(0,3).map((m,k)=>T(215,by+28+k*11,m,{a:"middle",fs:8.5})).join("")+(ue.length>3?T(215,by+52,"+ "+(ue.length-3)+" moduli",{a:"middle",fs:8}):"");
     // alimentazione U.E. (dal tronco)
     s+=ln(trunkX,by+bh/2,150,by+bh/2,PW,2.2,"6 3")+T(132,by+bh/2-4,"U.E.",{a:"end",fs:8,col:PW});
     // alimentazione U.I. (linea separata sopra le unità)
@@ -72,7 +73,7 @@ function svg(c){if(!c.rows.length)return "";const PW="#dc2626",BUS="#2563eb",AUX
     const yb=by+bh+16;busYs.push(yb);s+=ln(215,by+bh,215,yb,BUS,1.8,"4 3");
     let maxRows=0;
     U.forEach((u,k)=>{const x=UX+k*UG,cx=x+UW/2;if(u.more){s+=box(x,by,UW,bh,"#f8fafc","#94a3b8")+T(cx,by+26,"… + "+u.more+" U.I.",{a:"middle",b:1,fs:10})+T(cx,by+40,"stesso schema",{a:"middle",fs:8.5});s+=ln(cx,pyU,cx,by,PW,1.4,"6 3")+ln(cx,by+bh,cx,yb,BUS,1.6,"4 3");return}
-      s+=box(x,by,UW,bh,"#eef2ff","#3730a3")+T(cx,by+15,"U.I. "+u.id,{a:"middle",b:1})+T(cx,by+28,(u.m||"modello").slice(0,20),{a:"middle",fs:8.5})+ln(cx,pyU,cx,by,PW,1.4,"6 3")+ln(cx,by+bh,cx,yb,BUS,1.6,"4 3");
+      s+=box(x,by,UW,bh,SK?SK.t:"#eef2ff",SK?SK.c:"#3730a3")+T(cx,by+15,"U.I. "+u.id,{a:"middle",b:1})+T(cx,by+28,(u.m||"modello").slice(0,20),{a:"middle",fs:8.5})+ln(cx,pyU,cx,by,PW,1.4,"6 3")+ln(cx,by+bh,cx,yb,BUS,1.6,"4 3");
       // accessori sotto la U.I.
       const acc=[];if(/ogni|misto/i.test(c.rc))acc.push(["rc",c.rcm]);
       if(c.condInt&&(!u.m||/^RC|^RPI|^RCD/i.test(u.m)))acc.push(["ci","pompa condensa integrata"]);if(c.condU.includes(u.id))acc.push(["ce","pompa condensa esterna"]);
