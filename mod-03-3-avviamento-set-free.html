@@ -286,6 +286,8 @@ async function officialPDF(only){var s;
   if(NS>1){var PG0=pdf.getPages();for(s=1;s<=8;s++){if(!present(s))continue;var ub="VERBALE SISTEMA "+s+" DI "+NS+(S["s"+s+"_nome"]?"  ·  "+S["s"+s+"_nome"]:"")+(S.v_cliente?"  ·  "+S.v_cliente:"");
     [2+2*(s-1),3+2*(s-1)].forEach(function(pi){var pg=PG0[pi],w=pg.getSize().width,h=pg.getSize().height,tw=hb.widthOfTextAtSize(ub,8.5);pg.drawRectangle({x:0,y:h-14,width:w,height:14,color:L.rgb(1,0.957,0.761)});pg.drawRectangle({x:0,y:h-14.6,width:w,height:0.8,color:L.rgb(0.878,0.659,0)});pg.drawText(ub,{x:(w-tw)/2,y:h-10.2,size:8.5,font:hb,color:L.rgb(0.35,0.24,0)})})}}
   for(s=8;s>=1;s--)if(!present(s)){pdf.removePage(3+2*(s-1));pdf.removePage(2+2*(s-1));CART-=2}
+  // copia per Bosch / SAT: della cartolina restano la scheda cliente e la ricevuta firmata, senza le condizioni di garanzia
+  if(window.PDFFILL_BHC){for(var q=pdf.getPageCount()-2;q>CART;q--)pdf.removePage(q)}
   // allegato unità / indirizzi e foto (prima della cartolina)
   var box=document.createElement("div");box.style.display="none";box.innerHTML=extraHTML()+(window.PDFFILL_BHC&&window.DIPV?DIPV.pdf():"")+(window.SCHEMA&&SCHEMA.cfg?await SCHEMA.extra("Schema elettrico di alimentazione e bus"):"");document.body.appendChild(box);
   var jd=PDFK.make(box,{title:"Verbale avviamento Set Free",code:"MOD 03.3",cliente:S.v_cliente,noEnc:true});box.remove();

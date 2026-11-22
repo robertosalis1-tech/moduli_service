@@ -117,6 +117,8 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
   if(RULE&&RULE.drop){ver=ver.filter(function(p){return RULE.drop.indexOf(p)<0})}
   if(o.pages){ver=ver.filter(function(p){return o.pages.indexOf(p)>=0})}
   if(o.noCart)car=[];
+  // copia per Bosch / SAT: della cartolina restano la scheda cliente e la ricevuta firmata (pagine con i campi), senza le condizioni di garanzia
+  if(car.length&&(o.mode==="bhc"||(o.mode==="cart"&&window.PDFFILL_BHC))){var WPG={};Object.keys(F).forEach(function(n){F[n].pg.forEach(function(pi){WPG[pi]=(WPG[pi]||0)+1})});car=car.filter(function(p){return (WPG[p]||0)>=5})}
   // ordine delle pagine (es. Utopia: per ogni unità prima il circuito e poi i parametri del display)
   if(o.order){var rk=function(p){var i=o.order.indexOf(p);return i<0?1000+p:i};ver.sort(function(a,b){return rk(a)-rk(b)})}
   // copia per Bosch / SAT: senza le informative, restano consensi e firme
