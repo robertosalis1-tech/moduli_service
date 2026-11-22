@@ -104,7 +104,7 @@ td.na input{background:var(--na);border-color:var(--na)}
 </style>
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#e60027"><meta name="apple-mobile-web-app-title" content="Moduli SAT"><script src="pratica.js"></script>
 <script src="lib/jspdf.umd.min.js"></script><script src="lib/jspdf.plugin.autotable.min.js"></script><script src="pdfk.js"></script>
-<script src="pdffill.js"></script><script src="impianto.js"></script>
+<script src="pdffill.js"></script><script src="impianto.js"></script><script src="dipdata.js"></script>
 </head>
 <body>
 <header>
@@ -352,7 +352,17 @@ const XC={ko:["RGB",1,0.86,0.86],warn:["RGB",1,0.93,0.78],ok:["RGB",0.85,0.95,0.
 const xput=(n,v,c)=>{C[n]=v;if(c)COL[n+"#bg"]=XC[c];else delete COL[n+"#bg"]};
 const xmark=(n,c)=>{if(c)COL[n+"#bg"]=XC[c];else delete COL[n+"#bg"]};
 // ---------- pre / post calcolo
+// DIP dell'unità esterna preimpostati dal modello (dipdata.js): DSW3 capacità, DSW5 resistenza terminale (ON solo sull'unità 1 della linea H-LINK)
+function yuDip(){if(!window.HDIP)return;const A=S._dipa||(S._dipa={}),k=curU(),casc=nCasc()>1;
+  const set=(p,n,v)=>{if(!v)return;const key=k+":"+p,cur=Array.from({length:n},(_,i)=>S[p+"_"+(i+1)]==="Yes"?"1":"0").join(""),fresh=Array.from({length:n},(_,i)=>S[p+"_"+(i+1)]==null).every(Boolean);
+    if(fresh||cur===A[key]){for(let i=0;i<n;i++)S[p+"_"+(i+1)]=v[i]==="1"?"Yes":"Off";A[key]=v}};
+  const y=HDIP.yut(S.modello_ue);if(y)set("ue_dsw3",6,y.cap);set("ue_dsw5",2,casc&&k>1?"00":"10")}
+function yuDipTip(){if(!window.HDIP)return "";const y=HDIP.yut(S.modello_ue),k=curU(),casc=nCasc()>1,F=v=>v.split("").map((c,i)=>(i+1)+(c==="1"?"■":"□")).join(" ");
+  let t=y?`DSW3 (capacità) per ${S.modello_ue}: <b>${F(y.cap)}</b> (${y.src}${y.spare?", impostazione di fabbrica comune a tutte le taglie":""})${y.spare?` · con PCB di ricambio impostare <b>${F(y.spare)}</b>`:""}. `:(S.modello_ue?`DSW3 per ${esc(S.modello_ue)}: valore non presente nei manuali disponibili, verificare sul manuale. `:"");
+  t+=`DSW5 pin 1 = resistenza terminale: <b>${casc&&k>1?"OFF su questa unità (ON solo sull'unità 1 della linea H-LINK)":"ON"}</b>. I DIP si preimpostano dal modello: se si modificano a mano restano come impostati.`;
+  return tip(t)}
 function preCalc(){
+  yuDip();
   const m=S.modello_ue||"";if(m!==(S._am??null)){if(S._am!==undefined||!S.tipo_alim){const p=phaseOf(m);if(p)S.tipo_alim=p}S._am=m}
   if(S.pot_el_mis)delete S.pot_el_mis;   // wattmetro tolto: la potenza si calcola da V x I x cos fi
 }
@@ -544,7 +554,7 @@ const TABS=[
   +elCard()
   +(isR290()?"":card("Pressioni di lavoro circuito frigorifero",grid([F("press_alta_0","Riscaldamento - alta",{u:"bar",num:1}),F("press_bassa_0","Riscaldamento - bassa",{u:"bar",num:1}),F("press_alta_1","Raffreddamento - alta",{u:"bar",num:1}),F("press_bassa_1","Raffreddamento - bassa",{u:"bar",num:1}),F("press_alta_2","ACS - alta",{u:"bar",num:1}),F("press_bassa_2","ACS - bassa",{u:"bar",num:1}),F("man_mode","Modalità della prova con i manometri",{sel:["","Riscaldamento","Raffreddamento","ACS"]}),F("t_est_prova","T esterna durante la prova",{u:"°C",num:1}),F("t_liq_prova","T linea liquido",{u:"°C",num:1})])+grid([F("p_tsat","T satura condensazione / evaporaz.",{u:"°C",calc:1}),F("p_sc","Sottoraffreddamento (Tsat - Tliq)",{u:"K",calc:1}),F("p_dc","T cond. - T mandata acqua",{u:"K",calc:1}),F("p_de","T esterna - T evaporazione",{u:"K",calc:1}),F("preall","Preallarme visto durante la prova",{sel:PREALL}),F("preall_desc","Descrizione preallarme",{calc:1,multi:1})])+tip("Pressioni relative dopo almeno 30 minuti di funzionamento stabile. Scegliere la modalità della prova per il calcolo di sottoraffreddamento e differenze di temperatura."),"split","Non applicabile: circuito sigillato. Usare i parametri del display e del comando."))
   +cascCard()+busCard()],
- ["DIP switch",()=>card("DIP switch - unità esterna (PCB1)",dips(DIPUE)+`<div class="grid" style="margin-top:10px">${F("RSW1_UE","RSW1 (N.)",{sel:DIG})}</div>`+tip("Toccare un DIP per cambiarlo: azzurro = OFF, scuro = ON. Le righe R290 si disattivano per R32 / R410A."))
+ ["DIP switch",()=>card("DIP switch - unità esterna (PCB1)",yuDipTip()+dips(DIPUE)+`<div class="grid" style="margin-top:10px">${F("RSW1_UE","RSW1 (N.)",{sel:DIG})}</div>`+tip("Toccare un DIP per cambiarlo: azzurro = OFF, scuro = ON. Le righe R290 si disattivano per R32 / R410A."))
   +card("DIP switch - unità interna / modulo / control box",dips(DIPUI)+`<div class="grid" style="margin-top:10px">${F("RSW1_UI","RSW1 (N.)",{sel:DIG})}${F("RSW2_UI","RSW2 (N.)",{sel:DIG})}${isNA("r290")?"":F("ui_ssw1","SSW1 (R290)",{sel:["","Remote","Local"]})+F("ui_ssw2","SSW2 (R290)",{sel:["","Heat","Cool"]})}</div>`)
   +card("Registrazione con Service Tool Hitachi",grid([F("service_tool","Registrazione con Service Tool eseguita?",{sel:SN}),F("motivo_no_service_tool","Se No, motivare")]))],
  ["Ingressi / uscite",()=>card("Configurazione ingressi / uscite e morsettiera",grid(IO.map(([l,n])=>F(n,l,{sel:n.startsWith("Input")?W.INPUTS:W.OUTPUTS})).concat([F("valv_3vie","Valvola 3 vie Hitachi",{sel:SN}),F("termostato_hitachi","Termostato Hitachi",{sel:SN})]))+morsHTML()+`<h3 style="font-size:14px;margin:14px 0 6px;color:#1f4f78">Sonde aggiuntive collegate</h3>`+grid([F("sonda_0","Sonda ACS (THMDHW) (5-6)",{sel:SN}),F("sonda_1","Sonda mandata circuito 2 (Two2) (7-6)",{sel:SN}),F("sonda_2","Sonda mandata circuito 3 / separatore (Two3) (8-9)",{sel:SN}),F("sonda_3","Sonda piscina (Tswp) (10-9)",{sel:SN}),F("sonda_4","Sonda secondo ambiente / esterna (Tamb2) (11-9)",{sel:SN})])+grid([F("sonde_hint","Sonde consigliate",{calc:1,multi:1})])+tip("I morsetti si evidenziano in automatico: blu = ingressi, arancio = uscite configurate (Disabilitato = spento), viola = sonde collegate. Lo schema si aggiorna anche quando si scelgono le sonde."),"yut","Non applicabile a Yutampo / Triple C.")+(window.IMP&&!isNA("yut")?IMP.card()+IMP.morsCard({noIO:true}):"")

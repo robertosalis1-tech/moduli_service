@@ -17,7 +17,7 @@ const OPT={
  dx_prot:["","Nessuna","Tettoia / protezione neve","Barriera frangivento","Basamento rialzato e antivibranti","Tettoia + basamento rialzato"]};
 const LAB={dx_cond:"Scarico condensa",dx_cond_u:"U.I. con pompa condensa esterna",dx_aria:"Aria primaria / rinnovo",dx_in:"Ingresso delle U.I. (contatto pulito)",dx_in_u:"U.I. con ingresso collegato",dx_out:"Uscita delle U.I. (comando relè)",dx_out_u:"U.I. con uscita collegata",dx_rlv:"Rilevatore di fughe R32",dx_dem:"Limitazione di potenza dall'U.E.",dx_prot:"Protezione dell'unità esterna"};
 // ---------------- sistemi e unità dichiarati nella prima pagina
-function sys(){const s=SS(),r=[];for(let i=1;i<=10;i++){const m=s[P+"_ue"+i+"_mod"];if(m)r.push({i,m:String(m),n:Math.max(1,parseInt(s[P+"_ue"+i+"_ui"])||1),z:s[P+"_ue"+i+"_zona"]||""})}return r}
+function sys(){const s=SS(),r=[];for(let i=1;i<=10;i++){const m=String(s[P+"_ue"+i+"_mods"]||"").trim()||s[P+"_ue"+i+"_mod"];if(m)r.push({i,m:String(m),n:Math.max(1,parseInt(s[P+"_ue"+i+"_ui"])||1),z:s[P+"_ue"+i+"_zona"]||""})}return r}
 function gasOf(m){m=String(m||"").toUpperCase();if(/^RAS-[\d.]+HV?R[CP]2E?$/.test(m)||/^RAS-3HVRC2$/.test(m))return "R32";if(/^RAS-[\d.]+HV?N[CP]2E$/.test(m)||/FS/.test(m))return "R410A";return ""}
 function tipoOf(rows){const t=rows.map(r=>{const m=r.m.toUpperCase();if(/FSXN[SP]2?E/.test(m))return "VRF Set Free air365";if(/FSXNME/.test(m))return P==="pr"?"VRF Set Free side flow (FSXNME)":"Mini Set Free FSXNME";if(/FSV?NME/.test(m))return "Mini Set Free FS(V)NME";if(/^RAS-[\d.]+H/.test(m))return "Utopia "+(gasOf(m)||"");return "altro"});return t.filter((x,i)=>t.indexOf(x)===i).join(" + ")}
 function gas(){const g=sys().map(r=>gasOf(r.m)).filter(Boolean);return g.length&&g.every(x=>x===g[0])?g[0]:""}
@@ -45,6 +45,11 @@ function form(c){const h3=t=>`<h3 style="font-size:13.5px;margin:10px 0 2px;colo
   h+=h3("Unità esterna e sicurezza")+`<div style="${GRID}">${fld("dx_dem")}${fld("dx_prot")}${c.gas==="R32"?fld("dx_rlv"):""}</div>`;
   return h}
 // ---------------- schema semplificato: alimentazioni, bus, comandi, accessori
+// CH-Box del sistema r (sch_ch*, assegnate al sistema o tutte se c'è un solo sistema)
+function chOf(r,nsys){const SS=(()=>{try{return S}catch(e){return window.S||{}}})(),P=window.__schP||"pr";if(!/3 tubi/.test(SS[P+"_ue"+r.i+"_hr"]||""))return [];const n=Math.max(0,Math.min(40,parseInt(SS.sch_chn)||0)),o=[];
+  for(let k=1;k<=n;k++){const sy=String(SS["sch_ch"+k+"_sys"]||"");if(sy?sy!==String(r.i):nsys>1)continue;const us=[];
+    Object.keys(SS).forEach(key=>{const m=/^sch_ui_(.+)_ch$/.exec(key);if(!m)return;const v=String(SS[key]||"").toUpperCase().replace(/\s/g,""),q=/^CH(\d+)/.exec(v);if(q&&+q[1]===k)us.push(m[1].replace(/_/g,"."))});
+    us.sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));o.push({id:"CH"+k,m:SS["sch_ch"+k+"_mod"]||"",us})}return o}
 function svg(c){if(!c.rows.length)return "";const PW="#dc2626",BUS="#2563eb",AUX="#475569",CND="#0891b2";
   const T=(x,y,t,o)=>{o=o||{};return `<text x="${x}" y="${y}" font-size="${o.fs||10}"${o.a?` text-anchor="${o.a}"`:""}${o.b?' font-weight="bold"':""} fill="${o.col||"#1f2937"}">${E(t)}</text>`};
   const ln=(x1,y1,x2,y2,col,w,da)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w||1.6}"${da?` stroke-dasharray="${da}"`:""}/>`;
@@ -55,7 +60,7 @@ function svg(c){if(!c.rows.length)return "";const PW="#dc2626",BUS="#2563eb",AUX
   s+=box(16,y,112,56,"#fef2f2",PW)+T(72,y+20,"Quadro elettrico",{a:"middle",b:1,fs:10.5})+T(72,y+34,"linee dedicate",{a:"middle",fs:8.5})+T(72,y+45,"ELB + CB per ogni linea",{a:"middle",fs:8.5});
   const trunkX=72;let trunkEnd=y+56,busYs=[];const yTop=y;y+=78;
   if(c.rlv){s+=box(150,yTop+4,170,48,"#fff7ed","#c2410c")+T(235,yTop+19,"Rilevatore fughe R32",{a:"middle",b:1,fs:9.5,col:"#9a3412"})+T(235,yTop+32,"allarme + ventilazione"+(/valvole/.test(c.rlv)?" + valvole":""),{a:"middle",fs:8})+T(235,yTop+44,"contatto → ingresso U.I. / quadro",{a:"middle",fs:8,col:AUX})}
-  c.rows.forEach((r,ri)=>{const y0=y,by=y0+30,bh=58,ue=r.m.split(/\s*\+\s*/).filter(Boolean),U=shown(r);
+  c.rows.forEach((r,ri)=>{const y0=y,by=y0+30,bh=58,ue=(window.HDIP?HDIP.mods(r.m):r.m.split(/\s*\+\s*/)).filter(Boolean),U=shown(r);
     s+=T(150,y0+8,"Sistema "+r.i+(r.z?" - "+r.z:"")+" · "+r.n+" U.I.",{b:1,fs:11.5});
     // U.E.
     s+=box(150,by,130,bh,"#f1f5f9")+T(215,by+15,"U.E.",{a:"middle",b:1})+ue.slice(0,3).map((m,k)=>T(215,by+28+k*11,m,{a:"middle",fs:8.5})).join("")+(ue.length>3?T(215,by+52,"+ "+(ue.length-3)+" moduli",{a:"middle",fs:8}):"");
@@ -79,10 +84,14 @@ function svg(c){if(!c.rows.length)return "";const PW="#dc2626",BUS="#2563eb",AUX
         else if(t==="in"){s+=`<path d="M${cx-40} ${ay+9}h8l10 -7M${cx-18} ${ay+9}h8" stroke="${AUX}" stroke-width="1.4" fill="none"/>`+T(cx-6,ay+7,"ingresso:",{fs:7.6,col:AUX})+T(cx-6,ay+16,a[1].slice(0,24),{fs:7.6,col:AUX});ay+=24}
         else if(t==="out"){s+=box(cx-42,ay,22,16,"#fff",AUX)+T(cx-31,ay+11,"K",{a:"middle",fs:9,b:1})+T(cx-16,ay+7,"uscita → relè:",{fs:7.6,col:AUX})+T(cx-16,ay+16,a[1].replace(/^Comando /,"").replace(/ \/ riscaldatore esterno/,"…").slice(0,26),{fs:7.6,col:AUX});ay+=24}});
       maxRows=Math.max(maxRows,ay-yb)});
+    // CH-Box dei sistemi a recupero di calore: alimentazione ~230 V (anche dallo stesso interruttore delle U.I.) e H-LINK TB2 1-2
+    let xr=UX+U.length*UG;const chs=chOf(r,c.rows.length);if(chs.length){chs.forEach(b=>{const cx=xr+UW/2;s+=box(xr,by,UW,bh,"#fef3c7","#b45309")+T(cx,by+15,"CH-Box "+b.id,{a:"middle",b:1,col:"#7c2d12"})+T(cx,by+28,(b.m||"modello").slice(0,20),{a:"middle",fs:8.5})+T(cx,by+41,("→ U.I. "+(b.us.join(", ")||"-")).slice(0,24),{a:"middle",fs:8,col:"#7c2d12"})+T(cx,by+52,"H-LINK TB2 1-2",{a:"middle",fs:7.6,col:BUS})+ln(cx,pyU,cx,by,PW,1.4,"6 3")+ln(cx,by+bh,cx,yb,BUS,1.6,"4 3");xr+=UG});
+      s+=ln(lastX,pyU,xr-UG+UW/2,pyU,PW,1.8,"6 3");maxR=Math.max(maxR,xr-UG+UW)}
+    const lastCH=chs.length?xr-UG+UW/2:0;
     // aria primaria (KPI / kit DX in H-LINK) solo nel sistema 1
-    let xr=UX+U.length*UG;if(ri===0&&(c.kpi||c.kitdx)){s+=box(xr,by,UW,bh,"#f0fdf4","#15803d")+T(xr+UW/2,by+16,c.kpi?"KPI":"Kit DX + UTA",{a:"middle",b:1})+T(xr+UW/2,by+30,c.kpi?"recuperatore":"scheda in H-LINK",{a:"middle",fs:8.5})+ln(xr+UW/2,pyU,xr+UW/2,by,PW,1.4,"6 3")+ln(xr+UW/2,by+bh,xr+UW/2,yb,BUS,1.6,"4 3");s+=ln(lastX,pyU,xr+UW/2,pyU,PW,1.8,"6 3");xr+=UG}
+if(ri===0&&(c.kpi||c.kitdx)){s+=box(xr,by,UW,bh,"#f0fdf4","#15803d")+T(xr+UW/2,by+16,c.kpi?"KPI":"Kit DX + UTA",{a:"middle",b:1})+T(xr+UW/2,by+30,c.kpi?"recuperatore":"scheda in H-LINK",{a:"middle",fs:8.5})+ln(xr+UW/2,pyU,xr+UW/2,by,PW,1.4,"6 3")+ln(xr+UW/2,by+bh,xr+UW/2,yb,BUS,1.6,"4 3");s+=ln(lastX,pyU,xr+UW/2,pyU,PW,1.8,"6 3");xr+=UG}
     if(ri===0&&c.uta3){s+=box(xr,by,UW,bh,"#f8fafc",AUX)+T(xr+UW/2,by+16,"UTA / recuperatore",{a:"middle",b:1,fs:9.5})+T(xr+UW/2,by+30,"di terzi",{a:"middle",fs:8.5})+T(xr+UW/2,by+44,"interblocco con relè",{a:"middle",fs:8,col:AUX});xr+=UG}
-    const bx2=Math.max(lastX,(ri===0&&(c.kpi||c.kitdx))?xr-UG+UW/2-(c.uta3?UG:0):lastX);maxR=Math.max(maxR,xr-UG+UW);busEnd.push(bx2);
+    const bx2=Math.max(lastX,lastCH,(ri===0&&(c.kpi||c.kitdx))?xr-UG+UW/2-(c.uta3?UG:0):lastX);maxR=Math.max(maxR,xr-UG+UW);busEnd.push(bx2);
     s+=ln(215,yb,bx2,yb,BUS,2,"4 3");
     if(c.dem)s+=`<path d="M156 ${by+bh+30}h8l10 -7M178 ${by+bh+30}h8" stroke="${AUX}" stroke-width="1.4" fill="none"/>`+T(190,by+bh+28,"limitazione potenza",{fs:7.6,col:AUX})+T(190,by+bh+37,"(contatto pulito U.E.)",{fs:7.6,col:AUX});
     if(c.prot)s+=T(156,by+bh+(c.dem?52:30),"⌂ "+c.prot,{fs:7.6,col:"#475569"});
