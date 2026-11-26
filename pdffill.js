@@ -75,6 +75,13 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
   covers.forEach(function(c){var f=F[c],r=f.r,pi=f.pg[0],P=pages[pi];if(pi<0||!P)return;var sz=P.getSize();
     if(r.width*r.height>sz.width*sz.height*0.5){dropPage[pi]=1;return}
     Object.keys(F).forEach(function(n){if(n===c)return;var g=F[n];g.ws.forEach(function(w,k){if(g.pg[k]!==pi)return;var q=w.getRectangle();if(q.x>=r.x-1&&q.y>=r.y-1&&q.x+q.width<=r.x+r.width+1&&q.y+q.height<=r.y+r.height+1)rm.push(n)})})});
+  // --- sezioni non applicabili (coperture a tutta larghezza con la barra del titolo sopra) e parti che servono solo nell'app: tolte dalla pagina, il resto sale
+  var HIDE={yu:{12:[[487,600]]}},BANDS={};
+  covers.forEach(function(c){var f=F[c],r=f.r,pi=f.pg[0],P=pages[pi];if(pi<0||!P||dropPage[pi])return;var sz=P.getSize();if(r.width<sz.width*0.8)return;(BANDS[pi]=BANDS[pi]||[]).push([r.y,Math.min(sz.height,r.y+r.height+25)])});
+  if(HIDE[o.key])Object.keys(HIDE[o.key]).forEach(function(pi){var P=pages[pi];if(!P)return;var H0=P.getSize().height;HIDE[o.key][pi].forEach(function(b){(BANDS[pi]=BANDS[pi]||[]).push([H0-b[1],H0-b[0]])})});
+  var FZ=50,KEEP={};Object.keys(BANDS).forEach(function(pi){var H0=pages[pi].getSize().height,b=BANDS[pi].sort(function(a,c){return c[1]-a[1]}),cur=H0,k=[];
+    b.forEach(function(x){if(x[1]<cur&&x[1]>FZ)k.push([Math.max(x[1],FZ),cur]);cur=Math.min(cur,Math.max(x[0],FZ))});if(cur>FZ)k.push([FZ,cur]);
+    var body=k.reduce(function(t,x){return t+Math.max(0,Math.min(x[1],H0-100)-x[0])},0);if(body<30&&pi<(meta.cart==null?1e9:meta.cart))dropPage[pi]=1;else KEEP[pi]=k});
   // --- cartolina garanzia VRF Set Free: spunta la serie installata dal modello dell'unità esterna del verbale
   if(F.cg_ser_max||F.cg_ser_pro||F.cg_ser_mini){var mm=Object.keys(V).filter(function(n){return !/^cg_ser_/.test(n)}).map(function(n){return String(V[n]==null?"":V[n])}).join(" ").toUpperCase();
     V.cg_ser_max=/FSXNS2E/.test(mm)?"Yes":"Off";V.cg_ser_pro=/FSXNP2E/.test(mm)?"Yes":"Off";V.cg_ser_mini=/RAS-\d+FS[VX]?NME/.test(mm)?"Yes":"Off"}
@@ -118,7 +125,7 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
   if(o.pages){ver=ver.filter(function(p){return o.pages.indexOf(p)>=0})}
   if(o.noCart)car=[];
   // copia per Bosch / SAT: della cartolina restano la scheda cliente e la ricevuta firmata (pagine con i campi), senza le condizioni di garanzia
-  if(car.length&&(o.mode==="bhc"||(o.mode==="cart"&&window.PDFFILL_BHC))){var WPG={};Object.keys(F).forEach(function(n){F[n].pg.forEach(function(pi){WPG[pi]=(WPG[pi]||0)+1})});car=car.filter(function(p){return (WPG[p]||0)>=5})}
+  if(car.length&&(o.mode==="bhc"||o.cartShort||(o.mode==="cart"&&window.PDFFILL_BHC))){var WPG={};Object.keys(F).forEach(function(n){F[n].pg.forEach(function(pi){WPG[pi]=(WPG[pi]||0)+1})});car=car.filter(function(p){return (WPG[p]||0)>=5})}
   // ordine delle pagine (es. Utopia: per ogni unità prima il circuito e poi i parametri del display)
   if(o.order){var rk=function(p){var i=o.order.indexOf(p);return i<0?1000+p:i};ver.sort(function(a,b){return rk(a)-rk(b)})}
   // copia per Bosch / SAT: senza le informative, restano consensi e firme
@@ -134,8 +141,12 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
       pg.drawText(t1,{x:559.6-hb.widthOfTextAtSize(t1,10),y:H-37,size:10,font:hb,color:nv});pg.drawText(t2,{x:559.6-helv.widthOfTextAtSize(t2,7),y:H-48,size:7,font:helv,color:L.rgb(0.4,0.43,0.48)});
       var y0=H-96-(c[1]-c[0])-22;["Copia per Bosch / SAT: le informative privacy complete (cliente finale e ditta installatrice) sono nel modulo","inviato alla ditta installatrice e nei MOD 09.1 / 09.2. Qui restano le dichiarazioni, i consensi e le firme."].forEach(function(t,k){pg.drawText(t,{x:42,y:y0-k*10,size:7.6,font:helv,color:nv})});
       continue}
-    out.addPage(pg);if(RULE&&STX){try{var psz=pg.getSize();pg.drawRectangle({x:20,y:1.5,width:psz.width-40,height:9,color:L.rgb(1,1,1)});pg.drawText(STX,{x:(psz.width-hb.widthOfTextAtSize(STX,6.3))/2,y:3.6,size:6.3,font:hb,color:L.rgb(0.75,0.1,0.1)})}catch(e){}}
-    var UT=o.unit||(o.bands&&o.bands[ver[i]]);if(UT){try{var usz=pg.getSize(),ut=String(UT),uw=hb.widthOfTextAtSize(ut,8.5);pg.drawRectangle({x:0,y:usz.height-14,width:usz.width,height:14,color:L.rgb(1,0.957,0.761)});pg.drawRectangle({x:0,y:usz.height-14.6,width:usz.width,height:0.8,color:L.rgb(0.878,0.659,0)});pg.drawText(ut,{x:(usz.width-uw)/2,y:usz.height-10.2,size:8.5,font:hb,color:L.rgb(0.35,0.24,0)})}catch(e){}}
+    if(KEEP[ver[i]]&&!(BH&&BH.inst&&ver[i]===BH.inst.src)){var sp2=pdf.getPage(ver[i]),sz2=sp2.getSize(),W2=sz2.width,H2=sz2.height,yy=H2;pg=out.addPage([W2,H2]);
+      for(var q2=0;q2<KEEP[ver[i]].length;q2++){var kk=KEEP[ver[i]][q2],e3=await out.embedPage(sp2,{left:0,right:W2,top:kk[1],bottom:kk[0]});yy-=kk[1]-kk[0];pg.drawPage(e3,{x:0,y:yy})}
+      var e4=await out.embedPage(sp2,{left:0,right:W2,top:FZ,bottom:0});pg.drawPage(e4,{x:0,y:0})}
+    else out.addPage(pg);if(RULE&&STX){try{var psz=pg.getSize();pg.drawRectangle({x:20,y:1.5,width:psz.width-40,height:9,color:L.rgb(1,1,1)});pg.drawText(STX,{x:(psz.width-hb.widthOfTextAtSize(STX,6.3))/2,y:3.6,size:6.3,font:hb,color:L.rgb(0.75,0.1,0.1)})}catch(e){}}
+    var CPL=o.mode==="cart"?"":CP==="bhc"?"COPIA PER BOSCH / SAT":CP==="inst"?"COPIA PER L'INSTALLATORE":CP==="cli"?"COPIA PER IL CLIENTE":"";
+    var UT=[CPL,o.unit||(o.bands&&o.bands[ver[i]])].filter(Boolean).join("   ·   ");if(UT){try{var usz=pg.getSize(),ut=String(UT),uw=hb.widthOfTextAtSize(ut,8.5);pg.drawRectangle({x:0,y:usz.height-14,width:usz.width,height:14,color:L.rgb(1,0.957,0.761)});pg.drawRectangle({x:0,y:usz.height-14.6,width:usz.width,height:0.8,color:L.rgb(0.878,0.659,0)});pg.drawText(ut,{x:(usz.width-uw)/2,y:usz.height-10.2,size:8.5,font:hb,color:L.rgb(0.35,0.24,0)})}catch(e){}}
     var ft=meta.foot&&meta.foot[ver[i]];
     if(ft&&ver.length!==cart){var tx="Pagina "+(i+1)+" di "+ver.length,fnt=ft[4]?hb:helv,tw=fnt.widthOfTextAtSize(tx,ft[3]);
       pg.drawRectangle({x:ft[0]-ft[5]-4,y:ft[1]-2,width:ft[5]+8,height:ft[3]+4,color:L.rgb(1,1,1)});pg.drawText(tx,{x:ft[0]-tw,y:ft[2],size:ft[3],font:fnt,color:L.rgb(ft[6][0],ft[6][1],ft[6][2])})}}}
@@ -149,6 +160,30 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
   if(o.mode!=="cart"&&/^MOD 0[1-5]\.1$/.test(o.code||"")&&o.values){try{var dv={};Object.keys(o.values).forEach(function(k){var v=o.values[k];if(v!==""&&v!=null&&typeof v!=="function")dv[k]=v});out.getInfoDict().set(N("BHCData"),L.PDFHexString.fromText(JSON.stringify({v:1,code:o.code,s:dv})))}catch(e){console.warn(e)}}
   out.setTitle((o.mode==="cart"?"Cartolina garanzia - ":"")+o.code+" - "+o.title+(o.cliente?" - "+o.cliente:""));out.setAuthor("Bosch Home Comfort Cooling and Heating SAS");out.setCreator("Hitachi Cooling & Heating - app Moduli Service");
   return out.save()}
+// copie semplificate per cliente e installatore (documento con i soli dati compilati) + cartolina completa solo per il cliente.
+// o: {lv:"cli"|"inst", title, code, cliente, name, sections:[{h, rows:[[etichetta,valore],...]} | {h, head:[...], table:[[...]]} | {h, html} | {html}],
+//     esito:{auto, conf, motivi}, firme:[[etichetta, nome, dataURL]], cart:{...opzioni make in modo cart} }
+var esc2=function(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+function esitoSint(e){e=String(e||"");return /NON CONFORME/.test(e)?"Primo avviamento non conforme: il tecnico SAT ha indicato le attività da completare.":/RISERVA|COMPLETARE/.test(e)?"Primo avviamento eseguito con riserva: alcune verifiche vanno completate o controllate.":/CONFORME/.test(e)?"Primo avviamento eseguito: impianto conforme.":""}
+async function simpleCopy(o){var inst=o.lv==="inst",lab=inst?"COPIA PER L'INSTALLATORE":"COPIA PER IL CLIENTE",iso2=function(v){return /^\d{4}-\d\d-\d\d$/.test(v)?v.split("-").reverse().join("/"):v};
+  var h="<h1>"+esc2(o.h1||"Verbale di primo avviamento")+"</h1><p><b>"+lab+"</b> · "+esc2(o.code)+(o.sub?" · "+esc2(o.sub):"")+"</p>";
+  (o.sections||[]).forEach(function(s){if(!s)return;
+    if(s.rows){var r=s.rows.filter(function(x){return x&&x[1]!=null&&String(x[1]).trim()!==""});if(!r.length)return;var t="";for(var i=0;i<r.length;i+=2){var b=r[i+1]||["",""];t+="<tr><th>"+esc2(r[i][0])+"</th><td>"+esc2(iso2(String(r[i][1])))+"</td><th>"+esc2(b[0])+"</th><td>"+esc2(iso2(String(b[1])))+"</td></tr>"}h+=(s.h?"<h2>"+esc2(s.h)+"</h2>":"")+"<table>"+t+"</table>";return}
+    if(s.table){if(!s.table.length)return;h+=(s.h?"<h2>"+esc2(s.h)+"</h2>":"")+"<table><tr>"+s.head.map(function(x){return "<th>"+esc2(x)+"</th>"}).join("")+"</tr>"+s.table.map(function(r){return "<tr>"+r.map(function(x){return "<td>"+esc2(x==null||x===""?"-":x)+"</td>"}).join("")+"</tr>"}).join("")+"</table>";return}
+    if(s.html){h+=(s.h?"<h2>"+esc2(s.h)+"</h2>":"")+s.html}});
+  if(o.esito){var e=o.esito;h+="<h2>Esito del primo avviamento</h2><p class=\"es\">"+esc2(e.conf||esitoSint(e.auto)||"-")+"</p>";
+    if(inst&&e.motivi)h+="<table><tr><th>Dettaglio dell'esito</th></tr>"+String(e.motivi).split(" | ").map(function(z){return "<tr><td>"+esc2(z)+"</td></tr>"}).join("")+"</table>"}
+  if(o.note)h+="<h2>Note del tecnico</h2><p>"+esc2(o.note)+"</p>";
+  if(o.firme&&o.firme.length)h+="<h2>Firme</h2><table><tr>"+o.firme.map(function(f){return "<th>"+esc2(f[0])+(f[1]?": "+esc2(f[1]):"")+"</th>"}).join("")+"</tr><tr>"+o.firme.map(function(f){return "<td>"+(f[2]?"<img src=\""+f[2]+"\">":"")+"</td>"}).join("")+"</tr></table>";
+  if(o.after)h+=o.after;
+  h+="<p style=\"font-size:8pt\">"+(inst?"Copia per la ditta installatrice: i parametri di configurazione e del Service Tool sono registrati dal SAT autorizzato e disponibili tramite il Servizio Assistenza.":"Copia per il cliente: il verbale completo con i parametri tecnici è conservato dal SAT autorizzato e da Bosch Home Comfort.")+"</p>";
+  if(!window.PDFLib)await new Promise(function(ok,ko){var sc=document.createElement("script");sc.src="lib/pdf-lib.min.js";sc.onload=ok;sc.onerror=function(){ko(new Error("libreria PDF mancante"))};document.head.appendChild(sc)});
+  var box=document.createElement("div");box.style.display="none";box.innerHTML=h;document.body.appendChild(box);var FO=window.FOTO,d;window.FOTO=null;
+  try{d=PDFK.make(box,{title:o.title+" - "+(inst?"copia installatore":"copia cliente"),code:o.code,cliente:o.cliente,noEnc:true})}finally{window.FOTO=FO;box.remove()}
+  var parts=[new Uint8Array(d.output("arraybuffer"))];
+  if(!inst&&o.cart){try{var c=Object.assign({mode:"cart"},o.cart);var sv=window.PDFFILL_COPY;window.PDFFILL_COPY="";try{parts.push(await make(c))}finally{window.PDFFILL_COPY=sv}}catch(er){console.warn("cartolina",er)}}
+  var bytes=await merge(parts,o.code+" - "+o.title+" - "+(inst?"copia installatore":"copia cliente")+(o.cliente?" - "+o.cliente:""));
+  return shareBytes(bytes,(o.name||"verbale")+(inst?"_installatore":"_cliente"))}
 // cartolina garanzia: pagina "Elenco delle unità" (modello e matricola di U.E. e U.I.) dopo la scheda cliente.
 // rows: [{t:"U.E."|"U.I."|..., n, m (modello), s (matricola), x (sistema / note)}]; src/sp: pagina della scheda (per l'intestazione)
 async function unitsPages(L,out,src,sp,rows,code,at){rows=(rows||[]).filter(function(r){return r&&(r.m||r.s)});if(!rows.length)return 0;
@@ -197,5 +232,5 @@ window.pdfCli=function(f){window.PDFFILL_COPY="cli";var r;try{r=f()}catch(e){win
 window.pdfInst=function(f){window.PDFFILL_COPY="inst";var r;try{r=f()}catch(e){window.PDFFILL_COPY="";throw e}return Promise.resolve(r).finally(function(){window.PDFFILL_COPY=""})};
 window.PDFFILL_COPYR=COPYR;window.PDFFILL_COPYK=COPYK;
 window.pdfBHC=function(f){window.PDFFILL_BHC=1;var r;try{r=f()}catch(e){window.PDFFILL_BHC=0;throw e}return Promise.resolve(r).finally(function(){window.PDFFILL_BHC=0})};
-window.PDFFILL={unitsPages:unitsPages,make:make,share:share,shareBytes:shareBytes,merge:merge,tpl:ensure,b64:b64,prefill:prefill,readFields:readFields,readData:readData};
+window.PDFFILL={simpleCopy:simpleCopy,esitoSint:esitoSint,unitsPages:unitsPages,make:make,share:share,shareBytes:shareBytes,merge:merge,tpl:ensure,b64:b64,prefill:prefill,readFields:readFields,readData:readData};
 })();
