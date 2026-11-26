@@ -144,10 +144,36 @@ async function make(o){if(window.PDFFILL_BHC&&o.mode!=="cart")o.mode="bhc";
     if(o.extraHTML&&window.PDFK){var box=document.createElement("div");box.style.display="none";box.innerHTML=o.extraHTML;document.body.appendChild(box);window.FOTO=null;
       try{var jd=PDFK.make(box,{title:o.title,code:o.code,cliente:o.cliente,noEnc:true});var ex=await L.PDFDocument.load(jd.output("arraybuffer"));(await out.copyPages(ex,ex.getPageIndices())).forEach(function(pg){out.addPage(pg)})}finally{window.FOTO=FO;box.remove()}}
     if(o.mode!=="cart"&&!o.noPhoto&&FO&&FO.count()>Object.keys(FPL).length&&window.jspdf){var jp=new window.jspdf.jsPDF({unit:"mm",format:"a4",compress:true});FO.addPages(jp,FPL);jp.deletePage(1);var ph=await L.PDFDocument.load(jp.output("arraybuffer"));(await out.copyPages(ph,ph.getPageIndices())).forEach(function(pg){out.addPage(pg)})}}
-  if(car.length){(await out.copyPages(pdf,car)).forEach(function(pg){out.addPage(pg)})}
+  if(car.length){var SCH={};Object.keys(F).forEach(function(n){if(/^[gh]_palazzina$/.test(n))F[n].pg.forEach(function(pi){SCH[pi]=1})});
+    var cps=await out.copyPages(pdf,car);for(var ci=0;ci<cps.length;ci++){out.addPage(cps[ci]);if(SCH[car[ci]]&&o.units&&o.units.length)await unitsPages(L,out,pdf,car[ci],o.units,o.cartCode||(o.mode==="cart"?o.code:""),-1)}}
   if(o.mode!=="cart"&&/^MOD 0[1-5]\.1$/.test(o.code||"")&&o.values){try{var dv={};Object.keys(o.values).forEach(function(k){var v=o.values[k];if(v!==""&&v!=null&&typeof v!=="function")dv[k]=v});out.getInfoDict().set(N("BHCData"),L.PDFHexString.fromText(JSON.stringify({v:1,code:o.code,s:dv})))}catch(e){console.warn(e)}}
   out.setTitle((o.mode==="cart"?"Cartolina garanzia - ":"")+o.code+" - "+o.title+(o.cliente?" - "+o.cliente:""));out.setAuthor("Bosch Home Comfort Cooling and Heating SAS");out.setCreator("Hitachi Cooling & Heating - app Moduli Service");
   return out.save()}
+// cartolina garanzia: pagina "Elenco delle unità" (modello e matricola di U.E. e U.I.) dopo la scheda cliente.
+// rows: [{t:"U.E."|"U.I."|..., n, m (modello), s (matricola), x (sistema / note)}]; src/sp: pagina della scheda (per l'intestazione)
+async function unitsPages(L,out,src,sp,rows,code,at){rows=(rows||[]).filter(function(r){return r&&(r.m||r.s)});if(!rows.length)return 0;
+  var helv=await out.embedFont(L.StandardFonts.Helvetica),hb=await out.embedFont(L.StandardFonts.HelveticaBold);
+  var SAFE=function(t){return String(t==null?"":t).replace(/[‐-―−]/g,"-").replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[^\x20-\x7E\xA0-\xFF]/g,"?")};
+  var fit=function(t,f,sz,w){t=SAFE(t);if(f.widthOfTextAtSize(t,sz)<=w)return t;while(t.length>1&&f.widthOfTextAtSize(t+"...",sz)>w)t=t.slice(0,-1);return t+"..."};
+  if(src===out){var td=await L.PDFDocument.create();td.addPage((await td.copyPages(src,[sp]))[0]);src=td;sp=0}
+  var P0=src.getPage(sp),sz=P0.getSize(),W=sz.width,H=sz.height,hdr=await out.embedPage(P0,{left:0,right:W,top:H,bottom:H-92});
+  var NV=L.rgb(0.122,0.169,0.271),GR=L.rgb(0.4,0.43,0.48),RD=L.rgb(0.886,0,0.082),TB=L.rgb(0.19,0.33,0.55),T1=L.rgb(0.93,0.95,0.98),YL=L.rgb(1,0.973,0.82);
+  var ex=rows.some(function(r){return r.x}),C=ex?[36,66,112,268,424,559]:[36,66,112,300,559],RH=17,PER=Math.floor((H-150-60)/RH)-1,np=Math.ceil(rows.length/PER);
+  var CNT={},ORD=[],LB={"U.E.":["unità esterna","unità esterne"],"U.I.":["unità interna","unità interne"],"Modulo":["modulo","moduli"],"Serbatoio":["serbatoio","serbatoi"],"Controller":["controller","controller"],"CH-Box":["CH-Box","CH-Box"]};
+  rows.forEach(function(r){var t=r.t||"";if(!CNT[t]){CNT[t]=0;ORD.push(t)}CNT[t]++});var cnt=ORD.map(function(t){var l=LB[t]||[t,t];return CNT[t]+" "+l[CNT[t]>1?1:0]}).join(", ");
+  for(var k=0;k<np;k++){var pg=at>=0?out.insertPage(at+k,[W,H]):out.addPage([W,H]);pg.drawPage(hdr,{x:0,y:H-92});
+    var y=H-122;pg.drawText("Elenco delle unità coperte dalla garanzia".replace("à","à"),{x:36,y:y,size:17,font:hb,color:NV});
+    pg.drawText(SAFE("Allegato alla cartolina garanzia - "+cnt+(np>1?" - foglio "+(k+1)+" di "+np:"")),{x:36,y:y-15,size:8.5,font:helv,color:GR});
+    pg.drawRectangle({x:36,y:y-22,width:46,height:2.4,color:RD});
+    y-=44;var hd=ex?["N.","Tipo","Modello","Matricola","Sistema / note"]:["N.","Tipo","Modello","Matricola"];
+    pg.drawRectangle({x:C[0],y:y-4,width:C[C.length-1]-C[0],height:RH,color:TB});hd.forEach(function(t,i){pg.drawText(t,{x:C[i]+4,y:y+1.5,size:8.5,font:hb,color:L.rgb(1,1,1)})});
+    rows.slice(k*PER,(k+1)*PER).forEach(function(r,j){y-=RH;if(j%2)pg.drawRectangle({x:C[0],y:y-4,width:C[C.length-1]-C[0],height:RH,color:T1});
+      var v=[String(k*PER+j+1),r.t||"",r.m||"",r.s||"",r.x||""];v.slice(0,hd.length).forEach(function(t,i){var f=i===2?hb:helv;pg.drawText(fit(t,f,8.6,C[i+1]-C[i]-8),{x:C[i]+4,y:y+1.5,size:8.6,font:f,color:NV})});
+      pg.drawLine({start:{x:C[0],y:y-4},end:{x:C[C.length-1],y:y-4},thickness:0.4,color:L.rgb(0.8,0.83,0.88)})});
+    if(k===np-1){y-=RH+14;["Le unità elencate sono quelle registrate nel verbale di primo avviamento; la garanzia si applica a ciascuna unità secondo le","Condizioni Generali di Garanzia. Il modello e la matricola sono riportati sulla targhetta dell'unità."].forEach(function(t,i){pg.drawText(SAFE(t),{x:36,y:y-i*10,size:7.6,font:helv,color:GR})})}
+    pg.drawLine({start:{x:36,y:42},end:{x:W-36,y:42},thickness:0.5,color:RD});
+    pg.drawText("Bosch Home Comfort Cooling and Heating SAS  -  Via Marcantonio Colonna, 35  -  20149 Milano (MI)  -  www.hitachiaircon.com",{x:36,y:30,size:6.5,font:helv,color:GR})}
+  return np}
 async function share(o){if(o.mode!=="cart"&&window.FOTO&&FOTO.check&&!FOTO.check())return;var bytes;try{bytes=await make(o)}catch(e){console.error(e);alert("Errore nella generazione del PDF: "+e.message);return}
   return shareBytes(bytes,o.name)}
 // unisce più PDF generati (es. verbali delle unità in cascata) in un unico file
@@ -171,5 +197,5 @@ window.pdfCli=function(f){window.PDFFILL_COPY="cli";var r;try{r=f()}catch(e){win
 window.pdfInst=function(f){window.PDFFILL_COPY="inst";var r;try{r=f()}catch(e){window.PDFFILL_COPY="";throw e}return Promise.resolve(r).finally(function(){window.PDFFILL_COPY=""})};
 window.PDFFILL_COPYR=COPYR;window.PDFFILL_COPYK=COPYK;
 window.pdfBHC=function(f){window.PDFFILL_BHC=1;var r;try{r=f()}catch(e){window.PDFFILL_BHC=0;throw e}return Promise.resolve(r).finally(function(){window.PDFFILL_BHC=0})};
-window.PDFFILL={make:make,share:share,shareBytes:shareBytes,merge:merge,tpl:ensure,b64:b64,prefill:prefill,readFields:readFields,readData:readData};
+window.PDFFILL={unitsPages:unitsPages,make:make,share:share,shareBytes:shareBytes,merge:merge,tpl:ensure,b64:b64,prefill:prefill,readFields:readFields,readData:readData};
 })();
